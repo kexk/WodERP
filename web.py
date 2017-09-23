@@ -20,6 +20,11 @@ from bson import objectid
 import hashlib
 import json
 
+
+from comm.jingdong.web import *
+
+
+
 define("port", default=9999, help="run on the given port", type=int)
 
 
@@ -279,31 +284,6 @@ class PurchaseListHandler(BaseHandler):
         self.write("Gosh darnit, user! You caused a %d error.\n" % status_code)
 
 
-class PurchaseOrderListHandler(BaseHandler):
-    @tornado.web.authenticated
-    def get(self):
-
-        user = self.current_user
-        role = self.get_secure_cookie("role") if self.get_secure_cookie("role") else 'None'
-
-        data = dict()
-        try:
-            page = int(self.get_argument('pageNO','1'))-1
-        except:
-            page = 0
-        data['pageNO'] = page
-        data['orderStatus'] = ''
-        data['createStartTime'] = ''
-        data['createEndTime'] = ''
-
-
-        self.render('purchase-list.html',data=data,userInfo={'account':user,'role':role})
-
-        #self.render('index.html')
-
-    def write_error(self, status_code, **kwargs):
-        self.write("Gosh darnit, user! You caused a %d error.\n" % status_code)
-
 
 class APIGetPurchaseListHandler(BaseHandler):
     @tornado.web.authenticated
@@ -401,48 +381,6 @@ class APIGetPurchaseListHandler(BaseHandler):
         data['success'] = False
         data['errCode'] = status_code
         self.write(tornado.escape.json_encode(data))
-
-
-
-class CheckSkuHandler(BaseHandler):
-
-    def get(self):
-        mongo = MongoCase()
-        mongo.connect()
-        client = mongo.client
-        db = client.woderp
-
-
-        data = dict()
-        sku = self.get_argument('sku','')
-        if sku != '':
-            app = JDAPI()
-            result = app.searchSkuList(option={'page_size':'100','skuId':sku,'field':'wareId,skuId,status,jdPrice,outerId,categoryId,logo,skuName,stockNum,wareTitle,created'})
-            sl = result['jingdong_sku_read_searchSkuList_responce']['page']['data']
-            for s in sl:
-                item = s
-                item['createTime'] = datetime.datetime.now()
-                item['updateTime'] = None
-                item['shopId'] = '163184'
-                item['platform'] = 'jingdong'
-                item['stage'] = 0
-                item['oprationLog'] = []
-                item['skuId'] = str(s['skuId'])
-                item['wareId'] = str(s['wareId'])
-
-                try:
-                    db.skuList.insert(item)
-                except Exception as e:
-                    print(e)
-
-            data['success'] = True
-
-        else:
-            data['success'] = False
-
-        respon = data
-        respon_json = tornado.escape.json_encode(respon)
-        self.write(respon_json)
 
 
 class ChcekOrderInfoHanlder(BaseHandler):
@@ -563,68 +501,6 @@ class GetSkuImageHandler(BaseHandler):
             mark += 1
 
         respon = {'imgUrl': imgUrl,'mark':mark}
-        respon_json = tornado.escape.json_encode(respon)
-        self.write(respon_json)
-
-
-class CheckOrderHandler(BaseHandler):
-    def get(self):
-        app = JDAPI()
-        result = app.getOrderList(order_state='WAIT_SELLER_STOCK_OUT')
-        #result = o.getOrderList(order_state='WAIT_GOODS_RECEIVE_CONFIRM')
-        mongo = MongoCase()
-        mongo.connect()
-        client = mongo.client
-        db = client.woderp
-        ol = result['order_search_response']['order_search']['order_info_list']
-        total = 0
-        addCount = 0
-        for od in ol:
-            item = od
-            item['createTime'] = datetime.datetime.now()
-            item['updateTime'] = None
-            item['dealCompleteTime'] = None
-            item['purchaseInfo'] = None
-            item['dealRemark'] = None
-            item['logisticsInfo'] = None
-            item['shopId'] = '163184'
-            item['platform'] = 'jingdong'
-            if not item.has_key('payment_confirm_time'):
-                item['payment_confirm_time'] = None
-            if not item.has_key('parent_order_id'):
-                item['parent_order_id'] = None
-            if not item.has_key('pin'):
-                item['pin'] = None
-            if not item.has_key('return_order'):
-                item['return_order'] = None
-            if not item.has_key('order_state_remark'):
-                item['order_state_remark'] = None
-            if not item.has_key('vender_remark'):
-                item['vender_remark'] = None
-
-            item['dealStatus'] = 0
-            item['stage'] = 0
-            item['oprationLog'] = []
-
-            for sku in item['item_info_list']:
-                sku['skuImg'] = None
-                sku['link'] = None
-                if not sku.has_key('product_no'):
-                    sku['product_no'] = None
-                if not sku.has_key('outer_sku_id'):
-                    sku['outer_sku_id'] = None
-                if not sku.has_key('ware_id'):
-                    sku['ware_id'] = None
-
-            try:
-                db.orderList.insert(item)
-                addCount += 1
-            except Exception as e:
-                print(e)
-
-            total +=1
-
-        respon = {'success': True,"data":{"total":total,"addCount":addCount}}
         respon_json = tornado.escape.json_encode(respon)
         self.write(respon_json)
 

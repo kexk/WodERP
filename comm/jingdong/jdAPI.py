@@ -10,13 +10,100 @@ import requests
 
 class JDAPI:
 
-    appKey = ''
-    apiRoot = ''
+    app_key = ''
+    app_secret = ''
+    redirect_uri = ''
 
-    def __init__(self,appKey,apiRoot):
+    server_url = 'https://api.jd.com/routerjson'
 
-        self.appKey = appKey
-        self.apiRoot = apiRoot
+    method = ''
+    version = '2.0'
+    sign = ''
+    timestamp = ''
+    #format = 'json'
+
+    parmas = dict()
+    data = dict()
+
+
+    config = dict()
+
+
+
+    def __init__(self,app):
+
+        self.config = app['config']
+        self.app_key = app['app_key']
+        self.app_secret = app['app_secret']
+        #self.redirect_uri = c['redirect_uri']
+        self.redirect_uri = 'http://jd.shangshudb.com'
+
+
+    def setMethod(self,method):
+        self.method = method
+
+    def initParams(self):
+        self.setParams('app_key',self.app_key)
+        self.setParams('app_secret',self.app_secret)
+        self.setParams('access_token',self.config['access_token'])
+        self.setParams('method',self.method)
+        self.setParams('v',self.version)
+        now = datetime.datetime.now()
+        self.setParams('timestamp',now.strftime("%Y-%m-%d %H:%M:%S"))
+
+
+    def setParams(self,key,value):
+        self.parmas[key] = value
+
+    def setupApp(self,key,secret,uri):
+        self.app_key = key
+        self.app_secret = secret
+        self.redirect_uri = uri
+
+    def setConfig(self,data):
+        self.config = data
+
+    def setRoot(self,url):
+        self.server_url = url
+
+
+    def signature(self,parmas):
+
+        arr = []
+        for (k,v) in  parmas.items():
+            arr.append(k)
+        arr = sorted(arr)
+        sign_str = ''
+        for i in arr:
+            sign_str += i+str(parmas[i]).replace(': ',':').replace(', ',',')
+
+
+        sign_str = ''.join([self.app_secret,sign_str,self.app_secret])
+        m = hashlib.md5()
+        m.update(sign_str)
+
+        #print(sign_str)
+
+        return str(m.hexdigest()).upper()
+
+
+    def getData(self,method,data):
+        self.setMethod(method)
+
+        self.initParams()
+
+        self.setParams('360buy_param_json',json.dumps(data))
+
+        sign = self.signature(self.parmas)
+        self.setParams('sign',sign)
+
+        r = requests.get(self.server_url,params=self.parmas)
+
+        if r.status_code == 200:
+            return r.content
+
+        else:
+            return '''{'success':False,'msg':u'请求失败！'}'''
 
 
     #获取订单列表
@@ -28,7 +115,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -42,7 +129,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -52,7 +139,7 @@ class JDAPI:
 
         data = {"order_state":order_state,"optional_fields":optional_fields,"order_id":order_id}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -63,7 +150,7 @@ class JDAPI:
         method = 'jingdong.pop.order.notPayOrderInfo'
         data = {"startDate": startDate, "endDate": endDate, "page": page, "page_size": page_size}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -73,7 +160,7 @@ class JDAPI:
         method = 'jingdong.pop.order.notPayOrderById'
         data = {"orderId": orderId}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -106,7 +193,7 @@ class JDAPI:
         method = 'jingdong.order.venderRemark.queryByOrderId'
         data = {"order_id":order_id}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -117,7 +204,7 @@ class JDAPI:
         method = '360buy.order.vender.remark.update'
         data = {"order_id":order_id,"remark":remark,"trade_no":trade_no,"flag":flag}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -132,7 +219,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -142,7 +229,7 @@ class JDAPI:
         method = '360buy.warecats.get'
         data = {"fields": fields}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -181,7 +268,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -196,7 +283,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -211,7 +298,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -225,7 +312,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -239,7 +326,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -254,7 +341,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -269,7 +356,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -283,7 +370,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -297,7 +384,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -312,7 +399,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -324,7 +411,7 @@ class JDAPI:
 
         data = {"name":name}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -334,7 +421,7 @@ class JDAPI:
         method = '360buy.delivery.logistics.get'
         data = {"optional_fields": optional_fields}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -344,7 +431,7 @@ class JDAPI:
         method = '360buy.get.vender.all.delivery.company'
         data = {"fields": fields}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -377,7 +464,7 @@ class JDAPI:
         method = 'jingdong.imgzone.userinfo.query'
         data = {}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -389,7 +476,7 @@ class JDAPI:
 
         data = {"category_id":category_id,"image_name":image_name,"scroll_id":scroll_id}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -401,7 +488,7 @@ class JDAPI:
 
         data = {"cate_id":cate_id,"cate_name":cate_name,"parent_cate_id":parent_cate_id}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -436,7 +523,7 @@ class JDAPI:
 
         data = {"picture_id":picture_id}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -451,7 +538,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -460,7 +547,7 @@ class JDAPI:
         method = 'jingdong.logistics.carriers.list'
         data = {}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -471,7 +558,7 @@ class JDAPI:
         method = 'jingdong.ldop.alpha.provider.query'
         data = {"providerState":providerState}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -481,7 +568,7 @@ class JDAPI:
         method = 'jingdong.ldop.alpha.waybill.query'
         data = {"providerCode":providerCode,"waybillCode":waybillCode}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -501,7 +588,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -515,7 +602,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -526,7 +613,7 @@ class JDAPI:
 
         data = {"wareId":wareId,"colorId":colorId}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -537,7 +624,7 @@ class JDAPI:
 
         data = {"wareId":wareId,"colorId":colorId}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -548,7 +635,7 @@ class JDAPI:
 
         data = {"wareId":wareId}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -563,7 +650,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -577,7 +664,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -594,7 +681,7 @@ class JDAPI:
         for (k, v) in option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -604,7 +691,7 @@ class JDAPI:
         method = 'jingdong.vender.shop.query'
         data = {}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -615,7 +702,7 @@ class JDAPI:
 
         data = {}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -626,7 +713,7 @@ class JDAPI:
 
         data = {}
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -640,7 +727,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
@@ -654,7 +741,7 @@ class JDAPI:
         for (k,v) in  option.items():
             data[k] = v
 
-        c = requests.post(url=self.apiRoot, data=data)
+        c = self.getData(method=method, data=data)
         result = json.loads(c)
 
         return result
