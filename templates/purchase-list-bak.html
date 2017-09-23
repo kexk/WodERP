@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+        {% block header %}
+    <title>订单列表</title>
+{% end %}
+
+        {% block main %}
+
+<div>
+    <div class="col-lg-6">
+    <button type="button" class="btn btn-danger" id="checkOrder">导入订单</button>
+<button type="button" class="btn btn-danger" id="checkSku">同步sku</button></div>
+
+    <div class="col-lg-6">
+        <form action="">
+        <div class="input-group">
+            <span class="input-group-addon">
+            <input type="radio" name="t" value="name"> 产品
+          </span>
+            <span class="input-group-addon">
+            <input type="radio" name="t" value="sku"> SKU
+          </span>
+            <span class="input-group-addon">
+            <input type="radio" name="t" value="orderId"> 订单号
+          </span>
+          <input type="text" class="form-control" name="wd" placeholder="输入关键词">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="submit">搜索</button>
+          </span>
+        </div><!-- /input-group -->
+
+            </form>
+      </div>
+
+
+</div>
+
+        <p><a href="?status=0&page=1" class="label label-primary">等待发货</a>
+        <a href="?status=1&page=1" class="label label-primary">等待买家收货</a>
+        </p>
+
+
+        <nav aria-label="Page navigation" class="pull-right">
+
+  <ul class="pagination">
+
+    <li>
+      <a href="#" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+
+
+    <li>
+      <a href="#" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+        <div class="btn-toolbar" role="toolbar" style="display: none;">
+      <button type="button" class="btn btn-default btn-sm" id="checkSkuu">同步SKU</button>
+      <button type="button" class="btn btn-default btn-sm">更新订单</button>
+    </div>
+
+<input type="hidden" name="pageNO" value="{{ data['pageNO'] }}"/>
+
+           <table class="table table-bordered table-hover" id="purchaseOrderList">
+
+
+            </table>
+
+<p class="pull-right">
+
+</p>
+
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">填写采购订单</h4>
+            </div>
+            <div class="modal-body">
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <td>产品信息</td>
+                        <td>金额</td>
+                        <td>采购信息</td>
+                        <td>操作</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary save">提交更改</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+
+        {% end %}
+
+{% block footer %}
+<script>
+
+
+
+</script>
+
+
+<script type="text/javascript">
+    function loadPurchaseList() {
+        var pageNO = $('input[name="pageNO"]').val();
+        $.getJSON('/api/getPurchaseList',{'pageNO':parseInt(pageNO)+1},function (result) {
+            if(result.success && result.total >0){
+                console.log(result);
+                var html = '<thead><tr><th style="width:30px;border-right:none;"><input type="checkbox" id="checkAll"></th><th style="width:360px;border-left:none;">商品信息</th>';
+                html += '<th style="width: 120px;">单价</th><th style="width: 100px;">数量</th><th style="width: 100px;">总金额</th><th style="width: 100px;">订单状态</th>';
+                html += '<th style="" colspan="2">买家信息</th><th style="width: 120px;">操作</th>';
+                html += '</tr></thead>';
+                $.each(result.orderList,function(idx,item){
+                    html += '<tbody><input name="orderId" value="'+item['id']+'" class="orderid" type="hidden">';
+                    html += '<tr><td colspan="9" class="blank"></td></tr><tr class="head"><td colspan="9">';
+                    html += '<input type="checkbox" name="checkedOrder" value="'+item['id']+'"><span class="head-item">订单编号：';
+                    html += '<a href="#" target="_blank" class="suctext">'+item['id']+'</a></span><span class="head-item">货款金额：'+(parseFloat(item['sumPayment'])/100).toFixed(2)+'</span>';
+                    html += '<span class="head-item">下单时间：'+item['gmtCreate']+'</span>';
+                    if(item['gmtPayment']!=undefined){
+                        html += '<span class="head-item"> 付款时间：'+item['gmtPayment']+'</span>';
+                    }
+                    html += '</td></tr><tr class="content">';
+                    html += '<td colspan="4"><table><tbody>';
+                    $.each(item['orderEntries'],function(j,goods){
+                        html += '<tr data-val="'+goods['sourceId']+'" data-specId="'+goods['specId']+'" class=""><td class="goodsPic"><a href="javaScript:void(0);" onMouseOver="toolTip(\'<img width=300 src='+goods['productPic'][0]+'>\')" onMouseOut="toolTip()"><img src="'+goods['productPic'][0]+'" classs="img-thumbnail"></a></td>';
+                        html += '<td class="goodsInfo"><div class="goodsName"><a href="#" >'+goods['productName']+'</a></div>';
+
+                        if(goods.hasOwnProperty("specInfo")){
+                            html += '<div class="p-detail">';
+                            $.each(goods['specInfo'],function (j, spec) {
+                                html += '<span class="p-amount">'+spec['specName']+':<b>'+spec['specValue']+'</b></span>';
+                            });
+							html += '</div>';
+                        }
+                        html += '</td><td class="goodsPrice"><div class="p-value">'+(parseFloat(goods['price'])/100).toFixed(2)+'</div></td>';
+                        html += '</td><td class="goodsQty"><div class="p-value">'+goods['quantity']+'</div></td></tr>';
+                    });
+                    html += '</tbody></table></td>';
+                    html += '<td class="orderAmount"><div class="p-value">'+(parseFloat(item['sumPayment'])/100).toFixed(2)+'</div>';
+                    if(item['carriage']!=0){
+                        html += '<div class="p-value"><small>含运费：'+(parseFloat(item['carriage'])/100).toFixed(2)+'</small></div>';
+                    }
+                    html += '</td><td>';
+                    if(item['status']=='waitsellersend'){
+                            html += '<span class="text-info">等待卖家发货</span>';
+                        }else if(item['status']=='waitbuyerreceive'){
+                            html += '<span class="text-danger">等待买家收货</span>';
+                        }else if(item['status']=='waitbuyerpay'){
+                            html += '<span class="text-warning">等待付款</span>';
+                        }else if(item['status']=='success'){
+                            html += '<span class="text-success">交易成功</span>';
+                        }else if(item['status']=='cancel'){
+                            html += '<span class="text-warning">交易取消</span>';
+                        }else{
+                            html += '<span class="text-black">'+item['status']+'</span>';
+                        }
+                    html += '</td>';
+
+                    html += '<td colspan="2">'+item['toFullName']+' / '+item['toMobile'] + '<br>'+item['toArea'];
+                    html += '<td></td></tr></tbody>';
+
+                });
+
+                $('#purchaseOrderList').html(html);
+                $('.pagination').html(result.PageItem);
+                $('input[name="pageNO"]').val(result.page);
+
+
+            }
+        });
+    }
+
+    loadPurchaseList();
+
+
+</script>
+
+
+<script src="/static/js/ToolTip.js"></script>
+
+{% end %}
+

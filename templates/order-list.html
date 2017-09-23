@@ -1,0 +1,489 @@
+{% extends "base.html" %}
+
+        {% block header %}
+    <title>订单列表</title>
+{% end %}
+
+        {% block main %}
+		<div class="container theme-showcase" role="main">
+
+<div>
+    <div class="col-lg-6">
+    <button type="button" class="btn btn-danger" id="checkOrder">导入订单</button>
+<button type="button" class="btn btn-danger" id="checkSku">同步sku</button>
+<button type="button" class="btn btn-danger" id="matchPurchase">匹配采购订单</button></div>
+
+    <div class="col-lg-6">
+        <form action="">
+        <div class="input-group">
+            <input type="hidden" name="page" value="1" />
+            <input type="hidden" name="status" value="{{ filterData['status'] }}" />
+
+          <input type="text" class="form-control" name="wd" value="{{ filterData['wd'] }}" placeholder="搜索产品标题/sku/订单号/买家姓名电话/快递单号">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="submit">搜索</button>
+          </span>
+        </div><!-- /input-group -->
+
+            </form>
+      </div>
+
+
+</div>
+
+        <p><a href="?status=0&page=1" class="label label-primary">等待发货</a>
+        <a href="?status=1&page=1" class="label label-primary">等待买家收货</a>
+        </p>
+
+
+        <nav aria-label="Page navigation" class="pull-right">
+
+  <ul class="pagination">
+      <li> <span>总数量：{{ pageInfo['totalCount'] }}，每页{{ pageInfo['pageSize'] }}条，共{{ pageInfo['totalPage'] }} 页</span></li>
+    <li>
+      <a href="#" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+      {% for p in pageInfo['pageList'] %}
+        {% if p==pageInfo['pageNo'] %}
+      <li class="active"><a href="#">{{ p }}<span class="sr-only">(current)</span></a></li>
+        {% else %}
+      <li><a href="?page={{ p }}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}">{{ p }}</a></li>
+        {% end %}
+    {% end %}
+
+    <li>
+      <a href="#" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+        <div class="btn-toolbar" role="toolbar" style="display: none;">
+      <button type="button" class="btn btn-default btn-sm" id="checkSkuu">同步SKU</button>
+      <button type="button" class="btn btn-default btn-sm">更新订单</button>
+    </div>
+
+           <table class="table table-bordered table-hover">
+                <thead>
+                <tr>
+                    <th style="width: 30px;border-right:none; "><input type="checkbox" id="checkAll"/></th>
+                    <th style="border-left:none; ">商品信息</th>
+                    <th style="width: 120px;">金额</th>
+                    <th style="width: 100px;">订单状态</th>
+                    <th style="width: 100px;">物流信息</th>
+                    <th colspan="2" style="">买家信息</th>
+                    <th style="width: 120px;">操作</th>
+                </tr>
+                </thead>
+               {% for order in orderList %}
+                <tbody>
+                <input name="orderId" value="{{ order['order_id'] }}" class="orderid" type="hidden">
+                <tr>
+                    <td colspan="9" class="blank"></td>
+                </tr>
+                <tr class="head">
+                    <td colspan="8">
+                        <input type="checkbox" name="checkedOrder" value="{{ order['order_id'] }}">
+                        <span class="head-item" style="width: 190px">订单编号：
+                            <a href="//neworder.shop.jd.com/order/orderDetail?orderId={{ order['order_id'] }}" target="_blank" class="suctext">{{ order['order_id'] }}</a></span>
+                            <span class="head-item">货款金额：{{ order['order_total_price'] }}</span>
+                            <span class="head-item">下单时间：{{ order['order_start_time'] }}</span>
+                            <span class="head-item"> 付款时间：{{ order['order_start_time'] }}</span>
+                            <span class="head-item">
+                                退款申请：<span style="display:inline;">无</span> </span>
+
+                        <span class="pull-right"><a href="javascript:;" data-val="{{ order['order_id'] }}" class="refresOrder"><i class="glyphicon glyphicon-refresh"></i></a></span>
+                    </td>
+                </tr>
+                <tr class="content">
+                    <td colspan="2">
+                        {% for sku in order['item_info_list'] %}
+						<div class="goodsItem">
+                        <input type="hidden" name="checkedSku" value="{{ sku['sku_id'] }}">
+                        <div style="clear: both"></div>
+                        <div class="goodsImg">
+						{% if sku['skuImg'] != None %}
+                            <a href="javaScript:void(0);"  onMouseOver="toolTip('<img src=//img11.360buyimg.com/n5/s300x300_{{ sku['skuImg'] }}>')" onMouseOut="toolTip()">
+                                <img class="skuImg" data-val="{{ sku['sku_id'] }}" src="//img11.360buyimg.com/n5/{{ sku['skuImg'] }}" data-src="//img11.360buyimg.com/n5/s300x300_{{ sku['skuImg'] }}">
+                            </a>{% else %}
+							<a href="javaScript:void(0);">
+							<img class="noSkuImg" data-val="{{ sku['sku_id'] }}" src="//img11.360buyimg.com/n5/jfs/t3271/88/7808807198/85040/49d5cf69/58bccd95Nd1b090a7.jpg">
+							</a>
+							{% end %}
+                        </div>
+                        <div class="goodsName">
+                            <a href="javaScript:void(0);" title="{{ sku['sku_name'] }}" data-val="{{ sku['sku_id'] }}">{{ sku['sku_name'] }}</a>
+                        </div>
+                        <div class="p-detail">
+                            <span class="p-amount">售价:<b>{{ sku['jd_price'] }}</b> x 数量:<i class="badge">{{ sku['item_total'] }}</i></span>
+                            <span class="p-amount">货号:{% if sku['product_no'] != None %}<b>{{ sku['product_no'] }}</b>{% end %}</span>
+                        </div>
+						</div>
+                        {% end %}
+
+                    </td>
+                    <td class="t-c v-t">
+                        <div class="p-value">订单金额:<b class="orderAmount">{{ order['order_total_price'] }}</b></div>
+                        <div class="p-value">货款金额:<b class="goodsAmount">{{ order['order_seller_price'] }}</b></div>
+                        <div class="p-value">运费:<b class="logisticsAmount">{{ order['freight_price'] }}</b></div>
+                        <div class="p-value discount"><small>无优惠信息</small></div>
+                    </td>
+                    <td class="t-c">
+
+                        {% if order['order_state'] == 'WAIT_SELLER_STOCK_OUT' %}等待发货{% else %}
+                        {% if order['order_state'] == 'WAIT_GOODS_RECEIVE_CONFIRM' %}等待买家收货{% else %}
+                        {{ order['order_state'] }}{% end %}
+						{% end %}
+
+
+						</td>
+                    <td>
+                        {% if order['dealStatus'] >= 3 %}
+                        <span data-val="{{ order['logisticsInfo']['logistics_id'] }}">{{ order['logisticsInfo']['waybill'] }}</span>
+                        {% else %}
+                        {% if order['purchaseInfo'] != None %}
+                        {% for item in order['purchaseInfo'] %}
+                        <a href="#">{{ item['purchaseOrderId'] }}</a>
+                        {% if item['logistics'] %}
+                        <a href="#" data-val="{{ item['logistics']['logisticsId'] }}">{{ item['logistics']['logisticsNo'] }}</a>
+                        {% end %}
+                        {% end %}
+                        {% else %}
+                        <button class="btn btn-primary btn-sm showPurchase" data-toggle="modal" data-target="#myModal" data-val="{{ order['order_id'] }}">填写采购订单</button>
+                        {% end %}
+                        {% end %}
+                    </td>
+                    <td class="t-c" colspan="2">
+                        {{ order['consignee_info']['fullname'] }} / {{ order['consignee_info']['mobile'] }} <br>
+                        {{ order['consignee_info']['full_address'] }} <br>
+
+                        {% if order.has_key('matchItem') %}
+                        <div class="spliLine"></div>
+                        <div class="">
+                            {% for item in order['matchItem'] %}
+                            {% if item['orderStatus'] != 'cancel' %}
+                                <span class="">匹配订单：<b><a href="javascript:;" class="showPurchaseOrder" data-toggle="modal" data-target="#purchaseOrderModal">{{ item['orderId'] }}</a></b></span>
+                                {% if item.has_key('logistics') %}
+                                    {% for logist in item['logistics'] %}
+                                    <br>
+                                        <span>{{ logist['logisticsCompanyName'] }}
+                                        <b>{{ logist['logisticsBillNo'] }}</b></span>
+                                    {% end %}
+                                {% else %}
+                                <span class="text-danger">待发货</span>
+                                {% end %}
+                            {% end %}
+                            {% end %}
+                        </div>
+                        {% end %}
+
+                    </td>
+                    <td class="t-c">
+						<div class="actionLink">
+                        <a href="javascript:void(0);" style="display: block;" class="tjbz">修改收货信息</a>
+                        <a href="//order.shop.jd.com/order/sopUp_multiLogisticsOut.action?orderId=60172709030&amp;page=1" style="display: block;">多库发货</a>
+                        <a href="//neworder.shop.jd.com/order/orderDetail?orderId=60172709030" style="display: block;" target="_blank">查看详情</a>
+                        <a href="javascript:void(0);" style="display:block;">添加备注</a>
+                        <a href="javascript:void(0);" style="">延迟发货提醒</a>
+						</div>
+                    </td>
+                </tr>
+                </tbody>
+
+               {% end %}
+
+            </table>
+
+<p class="pull-right p-b-1">
+    <span>总数量：{{ pageInfo['totalCount'] }}</span>
+    <span>，每页{{ pageInfo['pageSize'] }}条</span>
+    <span>，共{{ pageInfo['totalPage'] }} 页</span>
+
+    {% for p in pageInfo['pageList'] %}
+        {% if p==pageInfo['pageNo'] %}
+        <span class="label label-danger">{{ p }}</span>
+        {% else %}
+        <a href="?page={{ p }}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" class="">{{ p }}</a>
+        {% end %}
+    {% end %}
+</p>
+
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">填写采购订单</h4>
+            </div>
+            <div class="modal-body">
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <td>产品信息</td>
+                        <td>金额</td>
+                        <td>采购信息</td>
+                        <td>操作</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary save">提交更改</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+
+        <div class="modal fade" id="purchaseOrderModal" tabindex="-2" role="dialog" aria-labelledby="purchaseOrderModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="purchaseOrderModalLabel">采购信息</h4>
+            </div>
+            <div class="modal-body">
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <td colspan="2" style="width:200px;">产品信息</td>
+                        <td>单价</td>
+                        <td>数量</td>
+                        <td>金额</td>
+                        <td>订单状态</td>
+                        <td colspan="3">买家信息</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary">更新订单</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+</div>
+        {% end %}
+
+{% block footer %}
+<script>
+    $(document).on('click', '#checkOrder', function() {
+        $(this).attr('disabled',true);
+
+        $.getJSON('/api/checkOrder',function (result) {
+            if(result.success){
+                window.location.href = '/orderList';
+                //console.log(result.data);
+            }
+        });
+
+    });
+
+    $(document).on('click', '#checkAll', function() {
+        if(this.checked){
+            $("input[name='checkedOrder']").each(function(){
+                this.checked = true;
+                $('[role="toolbar"]').show();
+            });
+        }else{
+            $("input[name='checkedOrder']").each(function(){
+                this.checked = false;
+                $('[role="toolbar"]').hide();
+            });
+        }
+    });
+
+    $(document).on('click', '#checkSku', function() {
+        $(this).attr('disabled',true);
+
+        var arr = [];
+        $('[role="noSkuImg"]').each(function(){
+            arr.push($(this).attr('data-val'));
+        });
+        if(arr.length>0){
+            $.getJSON('/api/checkSku',{sku:arr.join(',')},function(result){
+            if(result.success){
+                //window.location.href = '/orderList';
+                history.go(0);
+            }
+        });
+        }else{
+            console.log('无需要更新的SKU');
+        }
+
+    });
+
+
+    $(document).on('click', '#matchPurchase', function() {
+        $(this).attr('disabled',true);
+
+        var arr = [];
+        $('input[name="checkedOrder"]:checked').each(function(){
+            arr.push($(this).val());
+        });
+        if(arr.length>0){
+            $.getJSON('/api/matchPurchaseOrder',{ids:arr.join(',')},function(result){
+                console.log(result);
+                if(result.matchCount>0){
+                    alert('匹配订单'+result.matchCount+'个');
+                    //window.location.href = '/orderList';
+                    history.go(0);
+                    //console.log(result.matchCount);
+                }else{
+                    alert('无匹配订单！');
+                    $('#matchPurchase').removeAttr('disabled');
+                }
+            });
+        }else{
+            console.log('没有选择订单');
+            alert('请选择订单！');
+            $('#matchPurchase').removeAttr('disabled');
+        }
+
+    });
+
+
+
+    $(document).on('click', '.refresOrder', function() {
+        var orderId = $(this).attr('data-val');
+        $.getJSON('/api/checkOrderInfo',{orderId:orderId},function (result) {
+            if(result.success){
+                history.go(0);
+            }
+        })
+    });
+
+    //showPurchase
+    $(document).on('click', '.showPurchase', function() {
+        //加载订单
+        var orderId = $(this).attr('data-val');
+        $.getJSON('/api/getOrderItems',{orderId:orderId},function (result) {
+            //console.log(result);
+
+            var html ='';
+
+
+        });
+    });
+
+    //查看匹配的采购信息
+    $(document).on('click', '.showPurchaseOrder', function() {
+        //加载订单
+        var orderId = $(this).text();
+        $.getJSON('/api/getPurchaseInfo',{orderId:orderId},function (result) {
+            console.log(result);
+            var html = '';
+            if(result.success){
+
+                var item = result.data;
+
+                html += '<tr class="content"><td colspan="4"><table><tbody>';
+                $.each(item['orderEntries'],function(j,goods){
+                    html += '<tr data-val="'+goods['sourceId']+'" data-specId="'+goods['specId']+'" class=""><td class="goodsPic"><img src="'+goods['productPic']+'" classs="img-thumbnail"></td>';
+                    html += '<td class="goodsInfo"><div class="goodsName"><a href="#" >'+goods['productName']+'</a></div>';
+
+                    if(goods.hasOwnProperty("specInfo")){
+                        html += '<div class="p-detail">';
+                        $.each(goods['specInfo'],function (j, spec) {
+                            html += '<span class="p-amount">'+spec['specName']+':<b>'+spec['specValue']+'</b></span>';
+                        });
+                        html += '</div>';
+                    }
+                    html += '</td><td class="goodsPrice"><div class="p-value">'+(parseFloat(goods['price'])/100).toFixed(2)+'</div></td>';
+                    html += '</td><td class="goodsQty"><div class="p-value">'+goods['quantity']+'</div></td></tr>';
+                });
+                html += '</tbody></table></td>';
+                html += '<td class="orderAmount"><div class="p-value">'+(parseFloat(item['sumPayment'])/100).toFixed(2)+'</div>';
+                if(item['carriage']!=0){
+                    html += '<div class="p-value"><small>含运费：'+(parseFloat(item['carriage'])/100).toFixed(2)+'</small></div>';
+                }
+                html += '</td><td>';
+                if(item['status']=='waitsellersend'){
+                            html += '<span class="text-info">等待卖家发货</span>';
+                        }else if(item['status']=='waitbuyerreceive'){
+                            html += '<span class="text-danger">等待买家收货</span>';
+                        }else if(item['status']=='waitbuyerpay'){
+                            html += '<span class="text-warning">等待付款</span>';
+                        }else if(item['status']=='success'){
+                            html += '<span class="text-success">交易成功</span>';
+                        }else if(item['status']=='cancel'){
+                            html += '<span class="text-warning">交易取消</span>';
+                        }else{
+                            html += '<span class="text-black">'+item['status']+'</span>';
+                        }
+
+                html += '</td>';
+                html += '<td colspan="2">'+item['toFullName']+' / '+item['toMobile'] + '<br>'+item['toArea'];
+                if(item.hasOwnProperty('logistics')){
+                    html += '<hr>';
+                    html += '<div class="p-detail">';
+                    $.each(item['logistics'],function (j, logist) {
+                        html += '<span class="p-amount">'+logist['logisticsCompanyName']+':<b>'+logist['logisticsBillNo']+'</b></span>';
+                    });
+                    html += '</div>';
+                }
+                html += '</td><td></td></tr>';
+
+            }else{
+                html += '<tr><td><h4>获取订单失败!</h4></td></tr>';
+            }
+
+            $('#purchaseOrderModal table tbody').html(html);
+
+
+        });
+    });
+
+
+</script>
+
+<script src="/static/js/ToolTip.js"></script>
+
+<script type="text/javascript">
+    function loadSkuImage() {
+        $('.noSkuImg').each(function(){
+            var obj = $(this);
+            var skuId = obj.attr('data-val');
+            $.getJSON('/api/getSkuImage',{skuId:skuId},function (result) {
+                //console.log(skuId);
+                //console.log($(this));
+                obj.attr('src','//img11.360buyimg.com/n5/'+result.imgUrl);
+                obj.attr('data-src','//img11.360buyimg.com/n5/s300x300_'+result.imgUrl);
+                if(result.mark>0){
+                    obj.attr('role','noSkuImg');
+                }
+                obj.removeClass('noSkuImg');
+            });
+
+        });
+    }
+
+    loadSkuImage();
+
+
+</script>
+
+{% end %}
+

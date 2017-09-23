@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head lang="zh-CN">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>用户注册</title>
+
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ static_url("css/signin.css") }}"/>
+</head>
+<body>
+
+<!-- Fixed navbar -->
+    
+
+<div class="container">
+    <form class="form-signin" action="" method="post">
+        {% raw xsrf_form_html() %}
+        <input type="hidden" name="next" value="{{referer}}" />
+		 <h2 class="form-signin-heading">用户登录</h2>
+		 <label class="col-sm-2 control-label sr-only">账号</label>
+		 <input type="text" class="form-control" name="email" placeholder="账号/邮箱" required autofocus>
+		 <label class="col-sm-2 control-label sr-only">密码</label>
+		 <input type="password" class="form-control" name="password" placeholder="Password" required>
+		 <div class="checkbox">
+            <label>
+                <input type="checkbox" value="remember"> 记住登录
+            </label>
+        </div>
+		<button type="submit" class="btn btn-primary btn-block">登录</button>
+		 
+
+</form>
+</div>
+
+
+</body>
+</html>
