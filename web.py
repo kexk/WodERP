@@ -80,7 +80,7 @@ class LoginHandler(BaseHandler):
             mongo = MongoCase()
             mongo.connect()
             client = mongo.client
-            db = client.jingdong
+            db = client.woderp
             user = db.user.find({"account":email})
             if user.count()<1:
                 self.render('error.html',msg=u'Email 不存在')
@@ -131,7 +131,7 @@ class OrderListHandler(BaseHandler):
         mongo.connect()
         client = mongo.client
 
-        db = client.jingdong
+        db = client.woderp
 
         pageSize = 50
 
@@ -210,7 +210,7 @@ class PurchaseListHandler(BaseHandler):
         mongo.connect()
         client = mongo.client
 
-        db = client.jingdong
+        db = client.woderp
 
         pageSize = 50
 
@@ -410,7 +410,7 @@ class CheckSkuHandler(BaseHandler):
         mongo = MongoCase()
         mongo.connect()
         client = mongo.client
-        db = client.jingdong
+        db = client.woderp
 
 
         data = dict()
@@ -454,7 +454,7 @@ class ChcekOrderInfoHanlder(BaseHandler):
             mongo = MongoCase()
             mongo.connect()
             client = mongo.client
-            db = client.jingdong
+            db = client.woderp
             app = JDAPI()
             result = app.getOrderDetail(order_id=orderId,
                                       option={"optional_fields": "order_state,pin,waybill,logistics_id,modified,return_order,order_state_remark,vender_remark,payment_confirm_time"})
@@ -504,7 +504,7 @@ class GetOrderItemsHandler(BaseHandler):
             mongo = MongoCase()
             mongo.connect()
             client = mongo.client
-            db = client.jingdong
+            db = client.woderp
 
 
             item = db.orderList.find_one({"order_id":orderId},{"item_info_list":1,"purchaseInfo":1})
@@ -551,7 +551,7 @@ class GetSkuImageHandler(BaseHandler):
             mongo = MongoCase()
             mongo.connect()
             client = mongo.client
-            db = client.jingdong
+            db = client.woderp
             item = db.skuList.find({"skuId":skuId},{"logo":1})
             if item.count()>0:
                 imgUrl += item[0]['logo']
@@ -575,7 +575,7 @@ class CheckOrderHandler(BaseHandler):
         mongo = MongoCase()
         mongo.connect()
         client = mongo.client
-        db = client.jingdong
+        db = client.woderp
         ol = result['order_search_response']['order_search']['order_info_list']
         total = 0
         addCount = 0
@@ -658,7 +658,7 @@ class CheckPurchaseHandler(BaseHandler):
             mongo = MongoCase()
             mongo.connect()
             client = mongo.client
-            db = client.jingdong
+            db = client.woderp
 
             ol = d['result']['toReturn']
 
@@ -712,7 +712,7 @@ class CheckPurchaseInfoHandler(BaseHandler):
                 mongo = MongoCase()
                 mongo.connect()
                 client = mongo.client
-                db = client.jingdong
+                db = client.woderp
 
                 orderInfo = result['result']['toReturn'][0]
 
@@ -788,7 +788,7 @@ class CheckPurchaseLogistHandler(BaseHandler):
                 mongo = MongoCase()
                 mongo.connect()
                 client = mongo.client
-                db = client.jingdong
+                db = client.woderp
 
                 orderInfo = result['result']['toReturn'][0]
 
@@ -849,7 +849,7 @@ class MatchPurchaseOrderHandler(BaseHandler):
         mongo = MongoCase()
         mongo.connect()
         client = mongo.client
-        db = client.jingdong
+        db = client.woderp
         for orderId in ids:
 
             order = db.orderList.find_one({'order_id':orderId})
@@ -894,7 +894,7 @@ class getPurchaseInfoHandler(BaseHandler):
             mongo = MongoCase()
             mongo.connect()
             client = mongo.client
-            db = client.jingdong
+            db = client.woderp
 
             orderInfo = db.purchaseList.find_one({"id": int(orderId)})
 
