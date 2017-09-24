@@ -3,8 +3,8 @@
 
 from base import BaseHandler
 
-from comm.aliexpress.smtAPI import *
-from comm.database.databaseCase import *
+from apps.aliexpress.smtAPI import *
+from apps.database.databaseCase import *
 import json
 import datetime
 
@@ -128,7 +128,11 @@ class SMTCheckOrderHandler(BaseHandler):
         if app != None:
 
             api = ALIEXPRESS(app)
-            c = api.getOrderList()
+
+            #option = {'orderStatus':'WAIT_SELLER_SEND_GOODS'}
+            option = {}
+
+            c = api.getOrderList(option)
 
             result = json.loads(c)
 

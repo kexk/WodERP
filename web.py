@@ -10,9 +10,9 @@ import tornado.escape
 from tornado.options import define, options
 
 
-from comm.jingdong.web import *
-from comm.aliexpress.web import *
-from comm.alibaba.web import *
+from apps.jingdong.views import *
+from apps.aliexpress.views import *
+from apps.alibaba.views import *
 
 
 

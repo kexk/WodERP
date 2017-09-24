@@ -3,8 +3,8 @@
 
 from base import BaseHandler
 
-from comm.alibaba.alibabaAPI import *
-from comm.database.databaseCase import *
+from apps.alibaba.alibabaAPI import *
+from apps.database.databaseCase import *
 import json
 import datetime
 import re

@@ -3,8 +3,8 @@
 
 from base import BaseHandler
 
-from comm.jingdong.jdAPI import *
-from comm.database.databaseCase import *
+from apps.jingdong.jdAPI import *
+from apps.database.databaseCase import *
 import json
 import re
 import tornado.web
