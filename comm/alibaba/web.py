@@ -92,107 +92,12 @@ class PurchaseListHandler(BaseHandler):
         self.write("Gosh darnit, user! You caused a %d error.\n" % status_code)
 
 
-class APIGetPurchaseListHandler(BaseHandler):
-    @tornado.web.authenticated
-    def get(self):
-
-        data = dict()
-
-        pageSize = 20
-
-        orderStatus = self.get_argument('orderStatus','')
-        pageNO = self.get_argument('pageNO','1')
-        createStartTime = self.get_argument('createStartTime','')
-        createEndTime = self.get_argument('createEndTime','')
-
-
-        option = {'pageNO':pageNO}
-        if orderStatus != '':
-            option['orderStatus'] = orderStatus
-        if createStartTime != '':
-            option['createStartTime'] = createStartTime
-        else:
-            option['createStartTime'] = (datetime.datetime.now()+datetime.timedelta(days=-2)).strftime('%Y-%m-%d %H:%M:%S')
-        if createEndTime != '':
-            option['createEndTime'] = createEndTime
-
-
-        api = ALIBABA()
-
-        d = json.loads(api.getOrderList(option))
-
-        if d.has_key('result') and d['result']['success']:
-
-            data['orderList'] = d['result']['toReturn']
-            data['success'] = True
-            data['total'] = d['result']['total']
-
-            totalPage = int(data['total']) / pageSize
-            mod = int(data['total']) % pageSize
-
-            if mod > 0:
-                totalPage += 1
-
-            data["page"] = int(pageNO)
-
-            if data["page"] >= 9:
-                if data["page"] <= totalPage - 9:
-                    pageList = range(data["page"] - 3, data["page"] + 4)
-                    pageItems = [1, '...'] + pageList + ['...', totalPage]
-                else:
-                    pageList = range(totalPage - 7, totalPage + 1)
-                    pageItems = [1, '...'] + pageList
-            else:
-                if totalPage <= 12:
-                    pageItems = range(1, totalPage + 1)
-                else:
-                    pageList = range(1, 10)
-                    pageItems = pageList + ['...', totalPage]
-
-            data["PageItem"] = '<li><a href="javascript:"><i class="fa fa-chevron-left"></i></a></li>'
-
-            for pg in pageItems:
-                html = '<li'
-                if data["page"] == pg:
-                    html += ' class="active"'
-
-                html += '>'
-                html += '<a href="javascript:" data-val="%s" class="pageItem">%s</a></li>' % (pg, pg)
-
-
-                data["PageItem"] += html
-
-            data["PageItem"] += '<li><a href="javascript:"><i class="fa fa-chevron-right"></i></a></li>'
-
-            num0 = len(data['orderList'])
-
-            if num0 > 0:
-                i0 = int(pageSize) * (int(pageNO) - 1) + 1
-                i1 = int(pageSize) * (int(pageNO) - 1) + num0
-            else:
-                i0 = 0
-                i1 = 0
-
-            data["PageTxt"] = {'start':i0,'end':i1,'total':int(data['total'])}
-
-        else:
-            data['success'] = False
-
-        self.set_header('Content-Type', 'application/json; charset=UTF-8')
-
-        self.write(json.dumps(data, ensure_ascii=False))
-
-
-    def write_error(self, status_code, **kwargs):
-        self.write(json.dumps({'success':False,'errCode':status_code}, ensure_ascii=False))
-
-
 class CheckPurchaseHandler(BaseHandler):
     def get(self):
 
         data = dict()
 
-        appKey = self.get_argument('appKey','2761652')
+        appKey = self.get_argument('appKey','1700674')
         orderStatus = self.get_argument('orderStatus','')
         pageNO = self.get_argument('pageNO','1')
         createStartTime = self.get_argument('createStartTime','')
