@@ -227,9 +227,9 @@
     $(document).on('click', '#checkOrder', function() {
         $(this).attr('disabled',true);
 
-        $.getJSON('/alibaba/api/checkPurchase',function (result) {
+        $.getJSON('/purchase/api/checkPurchase',function (result) {
             if(result.success){
-                window.location.href = '/purchaseList';
+                window.location.href = '/purchase/';
                 //console.log(result.data);
             }
         });
@@ -259,7 +259,7 @@
             arr.push($(this).attr('data-val'));
         });
         if(arr.length>0){
-            $.getJSON('/alibaba/api/checkPurchaseLogist',{ids:arr.join(',')},function(result){
+            $.getJSON('/purchase/api/checkPurchaseLogist',{ids:arr.join(',')},function(result){
             if(result.successCount>0){
                 //window.location.href = '/orderList';
                 history.go(0);
