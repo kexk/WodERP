@@ -227,7 +227,7 @@
     $(document).on('click', '#checkOrder', function() {
         $(this).attr('disabled',true);
 
-        $.getJSON('/api/checkPurchase',function (result) {
+        $.getJSON('/alibaba/api/checkPurchase',function (result) {
             if(result.success){
                 window.location.href = '/purchaseList';
                 //console.log(result.data);
@@ -259,7 +259,7 @@
             arr.push($(this).attr('data-val'));
         });
         if(arr.length>0){
-            $.getJSON('/api/checkPurchaseLogist',{ids:arr.join(',')},function(result){
+            $.getJSON('/alibaba/api/checkPurchaseLogist',{ids:arr.join(',')},function(result){
             if(result.successCount>0){
                 //window.location.href = '/orderList';
                 history.go(0);
@@ -270,82 +270,6 @@
         }
 
     });
-
-
-</script>
-
-
-<script type="text/javascript">
-    function loadPurchaseList() {
-        var pageNO = $('input[name="pageNO"]').val();
-        $.getJSON('/api/getPurchaseList',{'pageNO':parseInt(pageNO)+1},function (result) {
-            if(result.success && result.total >0){
-                console.log(result);
-                var html = '<thead><tr><th style="width:30px;border-right:none;"><input type="checkbox" id="checkAll"></th><th style="width:360px;border-left:none;">商品信息</th>';
-                html += '<th style="width: 120px;">单价</th><th style="width: 100px;">数量</th><th style="width: 100px;">总金额</th><th style="width: 100px;">订单状态</th>';
-                html += '<th style="" colspan="2">买家信息</th><th style="width: 120px;">操作</th>';
-                html += '</tr></thead>';
-                $.each(result.orderList,function(idx,item){
-                    html += '<tbody><input name="orderId" value="'+item['id']+'" class="orderid" type="hidden">';
-                    html += '<tr><td colspan="9" class="blank"></td></tr><tr class="head"><td colspan="9">';
-                    html += '<input type="checkbox" name="checkedOrder" value="'+item['id']+'"><span class="head-item">订单编号：';
-                    html += '<a href="#" target="_blank" class="suctext">'+item['id']+'</a></span><span class="head-item">货款金额：'+(parseFloat(item['sumPayment'])/100).toFixed(2)+'</span>';
-                    html += '<span class="head-item">下单时间：'+item['gmtCreate']+'</span>';
-                    if(item['gmtPayment']!=undefined){
-                        html += '<span class="head-item"> 付款时间：'+item['gmtPayment']+'</span>';
-                    }
-                    html += '</td></tr><tr class="content">';
-                    html += '<td colspan="4"><table><tbody>';
-                    $.each(item['orderEntries'],function(j,goods){
-                        html += '<tr data-val="'+goods['sourceId']+'" data-specId="'+goods['specId']+'" class=""><td class="goodsPic"><a href="javaScript:void(0);" onMouseOver="toolTip(\'<img width=300 src='+goods['productPic'][0]+'>\')" onMouseOut="toolTip()"><img src="'+goods['productPic'][0]+'" classs="img-thumbnail"></a></td>';
-                        html += '<td class="goodsInfo"><div class="goodsName"><a href="#" >'+goods['productName']+'</a></div>';
-
-                        if(goods.hasOwnProperty("specInfo")){
-                            html += '<div class="p-detail">';
-                            $.each(goods['specInfo'],function (j, spec) {
-                                html += '<span class="p-amount">'+spec['specName']+':<b>'+spec['specValue']+'</b></span>';
-                            });
-							html += '</div>';
-                        }
-                        html += '</td><td class="goodsPrice"><div class="p-value">'+(parseFloat(goods['price'])/100).toFixed(2)+'</div></td>';
-                        html += '</td><td class="goodsQty"><div class="p-value">'+goods['quantity']+'</div></td></tr>';
-                    });
-                    html += '</tbody></table></td>';
-                    html += '<td class="orderAmount"><div class="p-value">'+(parseFloat(item['sumPayment'])/100).toFixed(2)+'</div>';
-                    if(item['carriage']!=0){
-                        html += '<div class="p-value"><small>含运费：'+(parseFloat(item['carriage'])/100).toFixed(2)+'</small></div>';
-                    }
-                    html += '</td><td>';
-                    if(item['status']=='waitsellersend'){
-                            html += '<span class="text-info">等待卖家发货</span>';
-                        }else if(item['status']=='waitbuyerreceive'){
-                            html += '<span class="text-danger">等待买家收货</span>';
-                        }else if(item['status']=='waitbuyerpay'){
-                            html += '<span class="text-warning">等待付款</span>';
-                        }else if(item['status']=='success'){
-                            html += '<span class="text-success">交易成功</span>';
-                        }else if(item['status']=='cancel'){
-                            html += '<span class="text-warning">交易取消</span>';
-                        }else{
-                            html += '<span class="text-black">'+item['status']+'</span>';
-                        }
-                    html += '</td>';
-
-                    html += '<td colspan="2">'+item['toFullName']+' / '+item['toMobile'] + '<br>'+item['toArea'];
-                    html += '</td><td></td></tr></tbody>';
-
-                });
-
-                $('#purchaseOrderList').html(html);
-                $('.pagination').html(result.PageItem);
-                $('input[name="pageNO"]').val(result.page);
-
-
-            }
-        });
-    }
-
-    //loadPurchaseList();
 
 
 </script>

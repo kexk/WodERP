@@ -10,6 +10,12 @@ class ALIBABA:
     appKey = ''
     memberId = ''
     apiRoot = ''
+    apiRoute = 'requestAPI.php'
+
+    def __init__(self,app):
+        self.appKey = app['appKey']
+        self.apiRoot = app['apiRoot']
+        self.memberId = app['memberId']
 
 
     def getOrderDetail(self,orderId):
@@ -19,7 +25,7 @@ class ALIBABA:
 
         data = {'orderId':orderId,'urlPath':urlPath,'appKey':self.appKey}
 
-        r = requests.post(self.apiRoot,data=data)
+        r = requests.post(self.apiRoot+self.apiRoute,data=data)
         if r.status_code == 200:
             return r.content
         else:
@@ -39,7 +45,7 @@ class ALIBABA:
             data[k] = v
 
 
-        r = requests.post(self.apiRoot,data=data)
+        r = requests.post(self.apiRoot+self.apiRoute,data=data)
 
 
         if r.status_code == 200:

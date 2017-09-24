@@ -2,17 +2,17 @@
 
 
 import requests
-import datetime
 
 
 class ALIEXPRESS:
 
     appKey = ''
     apiRoot = ''
+    apiRoute = 'requestAPI.php'
 
-    def __init__(self,appKey,apiRoot):
-        self.appKey = appKey
-        self.apiRoot = apiRoot
+    def __init__(self,app):
+        self.appKey = app['apiInfo']['appKey']
+        self.apiRoot = app['apiInfo']['apiRoot']
 
 
     def getOrderDetail(self,orderId,fieldList='',extInfoBitFlag=''):
@@ -22,7 +22,7 @@ class ALIEXPRESS:
 
         data = {'orderId':orderId,'apiPath':apiPath,'appKey':self.appKey,'fieldList':fieldList,'extInfoBitFlag':extInfoBitFlag}
 
-        r = requests.post(self.apiRoot,data=data)
+        r = requests.post(self.apiRoot+self.apiRoute,data=data)
         if r.status_code == 200:
             return r.content
         else:
@@ -40,7 +40,7 @@ class ALIEXPRESS:
             data[k] = v
 
 
-        r = requests.post(self.apiRoot,data=data)
+        r = requests.post(self.apiRoot+self.apiRoute,data=data)
 
 
         if r.status_code == 200:
