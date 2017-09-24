@@ -104,8 +104,8 @@
                         {% else %}
                             <span class="head-item">货款金额：{{ order['payAmount']['amount'] }}</span>{% end %}
                             <span class="head-item">下单时间：{{ order['gmtCreate'] }}</span>
-                        {% if order.has_key('gmtPaySuccess') %}
-                            <span class="head-item"> 付款时间：{{ order['gmtPaySuccess'] }}</span>{% end %}
+                        {% if order.has_key('gmtPayTime') %}
+                            <span class="head-item"> 付款时间：{{ order['gmtPayTime'] }}</span>{% end %}
                             <span class="head-item">
                                 退款申请：<span style="display:inline;">无</span> </span>
 
