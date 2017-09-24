@@ -26,7 +26,7 @@ class SMTOrderListHandler(BaseHandler):
 
         db = client.woderp
 
-        pageSize = 50
+        pageSize = 100
 
         status = self.get_argument('status','')
         wd = self.get_argument('wd','')
@@ -111,6 +111,7 @@ class SMTOrderListHandler(BaseHandler):
 
     def write_error(self, status_code, **kwargs):
         self.write("Gosh darnit, user! You caused a %d error.\n" % status_code)
+
 
 class SMTCheckOrderHandler(BaseHandler):
     def get(self):
