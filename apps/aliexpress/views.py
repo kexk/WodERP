@@ -136,7 +136,7 @@ class SMTCheckOrderHandler(BaseHandler):
             api = ALIEXPRESS(app)
 
             #option = {'orderStatus':'WAIT_SELLER_SEND_GOODS'}
-            option = {'pageSize':'50'}
+            option = {'pageSize':'20'}
 
             c = api.getOrderList(option)
 

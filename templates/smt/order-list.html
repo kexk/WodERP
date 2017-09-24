@@ -120,8 +120,8 @@
                         <div style="clear: both"></div>
                         <div class="goodsImg">
 						{% if sku['productImgUrl'] != None %}
-                            <a href="javaScript:void(0);"  onMouseOver="toolTip('<img width=300 src={{ sku['productImgUrl'].split('_')[0] }}>')" onMouseOut="toolTip()">
-                                <img class="skuImg" data-val="{{ sku['productId'] }}" src="{{ sku['productImgUrl'] }}" data-src="{{ sku['productImgUrl'].split('_')[0] }}>')">
+                            <a href="javaScript:void(0);"  onMouseOver="toolTip('<img width=300 src={{ sku['productImgUrl'].split('_50')[0] }}>')" onMouseOut="toolTip()">
+                                <img class="skuImg" data-val="{{ sku['productId'] }}" src="{{ sku['productImgUrl'] }}" data-src="{{ sku['productImgUrl'].split('_50')[0] }}">
                             </a>{% else %}
 							<a href="javaScript:void(0);">
 							<img class="noSkuImg" data-val="{{ sku['productId'] }}" src="//img11.360buyimg.com/n5/jfs/t3271/88/7808807198/85040/49d5cf69/58bccd95Nd1b090a7.jpg">
