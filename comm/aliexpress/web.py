@@ -8,8 +8,110 @@ from comm.database.databaseCase import *
 import json
 import datetime
 
+import re
+import tornado.web
 
-class CheckSmtOrderHandler(BaseHandler):
+
+class SMTOrderListHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+
+        user = self.current_user
+        role = self.get_secure_cookie("role") if self.get_secure_cookie("role") else 'None'
+
+        mongo = MongoCase()
+        mongo.connect()
+        client = mongo.client
+
+        db = client.woderp
+
+        pageSize = 50
+
+        status = self.get_argument('status','')
+        wd = self.get_argument('wd','')
+
+
+        try:
+            page = int(self.get_argument('page',1))
+        except:
+            page = 1
+
+        #totalCount = db.orderList.find({"order_state":"WAIT_SELLER_STOCK_OUT"}).count()
+        option = {'platform':'aliexpress'}
+        if status == '0':
+            option['orderStatus'] = 'PLACE_ORDER_SUCCESS'
+        elif status == '1':
+            option['orderStatus'] = 'RISK_CONTROL'
+        elif status == '2':
+            option['orderStatus'] = 'IN_CANCEL'
+        elif status == '3':
+            option['orderStatus'] = 'WAIT_SELLER_SEND_GOODS'
+        elif status == '4':
+            option['orderStatus'] = 'SELLER_PART_SEND_GOODS'
+        elif status == '5':
+            option['orderStatus'] = 'WAIT_BUYER_ACCEPT_GOODS'
+        elif status == '6':
+            option['orderStatus'] = 'IN_ISSUE'
+        elif status == '7':
+            option['orderStatus'] = 'IN_FROZEN'
+        elif status == '8':
+            option['orderStatus'] = 'FUND_PROCESSING'
+        elif status == '9':
+            option['orderStatus'] = 'WAIT_SELLER_EXAMINE_MONEY'
+        elif status == '10':
+            option['orderStatus'] = 'FINISH'
+
+
+        if wd != '':
+            words = re.compile(wd)
+
+            filerList = []
+            filerList.append({'productList.productName':words})
+            filerList.append({'buyerLoginId':words})
+            filerList.append({'buyerSignerFullname':words})
+            filerList.append({'receiptAddress.contactPerson':words})
+            filerList.append({'receiptAddress.mobileNo':words})
+            filerList.append({'logisticInfoList.logisticsNo':words})
+
+            try:
+                filerList.append({'orderId':int(wd)})
+            except:
+                pass
+
+            option['$or'] = filerList
+
+
+
+        totalCount = db.orderList.find(option).count()
+
+        orderList = db.orderList.find(option).sort("gmtPayTime",-1).limit(pageSize).skip((page-1)*pageSize)
+
+        p = divmod(totalCount,pageSize)
+
+        pageInfo = dict()
+
+        totalPage = p[0]
+        if p[1]>0:
+            totalPage += 1
+
+        pageInfo['totalPage'] = totalPage
+        pageInfo['totalCount'] = totalCount
+        pageInfo['pageSize'] = pageSize
+        pageInfo['pageNo'] = page
+        pageInfo['pageList'] = range(1,totalPage+1)
+
+        filterData = dict()
+        filterData['status'] = status
+        filterData['wd'] = wd
+
+        self.render('smt/order-list.html',orderList = orderList,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
+
+        #self.render('index.html')
+
+    def write_error(self, status_code, **kwargs):
+        self.write("Gosh darnit, user! You caused a %d error.\n" % status_code)
+
+class SMTCheckOrderHandler(BaseHandler):
     def get(self):
 
         #result = o.getOrderList(order_state='WAIT_GOODS_RECEIVE_CONFIRM')

@@ -31,8 +31,18 @@
 
 </div>
 
-        <p><a href="?status=0&page=1" class="label label-primary">等待发货</a>
-        <a href="?status=1&page=1" class="label label-primary">等待买家收货</a>
+        <p>
+            <a href="?status=0&page=1" class="label label-primary">待付款</a>
+        <a href="?status=1&page=1" class="label label-primary">风控中</a>
+        <a href="?status=2&page=1" class="label label-primary">取消中</a>
+        <a href="?status=3&page=1" class="label label-primary">待发货</a>
+        <a href="?status=4&page=1" class="label label-primary">部分发货</a>
+        <a href="?status=5&page=1" class="label label-primary">待收货</a>
+        <a href="?status=6&page=1" class="label label-primary">纠纷中</a>
+        <a href="?status=7&page=1" class="label label-primary">冻结中</a>
+        <a href="?status=8&page=1" class="label label-primary">待放款</a>
+        <a href="?status=9&page=1" class="label label-primary">待确认金额</a>
+        <a href="?status=10&page=1" class="label label-primary">已结束</a>
         </p>
 
 
@@ -80,105 +90,84 @@
                 </thead>
                {% for order in orderList %}
                 <tbody>
-                <input name="orderId" value="{{ order['order_id'] }}" class="orderid" type="hidden">
+                <input name="orderId" value="{{ order['orderId'] }}" class="orderid" type="hidden">
                 <tr>
                     <td colspan="9" class="blank"></td>
                 </tr>
                 <tr class="head">
                     <td colspan="8">
-                        <input type="checkbox" name="checkedOrder" value="{{ order['order_id'] }}">
+                        <input type="checkbox" name="checkedOrder" value="{{ order['orderId'] }}">
                         <span class="head-item" style="width: 190px">订单编号：
-                            <a href="//neworder.shop.jd.com/order/orderDetail?orderId={{ order['order_id'] }}" target="_blank" class="suctext">{{ order['order_id'] }}</a></span>
-                            <span class="head-item">货款金额：{{ order['order_total_price'] }}</span>
-                            <span class="head-item">下单时间：{{ order['order_start_time'] }}</span>
-                            <span class="head-item"> 付款时间：{{ order['order_start_time'] }}</span>
+                            <a href="javascript:;" target="_blank" class="suctext">{{ order['orderId'] }}</a></span>
+                        {% if order.has_key('orderAmount') %}
+                            <span class="head-item">货款金额：{{ order['orderAmount']['amount'] }}</span>
+                        {% else %}
+                            <span class="head-item">货款金额：{{ order['payAmount']['amount'] }}</span>{% end %}
+                            <span class="head-item">下单时间：{{ order['gmtCreate'] }}</span>
+                        {% if order.has_key('gmtPaySuccess') %}
+                            <span class="head-item"> 付款时间：{{ order['gmtPaySuccess'] }}</span>{% end %}
                             <span class="head-item">
                                 退款申请：<span style="display:inline;">无</span> </span>
 
-                        <span class="pull-right"><a href="javascript:;" data-val="{{ order['order_id'] }}" class="refresOrder"><i class="glyphicon glyphicon-refresh"></i></a></span>
+                        <span class="pull-right"><a href="javascript:;" data-val="{{ order['orderId'] }}" class="refresOrder"><i class="glyphicon glyphicon-refresh"></i></a></span>
                     </td>
                 </tr>
                 <tr class="content">
                     <td colspan="2">
-                        {% for sku in order['item_info_list'] %}
+                        {% for sku in order['productList'] %}
 						<div class="goodsItem">
-                        <input type="hidden" name="checkedSku" value="{{ sku['sku_id'] }}">
+                        <input type="hidden" name="checkedSku" value="{{ sku['productId'] }}">
                         <div style="clear: both"></div>
                         <div class="goodsImg">
-						{% if sku['skuImg'] != None %}
-                            <a href="javaScript:void(0);"  onMouseOver="toolTip('<img src=//img11.360buyimg.com/n5/s300x300_{{ sku['skuImg'] }}>')" onMouseOut="toolTip()">
-                                <img class="skuImg" data-val="{{ sku['sku_id'] }}" src="//img11.360buyimg.com/n5/{{ sku['skuImg'] }}" data-src="//img11.360buyimg.com/n5/s300x300_{{ sku['skuImg'] }}">
+						{% if sku['productImgUrl'] != None %}
+                            <a href="javaScript:void(0);"  onMouseOver="toolTip('<img width=300 src={{ sku['productImgUrl'].split('_')[0] }}>')" onMouseOut="toolTip()">
+                                <img class="skuImg" data-val="{{ sku['productId'] }}" src="{{ sku['productImgUrl'] }}" data-src="{{ sku['productImgUrl'].split('_')[0] }}>')">
                             </a>{% else %}
 							<a href="javaScript:void(0);">
-							<img class="noSkuImg" data-val="{{ sku['sku_id'] }}" src="//img11.360buyimg.com/n5/jfs/t3271/88/7808807198/85040/49d5cf69/58bccd95Nd1b090a7.jpg">
+							<img class="noSkuImg" data-val="{{ sku['productId'] }}" src="//img11.360buyimg.com/n5/jfs/t3271/88/7808807198/85040/49d5cf69/58bccd95Nd1b090a7.jpg">
 							</a>
 							{% end %}
                         </div>
                         <div class="goodsName">
-                            <a href="javaScript:void(0);" title="{{ sku['sku_name'] }}" data-val="{{ sku['sku_id'] }}">{{ sku['sku_name'] }}</a>
+                            <a href="javaScript:void(0);" title="{{ sku['productName'] }}" data-val="{{ sku['productId'] }}">{{ sku['productId'] }}</a>
                         </div>
                         <div class="p-detail">
-                            <span class="p-amount">售价:<b>{{ sku['jd_price'] }}</b> x 数量:<i class="badge">{{ sku['item_total'] }}</i></span>
-                            <span class="p-amount">货号:{% if sku['product_no'] != None %}<b>{{ sku['product_no'] }}</b>{% end %}</span>
+                            <span class="p-amount">售价:<b>{{ sku['productUnitPrice']['amount'] }}</b> x 数量:<i class="badge">{{ sku['productCount'] }}</i></span>
+                            <span class="p-amount">货号:{% if sku.has_key('skuCode') %}<b>{{ sku['skuCode'] }}</b>{% end %}</span>
                         </div>
 						</div>
                         {% end %}
 
                     </td>
                     <td class="t-c v-t">
-                        <div class="p-value">订单金额:<b class="orderAmount">{{ order['order_total_price'] }}</b></div>
-                        <div class="p-value">货款金额:<b class="goodsAmount">{{ order['order_seller_price'] }}</b></div>
-                        <div class="p-value">运费:<b class="logisticsAmount">{{ order['freight_price'] }}</b></div>
+                        <div class="p-value">订单金额:
+                            {% if order.has_key('orderAmount') %}
+                            <b class="orderAmount">{{ order['orderAmount']['amount'] }}</b>{% else %}
+                            <b class="orderAmount">{{ order['payAmount']['amount'] }}</b>
+                            {% end %}
+
+                        </div>
+                        {% if order.has_key('logisticsAmount') and order['logisticsAmount']['amount'] !=0 %}
+                        <div class="p-value">运费:<b class="logisticsAmount">{{ order['logisticsAmount']['amount'] }}</b></div>
+                        {% end %}
                         <div class="p-value discount"><small>无优惠信息</small></div>
                     </td>
                     <td class="t-c">
 
-                        {% if order['order_state'] == 'WAIT_SELLER_STOCK_OUT' %}等待发货{% else %}
-                        {% if order['order_state'] == 'WAIT_GOODS_RECEIVE_CONFIRM' %}等待买家收货{% else %}
-                        {{ order['order_state'] }}{% end %}
+                        {% if order['orderStatus'] == 'WAIT_SELLER_SEND_GOODS' %}等待发货{% else %}
+                        {% if order['orderStatus'] == 'WAIT_BUYER_ACCEPT_GOODS' %}等待买家收货{% else %}
+                        {{ order['orderStatus'] }}{% end %}
 						{% end %}
 
 
 						</td>
                     <td>
-                        {% if order['dealStatus'] >= 3 %}
-                        <span data-val="{{ order['logisticsInfo']['logistics_id'] }}">{{ order['logisticsInfo']['waybill'] }}</span>
-                        {% else %}
-                        {% if order['purchaseInfo'] != None %}
-                        {% for item in order['purchaseInfo'] %}
-                        <a href="#">{{ item['purchaseOrderId'] }}</a>
-                        {% if item['logistics'] %}
-                        <a href="#" data-val="{{ item['logistics']['logisticsId'] }}">{{ item['logistics']['logisticsNo'] }}</a>
-                        {% end %}
-                        {% end %}
-                        {% else %}
-                        <button class="btn btn-primary btn-sm showPurchase" data-toggle="modal" data-target="#myModal" data-val="{{ order['order_id'] }}">填写采购订单</button>
-                        {% end %}
-                        {% end %}
+
+                        <button class="btn btn-primary btn-sm showPurchase" data-toggle="modal" data-target="#myModal" data-val="{{ order['orderId'] }}">选择物流</button>
+
                     </td>
                     <td class="t-c" colspan="2">
-                        {{ order['consignee_info']['fullname'] }} / {{ order['consignee_info']['mobile'] }} <br>
-                        {{ order['consignee_info']['full_address'] }} <br>
 
-                        {% if order.has_key('matchItem') %}
-                        <div class="spliLine"></div>
-                        <div class="">
-                            {% for item in order['matchItem'] %}
-                            {% if item['orderStatus'] != 'cancel' %}
-                                <span class="">匹配订单：<b><a href="javascript:;" class="showPurchaseOrder" data-toggle="modal" data-target="#purchaseOrderModal">{{ item['orderId'] }}</a></b></span>
-                                {% if item.has_key('logistics') %}
-                                    {% for logist in item['logistics'] %}
-                                    <br>
-                                        <span>{{ logist['logisticsCompanyName'] }}
-                                        <b>{{ logist['logisticsBillNo'] }}</b></span>
-                                    {% end %}
-                                {% else %}
-                                <span class="text-danger">待发货</span>
-                                {% end %}
-                            {% end %}
-                            {% end %}
-                        </div>
-                        {% end %}
 
                     </td>
                     <td class="t-c">
