@@ -386,7 +386,7 @@
     $(document).on('click', '.showPurchaseOrder', function() {
         //加载订单
         var orderId = $(this).text();
-        $.getJSON('/alibaba/api/getPurchaseInfo',{orderId:orderId},function (result) {
+        $.getJSON('/purchase/api/getPurchaseInfo',{orderId:orderId},function (result) {
             console.log(result);
             var html = '';
             if(result.success){

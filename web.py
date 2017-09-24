@@ -9,6 +9,8 @@ import tornado.web
 import tornado.escape
 from tornado.options import define, options
 
+from importlib import import_module
+
 
 from apps.jingdong.views import *
 from apps.aliexpress.views import *
@@ -116,6 +118,25 @@ class AuthHandler(BaseHandler):
 
 
 
+def include(module):
+    res = import_module(module)
+    urls = getattr(res, 'urls', res)
+    return urls
+
+def url_wrapper(urls):
+    wrapper_list = []
+    for url in urls:
+        path, handles = url
+        if isinstance(handles, (tuple, list)):
+            for handle in handles:
+                pattern, handle_class = handle
+                wrap = ('{0}{1}'.format(path, pattern), handle_class)
+                wrapper_list.append(wrap)
+        else:
+            wrapper_list.append((path, handles))
+    return wrapper_list
+
+
 if __name__ == "__main__":
     tornado.options.parse_command_line()
     settings = {
@@ -124,24 +145,15 @@ if __name__ == "__main__":
         'login_url':'/login'
     }
     app = tornado.web.Application(
-        handlers=[(r"/", IndexHandler),
-                  (r'/login', LoginHandler),
-                  (r'/logout', LogoutHandler),
-                  (r"/smt/orderList$", SMTOrderListHandler),
-                  (r"/jd/orderList$", JDOrderListHandler),
-                  (r"/purchaseList$", PurchaseListHandler),
-                  (r"/smt/api/checkOrder$", SMTCheckOrderHandler),
-                  (r"/jd/api/checkOrder$", JDCheckOrderHandler),
-                  (r"/jd/api/checkOrderInfo$", JDChcekOrderInfoHanlder),
-                  (r"/jd/api/getSkuImage$", GetJdSkuImageHandler),
-                  (r"/jd/api/checkSku$", JDCheckSkuHandler),
-                  (r"/alibaba/api/getPurchaseInfo$", getPurchaseInfoHandler),
-                  (r"/alibaba/api/checkPurchase$", CheckPurchaseHandler),
-                  (r"/alibaba/api/checkPurchaseInfo$", CheckPurchaseInfoHandler),
-                  (r"/alibaba/api/checkPurchaseLogist$", CheckPurchaseLogistHandler),
-                  (r"/jd/api/matchPurchaseOrder$", JdMatchPurchaseOrderHandler),
-                  (r".*", BaseHandler),
-                  ],
+        url_wrapper([
+            (r"/", IndexHandler),
+            (r"/jd/", include('apps.jingdong.urls')),
+            (r"/smt/", include('apps.aliexpress.urls')),
+            (r"/purchase/", include('apps.alibaba.urls')),
+            (r'/login', LoginHandler),
+            (r'/logout', LogoutHandler),
+            (r".*", BaseHandler),
+        ]),
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
         static_path=os.path.join(os.path.dirname(__file__), "static"),
         debug=True,

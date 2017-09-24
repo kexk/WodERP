@@ -281,9 +281,9 @@
     $(document).on('click', '#checkOrder', function() {
         $(this).attr('disabled',true);
 
-        $.getJSON('/api/checkOrder',function (result) {
+        $.getJSON('/smt/api/checkOrder',function (result) {
             if(result.success){
-                window.location.href = '/orderList';
+                window.location.href = '/smt/orderList';
                 //console.log(result.data);
             }
         });

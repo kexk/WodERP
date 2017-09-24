@@ -7,6 +7,7 @@ from apps.aliexpress.smtAPI import *
 from apps.database.databaseCase import *
 import json
 import datetime
+import random
 
 import re
 import tornado.web
@@ -116,7 +117,12 @@ class SMTCheckOrderHandler(BaseHandler):
 
         #result = o.getOrderList(order_state='WAIT_GOODS_RECEIVE_CONFIRM')
 
-        appKey = self.get_argument('appKey')
+        appKey = self.get_argument('appKey','')
+
+        aList = ['37691454','22863923']
+
+        if appKey == '':
+            appKey = aList[random.randint(0,len(aList)-1)]
 
         mongo = MongoCase()
         mongo.connect()
@@ -130,7 +136,7 @@ class SMTCheckOrderHandler(BaseHandler):
             api = ALIEXPRESS(app)
 
             #option = {'orderStatus':'WAIT_SELLER_SEND_GOODS'}
-            option = {}
+            option = {'pageSize':'50'}
 
             c = api.getOrderList(option)
 
