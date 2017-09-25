@@ -28,7 +28,7 @@ class SMTOrderListHandler(BaseHandler):
 
         pageSize = 100
 
-        status = self.get_argument('status','')
+        status = self.get_argument('status','WAIT_SELLER_SEND_GOODS')
         wd = self.get_argument('wd','')
 
 
@@ -39,28 +39,39 @@ class SMTOrderListHandler(BaseHandler):
 
         #totalCount = db.orderList.find({"order_state":"WAIT_SELLER_STOCK_OUT"}).count()
         option = {'platform':'aliexpress'}
-        if status == '0':
-            option['orderStatus'] = 'PLACE_ORDER_SUCCESS'
-        elif status == '1':
-            option['orderStatus'] = 'RISK_CONTROL'
-        elif status == '2':
-            option['orderStatus'] = 'IN_CANCEL'
-        elif status == '3':
-            option['orderStatus'] = 'WAIT_SELLER_SEND_GOODS'
-        elif status == '4':
-            option['orderStatus'] = 'SELLER_PART_SEND_GOODS'
-        elif status == '5':
-            option['orderStatus'] = 'WAIT_BUYER_ACCEPT_GOODS'
-        elif status == '6':
-            option['orderStatus'] = 'IN_ISSUE'
-        elif status == '7':
-            option['orderStatus'] = 'IN_FROZEN'
-        elif status == '8':
-            option['orderStatus'] = 'FUND_PROCESSING'
-        elif status == '9':
-            option['orderStatus'] = 'WAIT_SELLER_EXAMINE_MONEY'
-        elif status == '10':
-            option['orderStatus'] = 'FINISH'
+
+        statusList = db.orderList.aggregate([{'$group' : {'_id' : "$orderStatus", 'orderCount': {'$sum' : 1}}}])
+
+        sL = []
+        for s in statusList:
+            if s['_id']:
+                stxt = ''
+                if s['_id'] == 'PLACE_ORDER_SUCCESS':
+                    stxt += '待付款'
+                elif s['_id'] == 'RISK_CONTROL':
+                    stxt += '风控中'
+                elif s['_id'] == 'IN_CANCEL':
+                    stxt += '已取消'
+                elif s['_id'] == 'WAIT_SELLER_SEND_GOODS':
+                    stxt += '待发货'
+                elif s['_id'] == 'SELLER_PART_SEND_GOODS':
+                    stxt += '部分发货'
+                elif s['_id'] == 'WAIT_BUYER_ACCEPT_GOODS':
+                    stxt += '待收货'
+                elif s['_id'] == 'IN_ISSUE':
+                    stxt += '纠纷中'
+                elif s['_id'] == 'IN_FROZEN':
+                    stxt += '冻结中'
+                elif s['_id'] == 'FUND_PROCESSING':
+                    stxt += '待放款'
+                elif s['_id'] == 'WAIT_SELLER_EXAMINE_MONEY':
+                    stxt += '待确认金额'
+                elif s['_id'] == 'FINISH':
+                    stxt += '已结束'
+                sL.append({'status':s['_id'],'orderCount':s['orderCount'],'statusTxt':stxt})
+
+
+        option['orderStatus'] = status
 
 
         if wd != '':
@@ -104,6 +115,7 @@ class SMTOrderListHandler(BaseHandler):
         filterData = dict()
         filterData['status'] = status
         filterData['wd'] = wd
+        filterData['statusList'] = sL
 
         self.render('smt/order-list.html',orderList = orderList,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
 
