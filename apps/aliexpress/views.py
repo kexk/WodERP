@@ -136,8 +136,10 @@ class SMTCheckOrderHandler(BaseHandler):
 
             api = ALIEXPRESS(app)
 
+            option = dict()
             #option = {'orderStatus':'WAIT_SELLER_SEND_GOODS'}
-            option = {'pageSize':'20'}
+            option['pageSize'] = '50'
+            option['orderStatus'] = 'WAIT_SELLER_SEND_GOODS'
 
             c = api.getOrderList(option)
 
@@ -150,7 +152,7 @@ class SMTCheckOrderHandler(BaseHandler):
             for od in ol:
                 item = od
                 item['createTime'] = datetime.datetime.now()
-                item['updateTime'] = None
+                item['updateTime'] = datetime.datetime.now()
                 item['storeId'] = app['storeId']
                 item['platform'] = 'aliexpress'
 
@@ -184,7 +186,31 @@ class SMTCheckOrderHandler(BaseHandler):
                     sku['pickStatus'] = 0
 
 
-                if db.orderList.find({'orderId':int(item['orderId'])}).count()>0:
+                order = db.orderList.find_one({'orderId':int(item['orderId'])})
+                if order:
+                    newData = dict()
+                    newData['productList'] = item['productList']
+                    newData['orderStatus'] = item['orderStatus']
+                    newData['frozenStatus'] = item['frozenStatus']
+                    newData['issueStatus'] = item['issueStatus']
+                    newData['fundStatus'] = item['fundStatus']
+                    if item.has_key('timeoutLeftTime'):
+                        newData['timeoutLeftTime'] = item['timeoutLeftTime']
+                    if item.has_key('leftSendGoodMin'):
+                        newData['leftSendGoodMin'] = item['leftSendGoodMin']
+                    if item.has_key('leftSendGoodHour'):
+                        newData['leftSendGoodHour'] = item['leftSendGoodHour']
+                    if item.has_key('leftSendGoodDay'):
+                        newData['leftSendGoodDay'] = item['leftSendGoodDay']
+
+                    if item.has_key('memo'):
+                        newData['memo'] = item['memo']
+
+                    if not order.has_key('gmtPayTime') and item.has_key('gmtPayTime'):
+                        newData['gmtPayTime'] = item['gmtPayTime']
+
+                    db.orderList.update({'orderId':int(item['orderId'])},{'$set':newData})
+
                     updateCount += 1
                 else:
                     db.orderList.insert(item)
