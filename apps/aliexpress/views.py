@@ -130,7 +130,7 @@ class SMTCheckOrderHandler(BaseHandler):
         client = mongo.client
         db = client.woderp
 
-        app = db.storeList.find_one({'apiInfo.appKey':appKey})
+        app = db.appList.find_one({'apiInfo.appKey':appKey})
 
         if app != None:
 
