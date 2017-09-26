@@ -142,7 +142,7 @@ class SMTCheckOrderHandler(BaseHandler):
 
         if storeId == '':
             #appKey = aList[random.randint(0,len(aList)-1)]
-            app = appList[random.randint(0,len(appList)-1)]
+            app = appList[random.randint(0,appList.count()-1)]
         else:
             app = db.appList.find_one({'storeId': storeId})
 
