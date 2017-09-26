@@ -13,17 +13,27 @@
     width: 188px;
 }
 
-
-@media (min-width: 1920px){
-    .container {
-    min-width: 1800px;
-
+.container {
+   min-width: 95%;
 }
-    .rightBody{ padding-left: 150px;padding-right: 50px;padding-bottom: 200px;}
-}
+.rightBody{ padding-left: 180px;padding-right: 50px;padding-bottom: 200px;}
 
-@media (min-width: 1600px ) and (max-width:1919px){
-    .container {
-    min-width: 1530px;
+
+@media (max-width: 1200px){
+
+    .rightBody{ padding-left: 60px;padding-bottom: 200px;}
+    .siderBar {
+    position: fixed;
+    top: 51px;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    display: block;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: #f5f5f5;
+    border-right: 1px solid #eee;
+    width: 60px;
 }
 }
