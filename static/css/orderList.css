@@ -33,7 +33,7 @@
 .container {
    min-width: 95%;
 }
-.rightBody{ padding-left: 180px;padding-right: 50px;padding-bottom: 200px;}
+.rightBody{ padding-left: 180px;padding-right: 30px;padding-bottom: 200px;}
 
 
 @media (max-width: 1200px){

@@ -28,8 +28,11 @@ class SMTOrderListHandler(BaseHandler):
 
         pageSize = 100
 
-        status = self.get_argument('status','WAIT_SELLER_SEND_GOODS')
+        status = self.get_argument('status','')
+        store = self.get_argument('store','')
         wd = self.get_argument('wd','')
+
+        appList = db.appList.find({'platform': 'aliexpress'})
 
 
         try:
@@ -40,7 +43,18 @@ class SMTOrderListHandler(BaseHandler):
         #totalCount = db.orderList.find({"order_state":"WAIT_SELLER_STOCK_OUT"}).count()
         option = {'platform':'aliexpress'}
 
-        statusList = db.orderList.aggregate([{'$group' : {'_id' : "$orderStatus", 'orderCount': {'$sum' : 1}}}])
+        matchOption = dict()
+
+
+        if status != '':
+            option['orderStatus'] = status
+            matchOption['orderStatus'] = status
+
+        if store != '':
+            option['storeInfo.storeId'] = store
+            matchOption['storeInfo.storeId'] = store
+
+        statusList = db.orderList.aggregate([{ '$match' : matchOption },{'$group': {'_id': "$orderStatus", 'orderCount': {'$sum': 1}}}])
 
         sL = []
         for s in statusList:
@@ -68,10 +82,7 @@ class SMTOrderListHandler(BaseHandler):
                     stxt += '待确认金额'
                 elif s['_id'] == 'FINISH':
                     stxt += '已结束'
-                sL.append({'status':s['_id'],'orderCount':s['orderCount'],'statusTxt':stxt})
-
-
-        option['orderStatus'] = status
+                sL.append({'status': s['_id'], 'orderCount': s['orderCount'], 'statusTxt': stxt})
 
 
         if wd != '':
@@ -115,8 +126,10 @@ class SMTOrderListHandler(BaseHandler):
 
         filterData = dict()
         filterData['status'] = status
+        filterData['store'] = store
         filterData['wd'] = wd
         filterData['statusList'] = sL
+        filterData['appList'] = appList
 
         self.render('smt/order-list.html',orderList = orderList,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
 
@@ -151,9 +164,8 @@ class SMTCheckOrderHandler(BaseHandler):
             api = ALIEXPRESS(app)
 
             option = dict()
-            #option = {'orderStatus':'WAIT_SELLER_SEND_GOODS'}
             option['pageSize'] = '50'
-            option['orderStatus'] = 'WAIT_SELLER_SEND_GOODS'
+            #option['orderStatus'] = 'WAIT_SELLER_SEND_GOODS'
 
             c = api.getOrderList(option)
 

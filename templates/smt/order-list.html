@@ -45,7 +45,12 @@
 
 
         <p>
-            {% for s in filterData['statusList'] %}<a href="?status={{ s['status'] }}&page=1" class="label {% if s['status'] == filterData['status'] %}label-danger{% else %}label-primary{% end%}">{{ s['statusTxt'] }} ({{ s['orderCount'] }})</a> {% end %}
+            {% for store in filterData['appList'] %}
+            <a href="?store={{ store['storeId'] }}&status={{ filterData['status'] }}&page=1" class="label {% if store['storeId'] == filterData['store'] %}label-danger{% else %}label-primary{% end%}">{{ store['cnName'] }}</a>
+            {% end %}
+        </p>
+            <p>
+            {% for s in filterData['statusList'] %}<a href="?status={{ s['status'] }}&store={{ filterData['store'] }}&page=1" class="label {% if s['status'] == filterData['status'] %}label-danger{% else %}label-primary{% end%}">{{ s['statusTxt'] }} ({{ s['orderCount'] }})</a> {% end %}
         </p>
 
 
@@ -86,6 +91,7 @@
                     <th style="border-left:none; ">商品信息</th>
                     <th style="width: 120px;">金额</th>
                     <th style="width: 100px;">买家信息</th>
+                    <th style="width: 180px;">时间</th>
                     <th colspan="2" style="">物流信息</th>
                     <th style="width: 100px;">订单状态</th>
                     <th style="width: 120px;">操作</th>
@@ -158,6 +164,12 @@
 
                     <td>
 
+
+
+                    </td>
+                    <td>
+                        下单时间：{{ order['gmtCreate'] }}
+                        {% if order.has_key('gmtPayTime') %}<br>付款时间：{{ order['gmtPayTime'] }}{% end %}
 
 
                     </td>
