@@ -67,6 +67,6 @@
     color: #fff;
     background-color: #777;
 }
-.pageNo {height: 32px;width: 100px;}
+.pageNo {height: 32px;width: 60px;}
 .pagination>li>a, .pagination>li>span{line-height:2.3}
 .filterBox p{ padding-top: 3px;}

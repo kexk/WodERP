@@ -1,6 +1,7 @@
 #coding:utf-8
 import os.path
 import re
+import uuid
 
 import tornado.httpserver
 import tornado.ioloop
@@ -118,6 +119,25 @@ class AuthHandler(BaseHandler):
 
 
 
+#文件上传（CKEditor使用）
+class UploadHandler(BaseHandler):
+    def post(self):
+        imgfile = self.request.files.get('upload')
+        callback = self.get_argument('CKEditorFuncNum')
+        imgPath = []
+        imgRoot = os.path.dirname(__file__)+'/static/uploads/'
+        for img in imgfile:
+            file_suffix = img['filename'].split(".")[-1]
+            file_name=str(uuid.uuid1())+"."+file_suffix
+            with open(imgRoot + file_name, 'wb') as f:
+                f.write(img['body'])
+
+            imgPath.append(file_name)
+
+        self.write('<script type="text/javascript">window.parent.CKEDITOR.tools.callFunction('+callback+',"/static/uploads/'+imgPath[0]+'","")</script>')
+
+
+
 def include(module):
     res = import_module(module)
     urls = getattr(res, 'urls', res)
@@ -152,6 +172,7 @@ if __name__ == "__main__":
             (r"/purchase/", include('apps.alibaba.urls')),
             (r'/login', LoginHandler),
             (r'/logout', LogoutHandler),
+            (r'/admin/upload/', UploadHandler),
             (r".*", BaseHandler),
         ]),
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
