@@ -167,8 +167,8 @@ class SMTCheckOrderHandler(BaseHandler):
                 item = od
                 item['createTime'] = datetime.datetime.now()
                 item['updateTime'] = datetime.datetime.now()
-                item['storeId'] = app['storeId']
-                item['platform'] = 'aliexpress'
+                item['storeInfo'] = {'storeId':app['storeId'],'cnName':app['cnName'],'enName':app['enName'],"operator" :app["operator" ],'dealPeron':app['dealPeron']}
+                item['platform'] = app['platform']
 
                 item['dealStatus'] = 'WAIT_SYSTEM_CHECK'
                 item['oprationLog'] = []

@@ -3,11 +3,35 @@
         {% block header %}
     <title>订单列表</title>
 {% end %}
-
+{% block styleblock %}
+<link rel="stylesheet" href="{{ static_url('css/orderList.css') }}"/>
+{% end %}
         {% block main %}
-		<div class="container theme-showcase" role="main">
 
-<div>
+<div class="siderBar">
+<ul class="nav nav-sidebar">
+            <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+            <li><a href="#">Reports</a></li>
+            <li><a href="#">Analytics</a></li>
+            <li><a href="#">Export</a></li>
+          </ul>
+    <ul class="nav nav-sidebar">
+            <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+            <li><a href="#">Reports</a></li>
+            <li><a href="#">Analytics</a></li>
+            <li><a href="#">Export</a></li>
+          </ul>
+    <ul class="nav nav-sidebar">
+            <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+            <li><a href="#">Reports</a></li>
+            <li><a href="#">Analytics</a></li>
+            <li><a href="#">Export</a></li>
+          </ul>
+
+</div>
+
+		<div class="container theme-showcase rightBody" role="main">
+            <div>
     <div class="col-lg-6">
     <button type="button" class="btn btn-danger" id="checkOrder">导入订单</button>
 <button type="button" class="btn btn-danger" id="checkSku">同步sku</button>
@@ -73,9 +97,9 @@
                     <th style="width: 30px;border-right:none; "><input type="checkbox" id="checkAll"/></th>
                     <th style="border-left:none; ">商品信息</th>
                     <th style="width: 120px;">金额</th>
+                    <th style="width: 100px;">买家信息</th>
+                    <th colspan="2" style="">物流信息</th>
                     <th style="width: 100px;">订单状态</th>
-                    <th style="width: 100px;">物流信息</th>
-                    <th colspan="2" style="">买家信息</th>
                     <th style="width: 120px;">操作</th>
                 </tr>
                 </thead>
@@ -143,6 +167,16 @@
                         {% end %}
                         <div class="p-value discount"><small>无优惠信息</small></div>
                     </td>
+
+                    <td>
+
+
+
+                    </td>
+                    <td class="t-c" colspan="2">
+                        <button class="btn btn-primary btn-sm showPurchase" data-toggle="modal" data-target="#myModal" data-val="{{ order['orderId'] }}">选择物流</button>
+
+                    </td>
                     <td class="t-c">
 
                         {% if order['orderStatus'] == 'WAIT_SELLER_SEND_GOODS' %}等待发货{% else %}
@@ -152,15 +186,6 @@
 
 
 						</td>
-                    <td>
-
-                        <button class="btn btn-primary btn-sm showPurchase" data-toggle="modal" data-target="#myModal" data-val="{{ order['orderId'] }}">选择物流</button>
-
-                    </td>
-                    <td class="t-c" colspan="2">
-
-
-                    </td>
                     <td class="t-c">
 						<div class="actionLink">
                         <a href="javascript:void(0);" style="display: block;" class="tjbz">修改收货信息</a>
