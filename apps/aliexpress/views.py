@@ -204,6 +204,11 @@ class SMTCheckOrderHandler(BaseHandler):
                 item['labels'] = []
                 item['pickStatus'] = 0
 
+                item['gmtCreate'] = datetime.datetime.strptime(od['gmtCreate'][:14],'%Y%m%d%H%M%S')
+
+                if od.has_key('gmtPayTime'):
+                    item['gmtPayTime'] = datetime.datetime.strptime(od['gmtPayTime'][:14],'%Y%m%d%H%M%S')
+
 
                 for sku in item['productList']:
                     sku['skuId'] = None
@@ -234,7 +239,7 @@ class SMTCheckOrderHandler(BaseHandler):
                         newData['memo'] = item['memo']
 
                     if not order.has_key('gmtPayTime') and item.has_key('gmtPayTime'):
-                        newData['gmtPayTime'] = item['gmtPayTime']
+                        newData['gmtPayTime'] = datetime.datetime.strptime(od['gmtPayTime'][:14],'%Y%m%d%H%M%S')
 
                     db.orderList.update({'orderId':int(item['orderId'])},{'$set':newData})
 
