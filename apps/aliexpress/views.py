@@ -131,20 +131,20 @@ class SMTCheckOrderHandler(BaseHandler):
 
         #result = o.getOrderList(order_state='WAIT_GOODS_RECEIVE_CONFIRM')
 
-        appKey = self.get_argument('appKey','')
-
-        aList = ['37691454','22863923']
-        #aList = ['37691454','22863923','26311262','44666316','37691454','22863923','26311262','44666316','37691454','22863923','26311262','44666316']
-
-        if appKey == '':
-            appKey = aList[random.randint(0,len(aList)-1)]
+        storeId = self.get_argument('storeId','')
 
         mongo = MongoCase()
         mongo.connect()
         client = mongo.client
         db = client.woderp
 
-        app = db.appList.find_one({'apiInfo.appKey':appKey})
+        appList = db.appList.find({'platform':'aliexpress'})
+
+        if storeId == '':
+            #appKey = aList[random.randint(0,len(aList)-1)]
+            app = appList[random.randint(0,len(appList)-1)]
+        else:
+            app = db.appList.find_one({'storeId': storeId})
 
         if app != None:
 
