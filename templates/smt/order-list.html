@@ -116,13 +116,11 @@
                         <input type="checkbox" name="checkedOrder" value="{{ order['orderId'] }}">
                         <span class="head-item" style="width: 190px">订单编号：
                             <a href="javascript:;" target="_blank" class="suctext limingcentUrlpic">{{ order['orderId'] }}</a></span>
-                        {% if order.has_key('orderAmount') %}
-                            <span class="head-item">货款金额：{{ order['orderAmount']['amount'] }}</span>
-                        {% else %}
-                            <span class="head-item">货款金额：{{ order['payAmount']['amount'] }}</span>{% end %}
-                            <span class="head-item">下单时间：{{ order['gmtCreate'] }}</span>
-                        {% if order.has_key('gmtPayTime') %}
-                            <span class="head-item"> 付款时间：{{ order['gmtPayTime'] }}</span>{% end %}
+                        {% if order.has_key('storeInfo') %}
+                            <span class="head-item">店铺：{{ order['storeInfo']['cnName'] }}</span>
+                            <span class="head-item">负责人：{{ order['storeInfo']['dealPeron']['puerchase'] }}</span>
+                           {% end %}
+
                             <span class="head-item">
                                 退款申请：<span style="display:inline;">无</span> </span>
 
@@ -189,7 +187,10 @@
 
                         {% if order['orderStatus'] == 'WAIT_SELLER_SEND_GOODS' %}等待发货{% else %}
                         {% if order['orderStatus'] == 'WAIT_BUYER_ACCEPT_GOODS' %}等待买家收货{% else %}
-                        {{ order['orderStatus'] }}{% end %}
+                        {% if order['orderStatus'] == 'RISK_CONTROL' %}风控中{% else %}
+                        {% if order['orderStatus'] == 'IN_CANCEL' %}买家申请取消{% else %}
+                        {{ order['orderStatus'] }}{% end %}{% end %}
+						{% end %}
 						{% end %}
 
 

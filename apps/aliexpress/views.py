@@ -226,6 +226,7 @@ class SMTCheckOrderHandler(BaseHandler):
                     newData['frozenStatus'] = item['frozenStatus']
                     newData['issueStatus'] = item['issueStatus']
                     newData['fundStatus'] = item['fundStatus']
+                    newData['updateTime'] = datetime.datetime.now()
                     if item.has_key('timeoutLeftTime'):
                         newData['timeoutLeftTime'] = item['timeoutLeftTime']
                     if item.has_key('leftSendGoodMin'):
