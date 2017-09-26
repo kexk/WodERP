@@ -84,6 +84,7 @@ class SMTOrderListHandler(BaseHandler):
             filerList.append({'receiptAddress.contactPerson':words})
             filerList.append({'receiptAddress.mobileNo':words})
             filerList.append({'logisticInfoList.logisticsNo':words})
+            filerList.append({'productList.productId':int(wd)})
 
             try:
                 filerList.append({'orderId':int(wd)})
@@ -133,6 +134,7 @@ class SMTCheckOrderHandler(BaseHandler):
         appKey = self.get_argument('appKey','')
 
         aList = ['37691454','22863923']
+        #aList = ['37691454','22863923','26311262','44666316','37691454','22863923','26311262','44666316','37691454','22863923','26311262','44666316']
 
         if appKey == '':
             appKey = aList[random.randint(0,len(aList)-1)]

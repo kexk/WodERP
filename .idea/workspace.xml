@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5d3ad59d-eb2e-41d4-b67d-76bbae4ff09f" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/smt/order-list.html" afterPath="$PROJECT_DIR$/templates/smt/order-list.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/apps/aliexpress/views.py" afterPath="$PROJECT_DIR$/apps/aliexpress/views.py" />
     </list>
     <ignored path="WodERP.iws" />
@@ -39,11 +38,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="views.py" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="views.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/apps/aliexpress/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1420" max-vertical-offset="3480">
-              <caret line="73" column="8" selection-start-line="73" selection-start-column="8" selection-end-line="73" selection-end-column="8" />
+            <state vertical-scroll-proportion="0.6075949" vertical-offset="1665" max-vertical-offset="3510">
+              <caret line="136" column="9" selection-start-line="136" selection-start-column="9" selection-end-line="136" selection-end-column="9" />
               <folding />
             </state>
           </provider>
@@ -59,10 +58,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="order-list.html" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="order-list.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/templates/smt/order-list.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.7681941" vertical-offset="240" max-vertical-offset="7125">
+            <state vertical-scroll-proportion="-11.875" vertical-offset="240" max-vertical-offset="7125">
               <caret line="35" column="127" selection-start-line="35" selection-start-column="127" selection-end-line="35" selection-end-column="127" />
               <folding>
                 <element signature="n#style#0;n#th#0;n#tr#0;n#thead#0;n#table#0;n#div#0;n#!!top" expanded="true" />
@@ -111,8 +110,8 @@
         <option value="$PROJECT_DIR$/templates/jd/order-list.html" />
         <option value="$PROJECT_DIR$/apps/alibaba/views.py" />
         <option value="$PROJECT_DIR$/templates/purchase-list.html" />
-        <option value="$PROJECT_DIR$/apps/aliexpress/views.py" />
         <option value="$PROJECT_DIR$/templates/smt/order-list.html" />
+        <option value="$PROJECT_DIR$/apps/aliexpress/views.py" />
       </list>
     </option>
   </component>
@@ -693,14 +692,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/apps/aliexpress/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1420" max-vertical-offset="3480">
-          <caret line="73" column="8" selection-start-line="73" selection-start-column="8" selection-end-line="73" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/templates/purchase-list.html">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-15.208333" vertical-offset="3745" max-vertical-offset="4305">
@@ -711,7 +702,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/templates/smt/order-list.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7681941" vertical-offset="240" max-vertical-offset="7125">
+        <state vertical-scroll-proportion="-11.875" vertical-offset="240" max-vertical-offset="7125">
           <caret line="35" column="127" selection-start-line="35" selection-start-column="127" selection-end-line="35" selection-end-column="127" />
           <folding>
             <element signature="n#style#0;n#th#0;n#tr#0;n#thead#0;n#table#0;n#div#0;n#!!top" expanded="true" />
@@ -724,6 +715,14 @@
             <element signature="n#style#0;n#span#0;n#span#5;n#td#0;n#tr#1;n#tbody#0;n#table#0;n#div#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#0;n#div#0;n#td#0;n#tr#2;n#tbody#0;n#table#0;n#div#0;n#!!top" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/apps/aliexpress/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.6075949" vertical-offset="1665" max-vertical-offset="3510">
+          <caret line="136" column="9" selection-start-line="136" selection-start-column="9" selection-end-line="136" selection-end-column="9" />
+          <folding />
         </state>
       </provider>
     </entry>
