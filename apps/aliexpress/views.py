@@ -31,6 +31,7 @@ class SMTOrderListHandler(BaseHandler):
         status = self.get_argument('status','')
         store = self.get_argument('store','')
         wd = self.get_argument('wd','')
+        platform = self.get_argument('platform','aliexpress')
 
         appList = db.appList.find({'platform': 'aliexpress'})
 
@@ -41,7 +42,7 @@ class SMTOrderListHandler(BaseHandler):
             page = 1
 
         #totalCount = db.orderList.find({"order_state":"WAIT_SELLER_STOCK_OUT"}).count()
-        option = {'platform':'aliexpress'}
+        option = {'platform':platform}
 
         matchOption = dict()
 

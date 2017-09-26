@@ -23,11 +23,13 @@
   padding-right: 20px;
   padding-left: 20px;
 }
+.nav-sidebar a{color:#000;}
+
 .nav-sidebar > .active > a,
 .nav-sidebar > .active > a:hover,
 .nav-sidebar > .active > a:focus {
   color: #fff;
-  background-color: #428bca;
+  background-color: #827e7e;
 }
 
 .container {
@@ -36,7 +38,7 @@
 .rightBody{ padding-left: 180px;padding-right: 30px;padding-bottom: 200px;}
 
 
-@media (max-width: 1200px){
+@media (max-width: 1300px){
 
     .rightBody{ padding-left: 60px;padding-bottom: 200px;}
     .siderBar {
@@ -54,3 +56,17 @@
     width: 60px;
 }
 }
+
+.filterBox{ clear: both;padding-top: 10px;margin-top: 10px;}
+
+.label-default {
+    background-color: #fff;
+    color: #000;
+}
+.filterBox a.active{
+    color: #fff;
+    background-color: #777;
+}
+.pageNo {height: 32px;width: 100px;}
+.pagination>li>a, .pagination>li>span{line-height:2.3}
+.filterBox p{ padding-top: 3px;}
