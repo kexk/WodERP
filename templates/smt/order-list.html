@@ -136,7 +136,7 @@
                         <div class="goodsImg">
 						{% if sku['productImgUrl'] != None %}
                             <a href="//www.aliexpress.com/item/--/{{ sku['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ sku['productImgUrl'].split('_50')[0] }}>')" onMouseOut="toolTip()">
-                                <img class="skuImg" data-val="{{ sku['productId'] }}" src="{{ sku['productImgUrl'] }}" data-src="{{ sku['productImgUrl'].split('_50')[0] }}">
+                                <img class="skuImg lazy" data-val="{{ sku['productId'] }}" src="{{ static_url('img/nopic.png') }}" data-original="{{ sku['productImgUrl'] }}">
                             </a>{% else %}
 							<a href="//www.aliexpress.com/item/--/{{ sku['productId'] }}.html" target="_blank">
 							<img class="noSkuImg" data-val="{{ sku['productId'] }}" src="//img11.360buyimg.com/n5/jfs/t3271/88/7808807198/85040/49d5cf69/58bccd95Nd1b090a7.jpg">
@@ -484,8 +484,14 @@
 <script src="{{ static_url('plugin/notify/notifications.js') }}"></script>
 <script src="{{ static_url('plugin/jscopy/clipboard.min.js') }}"></script>
 <script src="{{ static_url('plugin/jscopy/jscopy.js') }}"></script>
+<script src="{{ static_url('plugin/lazyload/jquery.lazyload.min.js') }}"></script>
 
 <script type="text/javascript">
+    $("img.lazy").lazyload({
+        effect: "fadeIn"
+    });
+
+
     function loadSkuImage() {
         $('.noSkuImg').each(function(){
             var obj = $(this);
