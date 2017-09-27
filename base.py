@@ -12,4 +12,5 @@ class BaseHandler(tornado.web.RequestHandler):
         elif status_code == 500:
             self.render('error/500.html')
         else:
-            self.write('error:' + str(status_code))
+            #self.write('error:' + str(status_code))
+            self.render('error.html',msg=status_code)

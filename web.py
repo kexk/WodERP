@@ -20,19 +20,6 @@ from apps.alibaba.views import *
 define("port", default=9999, help="run on the given port", type=int)
 
 
-class BaseHandler(tornado.web.RequestHandler):
-    def get_current_user(self):
-        return self.get_secure_cookie("email")
-
-    def write_error(self, status_code, **kwargs):
-        if status_code == 404:
-            self.render('error/404.html')
-        elif status_code == 500:
-            self.render('error/500.html')
-        else:
-            self.write('error:' + str(status_code))
-
-
 class IndexHandler(BaseHandler):
 
     #@tornado.web.authenticated
@@ -86,7 +73,7 @@ if __name__ == "__main__":
     settings = {
         "cookie_secret": "bZJc2sWbQLKos6GkHn/VB9oXwQt8S0R0kRvJ5/xJ89E=",
         "xsrf_cookies": True,
-        'login_url':'/login'
+        'login_url':'/admin/login'
     }
     app = tornado.web.Application(
         url_wrapper([
