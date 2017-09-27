@@ -176,6 +176,7 @@
                     <td>
                         下单：{{ order['gmtCreate'] }}
                         {% if order.has_key('gmtPayTime') %}<br>付款：{{ order['gmtPayTime'] }}{% end %}
+                        {% if order.has_key('timeoutLeftTime') %}<br>{% if order.has_key('leftSendGoodDay') %}{{ order['leftSendGoodDay'] }}天{% end %}{% if order.has_key('leftSendGoodHour') %}{{ order['leftSendGoodHour'] }}时{% end %}{% if order.has_key('leftSendGoodMin') %}{{ order['leftSendGoodMin'] }}分{% end %}{% end %}
 
 
                     </td>
