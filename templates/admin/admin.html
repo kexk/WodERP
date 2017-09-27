@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+        {% block header %}
+    <title>子账号管理</title>
+{% end %}
+
+{% block main %}
+<div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>账号</th>
+            <th>类型</th>
+            <th>注册时间</th>
+            <th>状态</th>
+            <th>是否激活</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in userList %}
+        <tr>
+            <td>{{ user['_id'] }}</td>
+            <td>{{ user['account'] }}</td>
+            <td>{{ user['type'] }}</td>
+            <td>{{ user['regDate'] }}</td>
+            <td>{{ user['status'] }}</td>
+            <td>{{ user['isActive'] }}</td>
+            <td><a href="#">查看</a> | <a href="/auditUser/?action=audit&id={{ user['_id'] }}">通过</a> | <a href="/auditUser/?action=deActive&id={{ user['_id'] }}">禁止</a> | <a href="/auditUser/?action=delete&id={{ user['_id'] }}">删除</a></td>
+        </tr>
+        {% end %}
+        </tbody>
+    </table>
+
+</div>
+
+{% end %}

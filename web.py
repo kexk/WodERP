@@ -1,7 +1,5 @@
 #coding:utf-8
 import os.path
-import re
-import uuid
 
 import tornado.httpserver
 import tornado.ioloop
@@ -55,86 +53,12 @@ class IndexHandler(BaseHandler):
         self.write("Gosh darnit, user! You caused a %d error.\n" % status_code)
 
 
-class LoginHandler(BaseHandler):
-
-    def get(self):
-        user = self.current_user
-        referer = self.get_argument('next','/')
-        if user:
-            self.redirect(referer)
-        else:
-            self.render('login.html',referer=referer)
-
-
-    def post(self):
-
-        email = self.get_argument('email','')
-        password = self.get_argument('password','')
-
-        if email == '' or password == '':
-            self.render('error.html',msg=u'Email 密码 不能为空!')
-
-        else:
-
-            mongo = MongoCase()
-            mongo.connect()
-            client = mongo.client
-            db = client.woderp
-            user = db.user.find({"account":email})
-            if user.count()<1:
-                self.render('error.html',msg=u'Email 不存在')
-            else:
-                m = hashlib.md5()
-                m.update(password)
-                sign = m.hexdigest()
-                if user[0]['password'] != sign:
-                    self.render('error.html',msg=u'密码错误')
-
-                else:
-                    self.set_secure_cookie("email", email)
-                    if user[0]['isSupper']:
-                        self.set_secure_cookie("role", 'Admin')
-                        #self.redirect('/admin')
-                    else:
-                        self.set_secure_cookie("role", 'User')
-
-                    if user[0]['isActive']:
-                            self.redirect(self.get_argument('next','/'))
-                    else:
-                        self.render('error.html',msg=u'未激活用户,重新申请激活 '+u'>> <a href="/profile">修改资料</a>')
-
-
-class LogoutHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.clear_cookie("email")
-        self.clear_cookie("role")
-        self.redirect('/')
-
 
 class AuthHandler(BaseHandler):
     def get(self):
         code = self.get_argument('code', '')
 
         self.render('index.html')
-
-
-
-#文件上传（CKEditor使用）
-class UploadHandler(BaseHandler):
-    def post(self):
-        imgfile = self.request.files.get('upload')
-        callback = self.get_argument('CKEditorFuncNum')
-        imgPath = []
-        imgRoot = os.path.dirname(__file__)+'/static/uploads/'
-        for img in imgfile:
-            file_suffix = img['filename'].split(".")[-1]
-            file_name=str(uuid.uuid1())+"."+file_suffix
-            with open(imgRoot + file_name, 'wb') as f:
-                f.write(img['body'])
-
-            imgPath.append(file_name)
-
-        self.write('<script type="text/javascript">window.parent.CKEDITOR.tools.callFunction('+callback+',"/static/uploads/'+imgPath[0]+'","")</script>')
 
 
 
@@ -170,9 +94,7 @@ if __name__ == "__main__":
             (r"/jd/", include('apps.jingdong.urls')),
             (r"/smt/", include('apps.aliexpress.urls')),
             (r"/purchase/", include('apps.alibaba.urls')),
-            (r'/login', LoginHandler),
-            (r'/logout', LogoutHandler),
-            (r'/admin/upload/', UploadHandler),
+            (r"/admin/", include('apps.admin.urls')),
             (r".*", BaseHandler),
         ]),
         template_path=os.path.join(os.path.dirname(__file__), "templates"),

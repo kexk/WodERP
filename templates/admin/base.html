@@ -11,10 +11,9 @@
     <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
 <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 <link rel="stylesheet" href="http://v3.bootcss.com/assets/css/docs.min.css">
-    <link rel="stylesheet" href="{{ static_url('css/style.css') }}"/>
-	{% block styleblock %}{% end %}
+    <link rel="stylesheet" href="{{ static_url("css/style.css") }}"/>
 </head>
-<body class="{% block bodycss %}{% end %}">
+<body>
 
 <!-- Fixed navbar -->
     <nav class="navbar navbar-default navbar-fixed-top">
@@ -26,16 +25,25 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">WodERP <sup class="text-danger">beta</sup></a>
+          <a class="navbar-brand" href="#">WodBlog <sup class="text-danger">beta</sup></a>
 
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="active"><a href="/">首页</a></li>
-            <li><a href="/smt/orderList">订单列表</a></li>
-            <li><a href="/purchase/">采购列表</a></li>
+
+              <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">文章管理 <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="/ucenter/list">我的文章</a></li>
+                <li><a href="/ucenter/post">发布文章</a></li>
+                <li><a href="#">草稿箱</a></li>
+              </ul>
+            </li>
+              <li><a href="/admin/links">链接管理</a></li>
+              <li><a href="/admin/ads">广告管理</a></li>
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">产品库 <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <li><a href="#">Action</a></li>
                 <li><a href="#">Another action</a></li>
@@ -49,14 +57,12 @@
 
           </ul>
             <p class="navbar-text navbar-right">
-
                 {% if userInfo['account'] is None %}
-                <a href="/admin/login" class="navbar-link">登录</a> | <a href="/admin/reg" class="navbar-link">注册</a>
+                <a href="/account/login?referer={{ referer }}" class="navbar-link">登录</a> | <a href="/account/reg?referer={{ referer }}" class="navbar-link">注册</a>
                 {% else %}
                 Hi, <a href="#" class="navbar-link">{{ userInfo['account'] }}</a>
-                 | <a href="/profile" class="navbar-link">个人资料</a> | <a href="/admin/logout" class="navbar-link">退出</a>
+                 |  <a href="/account/logout" class="navbar-link">退出</a>
                 {% end %}
-
             </p>
 
         </div><!--/.nav-collapse -->
@@ -64,22 +70,14 @@
       </div>
     </nav>
 
-	{% block main %}
-
-{% end %}
-
+<div class="container theme-showcase" role="main">
+    {% block main %}{% end %}
 
 
-<div id="elevator_item">
-        <a id="elevator" onclick="return false;" title="回到顶部"></a>
-        <a class="qr"></a>
-  	<div class="qr-popup">
-    	<a class="code-link"><img class="code" src="/static/img/qr.png"/></a>
-        <span>扫码关注</span>
-    <div class="arr"></div>
-  </div>
-  
+
 </div>
+
+
 
 
 <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
@@ -87,28 +85,6 @@
 <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 {% block footer %}{% end %}
-
-
-<script type="text/javascript">
-$(function() {
-	$(window).scroll(function(){
-		var scrolltop=$(this).scrollTop();		
-		if(scrolltop>=200){		
-			$("#elevator_item").show();
-		}else{
-			$("#elevator_item").hide();
-		}
-	});		
-	$("#elevator").click(function(){
-		$("html,body").animate({scrollTop: 0}, 500);	
-	});		
-	$(".qr").hover(function(){
-		$(".qr-popup").show();
-	},function(){
-		$(".qr-popup").hide();
-	});	
-});
-</script>
 
 </body>
 </html>

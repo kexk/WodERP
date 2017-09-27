@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head lang="zh-CN">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>用户注册</title>
+
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ static_url("css/style.css") }}"/>
+</head>
+<body>
+
+<!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">IntePublish <sup class="text-danger">beta</sup></a>
+
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="/">首页</a></li>
+            <li><a href="/blog/">博客</a></li>
+
+          </ul>
+
+
+        </div><!--/.nav-collapse -->
+
+      </div>
+    </nav>
+
+<div class="container theme-showcase" role="main">
+
+    <div class="container" style="max-width: 500px;margin: 60px auto;">
+        <form class="form-horizontal" action="" method="post">
+        {% raw xsrf_form_html() %}
+  <div class="form-group">
+    <label class="col-sm-3 control-label">账号</label>
+    <div class="col-sm-9"><input type="text" class="form-control col-md-10" name="email" placeholder="账号/邮箱"></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-3 control-label">密码</label>
+      <div class="col-sm-9"><input type="password" class="form-control" name="password"></div>
+
+  </div>
+  <div class="form-group">
+    <label class="col-sm-3 control-label">确认密码</label>
+    <div class="col-sm-9"><input type="password" class="form-control" name="password_repeat"></div>
+  </div>
+
+  <div class="checkbox col-sm-offset-3 col-sm-9">
+      <p><input type="radio" name="type" checked value="1" /> 作者 <input type="radio" name="type" value="2" />企业
+
+      <span class="pull-right">已经有账号？<a href="/account/login">登录</a></span>
+      </p>
+
+
+  </div>
+        <div class="text-center col-sm-offset-3 col-sm-9">
+            <button type="submit" class="btn btn-default">注册</button>
+  <button type="reset" class="btn btn-default">重置</button>
+        </div>
+
+</form>
+    </div>
+
+</div>
+
+
+
+
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</body>
+</html>
