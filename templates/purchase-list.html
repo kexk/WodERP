@@ -147,8 +147,8 @@
                        <br>
                        {% for logist in order['logistics'] %}
                        <span class="text-black">
-                           {{ logist['logisticsCompanyName'] }}
-                           {{ logist['logisticsBillNo'] }}
+                           {% if logist.has_key('logisticsCompanyName') %}{{ logist['logisticsCompanyName'] }}{% end %}
+                           {% if logist.has_key('logisticsBillNo') %}{{ logist['logisticsBillNo'] }}{% end %}
 
                        </span>
                        {% end %}
