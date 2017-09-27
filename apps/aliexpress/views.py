@@ -240,7 +240,7 @@ class SMTCheckOrderHandler(BaseHandler):
                         newData['memo'] = item['memo']
 
                     if not order.has_key('gmtPayTime') and item.has_key('gmtPayTime'):
-                        newData['gmtPayTime'] = datetime.datetime.strptime(od['gmtPayTime'][:14],'%Y%m%d%H%M%S')
+                        newData['gmtPayTime'] = item['gmtPayTime']
 
                     db.orderList.update({'orderId':int(item['orderId'])},{'$set':newData})
 
