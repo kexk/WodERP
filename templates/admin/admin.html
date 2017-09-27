@@ -27,7 +27,7 @@
             <td>{{ user['regDate'] }}</td>
             <td>{{ user['status'] }}</td>
             <td>{{ user['isActive'] }}</td>
-            <td><a href="#">查看</a> | <a href="/auditUser/?action=audit&id={{ user['_id'] }}">通过</a> | <a href="/auditUser/?action=deActive&id={{ user['_id'] }}">禁止</a> | <a href="/auditUser/?action=delete&id={{ user['_id'] }}">删除</a></td>
+            <td><a href="#">查看</a> | <a href="/admin/auditUser/?action=audit&id={{ user['_id'] }}">通过</a> | <a href="/admin/auditUser/?action=deActive&id={{ user['_id'] }}">禁止</a> | <a href="/admin/auditUser/?action=delete&id={{ user['_id'] }}">删除</a></td>
         </tr>
         {% end %}
         </tbody>
