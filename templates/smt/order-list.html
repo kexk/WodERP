@@ -308,12 +308,29 @@
 
 {% block footer %}
 <script>
+
+    function GetQueryString(name)
+    {
+         var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+         var r = window.location.search.substr(1).match(reg);
+         if(r!=null)return  unescape(r[2]); return null;
+    }
+
     $(document).on('click', '#checkOrder', function() {
         $(this).attr('disabled',true);
 
-        $.getJSON('/smt/api/checkOrder',function (result) {
+        storeId = GetQueryString('store');
+
+        var data = {};
+
+        if(storeId){
+            data['storeId']=storeId;
+        }
+
+        $.getJSON('/smt/api/checkOrder',data,function (result) {
             if(result.success){
-                window.location.href = '/smt/orderList';
+                //window.location.href = '/smt/orderList';
+                window.history.go(0);
                 //console.log(result.data);
             }
         });
