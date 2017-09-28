@@ -152,7 +152,7 @@ class SMTCheckOrderHandler(BaseHandler):
         client = mongo.client
         db = client.woderp
 
-        appList = db.appList.find({'platform':'aliexpress'})
+        appList = db.appList.find({'platform':'aliexpress','apiInfo.status':1})
 
         if storeId == '':
             #appKey = aList[random.randint(0,len(aList)-1)]
@@ -240,7 +240,7 @@ class SMTCheckOrderHandler(BaseHandler):
                         newData['memo'] = item['memo']
 
                     if not order.has_key('gmtPayTime') and item.has_key('gmtPayTime'):
-                        newData['gmtPayTime'] = datetime.datetime.strptime(od['gmtPayTime'][:14],'%Y%m%d%H%M%S')
+                        newData['gmtPayTime'] = item['gmtPayTime']
 
                     db.orderList.update({'orderId':int(item['orderId'])},{'$set':newData})
 

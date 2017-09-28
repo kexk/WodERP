@@ -7,5 +7,6 @@ urls = [
     (r'reg', RegHandler),
     (r'login', LoginHandler),
     (r'logout', LogoutHandler),
+    (r'auditUser/', AuditUserHandler),
     (r'upload/', UploadHandler),
 ]
