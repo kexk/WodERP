@@ -148,7 +148,7 @@
                         </div>
                         <div class="p-detail">
                             <span class="p-amount">售价:<b>{{ sku['productUnitPrice']['amount'] }}</b> x 数量:<i class="badge">{{ sku['productCount'] }}</i></span>
-                            <span class="p-amount">货号:{% if sku.has_key('skuCode') %}<b>{{ sku['skuCode'] }}</b>{% end %}</span>
+                            <span class="p-amount">货号:{% if sku.has_key('skuCode') %}<b><a href="javascript:void(0);" class="limingcentUrlpic">{{ sku['skuCode'] }}</a></b>{% end %}</span>
                         </div>
 						</div>
                         {% end %}
@@ -203,8 +203,8 @@
                     <td class="t-c">
 						<div class="actionLink">
                         <a href="javascript:void(0);" style="display: block;" class="tjbz">修改收货信息</a>
-                        <a href="//order.shop.jd.com/order/sopUp_multiLogisticsOut.action?orderId=60172709030&amp;page=1" style="display: block;">多库发货</a>
-                        <a href="//neworder.shop.jd.com/order/orderDetail?orderId=60172709030" style="display: block;" target="_blank">查看详情</a>
+                        <a href="#" style="display: block;">多库发货</a>
+                        <a href="#" style="display: block;" target="_blank">查看详情</a>
                         <a href="javascript:void(0);" style="display:block;">添加备注</a>
                         <a href="javascript:void(0);" style="">延迟发货提醒</a>
 						</div>
