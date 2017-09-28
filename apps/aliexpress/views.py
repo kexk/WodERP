@@ -91,15 +91,17 @@ class SMTOrderListHandler(BaseHandler):
 
             filerList = []
             filerList.append({'productList.productName':words})
+            filerList.append({'productList.skuCode':words})
             filerList.append({'buyerLoginId':words})
             filerList.append({'buyerSignerFullname':words})
             filerList.append({'receiptAddress.contactPerson':words})
             filerList.append({'receiptAddress.mobileNo':words})
             filerList.append({'logisticInfoList.logisticsNo':words})
-            filerList.append({'productList.productId':int(wd)})
+
 
             try:
                 filerList.append({'orderId':int(wd)})
+                filerList.append({'productList.productId': int(wd)})
             except:
                 pass
 
