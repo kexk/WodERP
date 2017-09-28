@@ -152,7 +152,7 @@ class SMTCheckOrderHandler(BaseHandler):
         client = mongo.client
         db = client.woderp
 
-        appList = db.appList.find({'platform':'aliexpress'})
+        appList = db.appList.find({'platform':'aliexpress','apiInfo.status':1})
 
         if storeId == '':
             #appKey = aList[random.randint(0,len(aList)-1)]
