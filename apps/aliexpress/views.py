@@ -62,7 +62,7 @@ class SMTOrderListHandler(BaseHandler):
             if s['_id']:
                 stxt = ''
                 if s['_id'] == 'PLACE_ORDER_SUCCESS':
-                    stxt += '待付款'
+                    stxt += '未付款'
                 elif s['_id'] == 'RISK_CONTROL':
                     stxt += '风控中'
                 elif s['_id'] == 'IN_CANCEL':
