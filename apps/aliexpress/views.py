@@ -231,6 +231,8 @@ class SMTCheckOrderHandler(BaseHandler):
                     newData['updateTime'] = datetime.datetime.now()
                     if item.has_key('timeoutLeftTime'):
                         newData['timeoutLeftTime'] = item['timeoutLeftTime']
+                    else:
+                        newData['timeoutLeftTime'] = None
                     if item.has_key('leftSendGoodMin'):
                         newData['leftSendGoodMin'] = item['leftSendGoodMin']
                     if item.has_key('leftSendGoodHour'):

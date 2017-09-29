@@ -179,7 +179,7 @@
                         下单：{{ order['gmtCreate'] }}
                         {% if order.has_key('gmtPayTime') %}<br>付款：{{ order['gmtPayTime'] }}{% end %}
 
-                        {% if order.has_key('timeoutLeftTime') %}<br>
+                        {% if order.has_key('timeoutLeftTime') and order['timeoutLeftTime'] != None %}<br>
                         <code id="validTime-{{ order['_id'] }}"></code>
                         <script>addTimer("validTime-{{ order['_id'] }}", "{{ order['updateTime'] }}","{{ order['timeoutLeftTime'] }}");</script>
                         {% end %}
