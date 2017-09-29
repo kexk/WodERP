@@ -168,7 +168,7 @@ class SMTCheckOrderHandler(BaseHandler):
 
             option = dict()
             option['pageSize'] = '50'
-            #option['orderStatus'] = 'WAIT_SELLER_SEND_GOODS'
+            option['orderStatus'] = 'WAIT_SELLER_SEND_GOODS'
 
             c = api.getOrderList(option)
 

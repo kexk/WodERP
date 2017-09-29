@@ -6,6 +6,8 @@
 {% block styleblock %}
 <link rel="stylesheet" href="{{ static_url('css/orderList.css') }}"/>
 <link rel="stylesheet" href="{{ static_url('plugin/notify/notification.css') }}"/>
+<script src="{{ static_url('js/orderlist/comm.js') }}" charset="utf-8"></script>
+
 {% end %}
         {% block main %}
 
@@ -176,7 +178,11 @@
                     <td>
                         下单：{{ order['gmtCreate'] }}
                         {% if order.has_key('gmtPayTime') %}<br>付款：{{ order['gmtPayTime'] }}{% end %}
-                        {% if order.has_key('timeoutLeftTime') %}<br>{% if order.has_key('leftSendGoodDay') %}{{ order['leftSendGoodDay'] }}天{% end %}{% if order.has_key('leftSendGoodHour') %}{{ order['leftSendGoodHour'] }}时{% end %}{% if order.has_key('leftSendGoodMin') %}{{ order['leftSendGoodMin'] }}分{% end %}{% end %}
+
+                        {% if order.has_key('timeoutLeftTime') %}<br>
+                        <code id="validTime-{{ order['_id'] }}"></code>
+                        <script>addTimer("validTime-{{ order['_id'] }}", "{{ order['updateTime'] }}","{{ order['timeoutLeftTime'] }}");</script>
+                        {% end %}
 
 
                     </td>
@@ -313,7 +319,7 @@
     {
          var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
          var r = window.location.search.substr(1).match(reg);
-         if(r!=null)return  unescape(r[2]); return null;
+         if(r!=null)return  decodeURI(r[2]); return null;
     }
 
     $(document).on('click', '#checkOrder', function() {

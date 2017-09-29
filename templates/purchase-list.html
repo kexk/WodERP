@@ -229,7 +229,8 @@
 
         $.getJSON('/purchase/api/checkPurchase',function (result) {
             if(result.success){
-                window.location.href = '/purchase/';
+                //window.location.href = '/purchase/';
+                window.history.go(0);
                 //console.log(result.data);
             }
         });
