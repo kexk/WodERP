@@ -178,10 +178,11 @@ class SMTCheckOrderHandler(BaseHandler):
             total = result['totalItem']
             addCount = 0
             updateCount = 0
+            updateTime = datetime.datetime.now()
             for od in ol:
                 item = od
                 item['createTime'] = datetime.datetime.now()
-                item['updateTime'] = datetime.datetime.now()
+                item['updateTime'] = updateTime
                 item['storeInfo'] = {'storeId':app['storeId'],'cnName':app['cnName'],'enName':app['enName'],"operator" :app["operator" ],'dealPeron':app['dealPeron']}
                 item['platform'] = app['platform']
 
@@ -228,7 +229,7 @@ class SMTCheckOrderHandler(BaseHandler):
                     newData['frozenStatus'] = item['frozenStatus']
                     newData['issueStatus'] = item['issueStatus']
                     newData['fundStatus'] = item['fundStatus']
-                    newData['updateTime'] = datetime.datetime.now()
+                    newData['updateTime'] = updateTime
                     if item.has_key('timeoutLeftTime'):
                         newData['timeoutLeftTime'] = item['timeoutLeftTime']
                     else:
