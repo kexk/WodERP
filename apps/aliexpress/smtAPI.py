@@ -22,12 +22,14 @@ class ALIEXPRESS:
 
         data = {'orderId':orderId,'apiPath':apiPath,'appKey':self.appKey,'fieldList':fieldList,'extInfoBitFlag':extInfoBitFlag}
 
-        r = requests.post(self.apiRoot+self.apiRoute,data=data)
-        if r.status_code == 200:
-            return r.content
-        else:
-            return '''{"result:{"success":false}}'''
-
+        try:
+            r = requests.post(self.apiRoot+self.apiRoute,data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
 
 
     def getOrderList(self,option={}):
@@ -39,14 +41,36 @@ class ALIEXPRESS:
         for (k,v) in  option.items():
             data[k] = v
 
+        try:
+            r = requests.post(self.apiRoot+self.apiRoute,data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
 
-        r = requests.post(self.apiRoot+self.apiRoute,data=data)
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}'''%str(e)
 
 
-        if r.status_code == 200:
-            return r.content
-        else:
-            return '''{"result:{"success":false}}'''
+    def getOrderSimpleList(self,option={}):
+
+        apiPath = 'api.findOrderListSimpleQuery'
+
+        data = {'appKey':self.appKey,'apiPath':apiPath,'orderStatus':'','page':'1','pageSize':'20','createDateStart':'','createDateEnd':''}
+
+        for (k,v) in  option.items():
+            data[k] = v
+
+        try:
+            r = requests.post(self.apiRoot+self.apiRoute,data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}'''%str(e)
+
 
 
 
