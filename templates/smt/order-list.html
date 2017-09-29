@@ -66,32 +66,61 @@
         <nav aria-label="Page navigation" class="pull-right">
 
   <ul class="pagination">
-      <li> <span>总数量：{{ pageInfo['totalCount'] }}，每页{{ pageInfo['pageSize'] }}条，共{{ pageInfo['totalPage'] }} 页</span></li>
-      <li> <span>跳转到</span><span><input type="number" class="form-control pageNo" name="pageNo" value="{{ pageInfo['pageNo'] }}"></span> <span><button class="btn btn-sm btn-primary">确定</button></span></li>
-    <li>
-      <a href="#" aria-label="Previous">
-        <span aria-hidden="true">&laquo;</span>
-      </a>
-    </li>
-      {% for p in pageInfo['pageList'] %}
-        {% if p==pageInfo['pageNo'] %}
-      <li class="active"><a href="#">{{ p }}<span class="sr-only">(current)</span></a></li>
-        {% else %}
-      <li><a href="?page={{ p }}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}">{{ p }}</a></li>
-        {% end %}
-    {% end %}
+      <li> <span style="border-right:none;padding-right:5px;">总数量：{{ pageInfo['totalCount'] }}，每页</span></li>
+      <li> <span style="border-left:none;padding-left:5px;border-right:none;padding-right:5px;"><select name="pageSize" class="form-control pageNo"><option value="50" {% if pageInfo['pageSize']==50 %}selected{% end %} >50</option><option value="100" {% if pageInfo['pageSize']==100 %}selected{% end %}>100</option><option value="200" {% if pageInfo['pageSize']==200 %}selected{% end %}>200</option></select></span></li>
+      <li> <span style="border-left:none;padding-left:5px;border-right:none;padding-right:5px;">共{{ pageInfo['totalPage'] }} 页,跳转到</span><span style="border-left:none;padding-left:5px;border-right:none;padding-right:5px;"><input type="number" class="form-control pageNo" name="pageNo" value="{{ pageInfo['pageNo'] }}"></span> <span style="border-left:none;padding-left:5px;border-right:none;padding-right:5px;"><button class="btn btn-sm btn-primary">确定</button></span></li>
 
-    <li>
-      <a href="#" aria-label="Next">
-        <span aria-hidden="true">&raquo;</span>
-      </a>
+
+      {% if pageInfo['pageNo'] == pageInfo['pageList'][0]%}
+
+      <li class="disabled"><a href="#" aria-label="First"><span aria-hidden="true">|&lt;</span></a></li>
+      <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
     </li>
+          {% else %}
+       <li><a href="?page={{ pageInfo['pageList'][0] }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="First"><span aria-hidden="false">|&lt;</span></a></li>
+      <li><a href="?page={{ pageInfo['pageNo']-1 }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+    </li>
+
+          {% end %}
+
+
+
+      <li class="active"><a href="#">{{ pageInfo['pageNo'] }}<span class="sr-only">(current)</span></a></li>
+
+
+
+          {% if pageInfo['pageNo'] == pageInfo['pageList'][-1]%}
+      <li class="disabled"><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+    </li>
+      <li class="disabled"><a href="#" aria-label="End"><span aria-hidden="true">&gt;|</span></a></li>
+          {% else %}
+      <li><a href="?page={{ pageInfo['pageNo']+1 }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+    </li>
+      <li><a href="?page={{ pageInfo['pageList'][-1] }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="End"><span aria-hidden="false">&gt;|</span></a></li>
+          {% end %}
+
   </ul>
 </nav>
 
         <div class="btn-toolbar" role="toolbar" style="display: none;">
+            <div class="dropdown">
+   <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+    批量操作
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+    <li><a href="#">Action</a></li>
+    <li><a href="#">Another action</a></li>
+    <li><a href="#">Something else here</a></li>
+    <li role="separator" class="divider"></li>
+    <li><a href="#">Separated link</a></li>
+  </ul>
+</div>
+
       <button type="button" class="btn btn-default btn-sm" id="checkSkuu">同步SKU</button>
       <button type="button" class="btn btn-default btn-sm">更新订单</button>
+
+
     </div>
 
            <table class="table table-bordered table-hover">
@@ -180,7 +209,7 @@
                         {% if order.has_key('gmtPayTime') %}<br>付款：{{ order['gmtPayTime'] }}{% end %}
 
                         {% if order.has_key('timeoutLeftTime') and order['timeoutLeftTime'] != None %}<br>
-                        <code id="validTime-{{ order['_id'] }}"></code>
+                        剩余：<code id="validTime-{{ order['_id'] }}"></code>
                         <script>addTimer("validTime-{{ order['_id'] }}", "{{ order['updateTime'] }}","{{ order['timeoutLeftTime'] }}");</script>
                         {% end %}
 
