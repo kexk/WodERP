@@ -163,7 +163,7 @@
                             <span class="head-item">
                                 退款申请：<span style="display:inline;">无</span> </span>
 
-                        <span class="pull-right"><a href="javascript:;" data-val="{{ order['orderId'] }}" class="refresOrder"><i class="glyphicon glyphicon-refresh"></i></a></span>
+                        <span class="pull-right"><a href="javascript:;" data-val="{{ order['_id'] }}" class="refresOrder"><i class="glyphicon glyphicon-refresh"></i></a></span>
                     </td>
                 </tr>
                 <tr class="content">
@@ -359,10 +359,11 @@
          if(r!=null)return  decodeURI(r[2]); return null;
     }
 
+    //手动同步订单
     $(document).on('click', '#checkOrder', function() {
         $(this).attr('disabled',true);
 
-        storeId = GetQueryString('store');
+        var storeId = GetQueryString('store');
 
         var data = {};
 
@@ -378,6 +379,15 @@
             }
         });
 
+    });
+    //手动刷新订单
+    $(document).on('click', '.refresOrder', function() {
+        var id = $(this).attr('data-val');
+        $.getJSON('/smt/api/checkOrderInfo',{id:id},function (result) {
+            if(result.success){
+                history.go(0);
+            }
+        })
     });
 
     $(document).on('click', '#checkAll', function() {
@@ -445,94 +455,13 @@
 
 
 
-    $(document).on('click', '.refresOrder', function() {
-        var orderId = $(this).attr('data-val');
-        $.getJSON('/api/checkOrderInfo',{orderId:orderId},function (result) {
-            if(result.success){
-                history.go(0);
-            }
-        })
-    });
+
 
     //showPurchase
     $(document).on('click', '.showPurchase', function() {
         //加载订单
         var orderId = $(this).attr('data-val');
-        $.getJSON('/api/getOrderItems',{orderId:orderId},function (result) {
-            //console.log(result);
 
-            var html ='';
-
-
-        });
-    });
-
-    //查看匹配的采购信息
-    $(document).on('click', '.showPurchaseOrder', function() {
-        //加载订单
-        var orderId = $(this).text();
-        $.getJSON('/api/getPurchaseInfo',{orderId:orderId},function (result) {
-            console.log(result);
-            var html = '';
-            if(result.success){
-
-                var item = result.data;
-
-                html += '<tr class="content"><td colspan="4"><table><tbody>';
-                $.each(item['orderEntries'],function(j,goods){
-                    html += '<tr data-val="'+goods['sourceId']+'" data-specId="'+goods['specId']+'" class=""><td class="goodsPic"><img src="'+goods['productPic']+'" classs="img-thumbnail"></td>';
-                    html += '<td class="goodsInfo"><div class="goodsName"><a href="#" >'+goods['productName']+'</a></div>';
-
-                    if(goods.hasOwnProperty("specInfo")){
-                        html += '<div class="p-detail">';
-                        $.each(goods['specInfo'],function (j, spec) {
-                            html += '<span class="p-amount">'+spec['specName']+':<b>'+spec['specValue']+'</b></span>';
-                        });
-                        html += '</div>';
-                    }
-                    html += '</td><td class="goodsPrice"><div class="p-value">'+(parseFloat(goods['price'])/100).toFixed(2)+'</div></td>';
-                    html += '</td><td class="goodsQty"><div class="p-value">'+goods['quantity']+'</div></td></tr>';
-                });
-                html += '</tbody></table></td>';
-                html += '<td class="orderAmount"><div class="p-value">'+(parseFloat(item['sumPayment'])/100).toFixed(2)+'</div>';
-                if(item['carriage']!=0){
-                    html += '<div class="p-value"><small>含运费：'+(parseFloat(item['carriage'])/100).toFixed(2)+'</small></div>';
-                }
-                html += '</td><td>';
-                if(item['status']=='waitsellersend'){
-                            html += '<span class="text-info">等待卖家发货</span>';
-                        }else if(item['status']=='waitbuyerreceive'){
-                            html += '<span class="text-danger">等待买家收货</span>';
-                        }else if(item['status']=='waitbuyerpay'){
-                            html += '<span class="text-warning">等待付款</span>';
-                        }else if(item['status']=='success'){
-                            html += '<span class="text-success">交易成功</span>';
-                        }else if(item['status']=='cancel'){
-                            html += '<span class="text-warning">交易取消</span>';
-                        }else{
-                            html += '<span class="text-black">'+item['status']+'</span>';
-                        }
-
-                html += '</td>';
-                html += '<td colspan="2">'+item['toFullName']+' / '+item['toMobile'] + '<br>'+item['toArea'];
-                if(item.hasOwnProperty('logistics')){
-                    html += '<hr>';
-                    html += '<div class="p-detail">';
-                    $.each(item['logistics'],function (j, logist) {
-                        html += '<span class="p-amount">'+logist['logisticsCompanyName']+':<b>'+logist['logisticsBillNo']+'</b></span>';
-                    });
-                    html += '</div>';
-                }
-                html += '</td><td></td></tr>';
-
-            }else{
-                html += '<tr><td><h4>获取订单失败!</h4></td></tr>';
-            }
-
-            $('#purchaseOrderModal table tbody').html(html);
-
-
-        });
     });
 
 
@@ -551,27 +480,6 @@
     $("img.lazy").lazyload({
         effect: "fadeIn"
     });
-
-
-    function loadSkuImage() {
-        $('.noSkuImg').each(function(){
-            var obj = $(this);
-            var skuId = obj.attr('data-val');
-            $.getJSON('/api/getSkuImage',{skuId:skuId},function (result) {
-                //console.log(skuId);
-                //console.log($(this));
-                obj.attr('src','//img11.360buyimg.com/n5/'+result.imgUrl);
-                obj.attr('data-src','//img11.360buyimg.com/n5/s300x300_'+result.imgUrl);
-                if(result.mark>0){
-                    obj.attr('role','noSkuImg');
-                }
-                obj.removeClass('noSkuImg');
-            });
-
-        });
-    }
-
-    loadSkuImage();
 
 
 </script>

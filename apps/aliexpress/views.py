@@ -97,13 +97,8 @@ class SMTOrderListHandler(BaseHandler):
             filerList.append({'receiptAddress.contactPerson':words})
             filerList.append({'receiptAddress.mobileNo':words})
             filerList.append({'logisticInfoList.logisticsNo':words})
-
-
-            try:
-                filerList.append({'orderId':int(wd)})
-                filerList.append({'productList.productId': int(wd)})
-            except:
-                pass
+            filerList.append({'orderId':words})
+            filerList.append({'productList.productId':words})
 
             option['$or'] = filerList
 
@@ -166,93 +161,119 @@ class SMTCheckOrderHandler(BaseHandler):
 
             api = ALIEXPRESS(app)
 
-            option = dict()
-            option['pageSize'] = '50'
-            option['orderStatus'] = 'WAIT_SELLER_SEND_GOODS'
-
-            c = api.getOrderList(option)
-
-            result = json.loads(c)
-
-            ol = result['orderList']
-            total = result['totalItem']
+            total = 0
             addCount = 0
             updateCount = 0
-            updateTime = datetime.datetime.now()
-            for od in ol:
-                item = od
-                item['createTime'] = datetime.datetime.now()
-                item['updateTime'] = updateTime
-                item['storeInfo'] = {'storeId':app['storeId'],'cnName':app['cnName'],'enName':app['enName'],"operator" :app["operator" ],'dealPeron':app['dealPeron']}
-                item['platform'] = app['platform']
 
-                item['dealStatus'] = 'WAIT_SYSTEM_CHECK'
-                item['oprationLog'] = []
-                item['weight'] = None
-                item['totalCost'] = None
-                item['totalProfit'] = None
-                item['isLock'] = 0
-                item['type'] = 0
-                item['isShelve'] = 0
-                item['isShelve'] = 0
-                item['errorMsg'] = None
-                item['isMakeup'] = 0
-                item['reSendReason'] = 0
-                item['isMergeOrder'] = 0
-                item['isSplitOrder'] = 0
-                item['hasMessage'] = 0
-                item['isDelivery'] = 0
-                item['checkName'] = 0
-                item['orderMemo'] = []
-                item['labels'] = []
-                item['pickStatus'] = 0
+            statusList = ['WAIT_SELLER_SEND_GOODS','PLACE_ORDER_SUCCESS','IN_CANCEL','IN_ISSUE','RISK_CONTROL']
 
-                item['gmtCreate'] = datetime.datetime.strptime(od['gmtCreate'][:14],'%Y%m%d%H%M%S')
+            for s in statusList:
 
-                if od.has_key('gmtPayTime'):
-                    item['gmtPayTime'] = datetime.datetime.strptime(od['gmtPayTime'][:14],'%Y%m%d%H%M%S')
+                option = dict()
+                option['pageSize'] = '50'
+                option['orderStatus'] = s
 
+                c = api.getOrderList(option)
 
-                for sku in item['productList']:
-                    sku['skuId'] = None
-                    sku['skuAttr'] = None
-                    sku['purchaseNo'] = None
-                    sku['weight'] = None
-                    sku['pickStatus'] = 0
+                try:
+                    result = json.loads(c)
 
+                    ol = result['orderList']
+                    total += result['totalItem']
+                    updateTime = datetime.datetime.now()
+                    for od in ol:
 
-                order = db.orderList.find_one({'orderId':int(item['orderId'])})
-                if order:
-                    newData = dict()
-                    newData['productList'] = item['productList']
-                    newData['orderStatus'] = item['orderStatus']
-                    newData['frozenStatus'] = item['frozenStatus']
-                    newData['issueStatus'] = item['issueStatus']
-                    newData['fundStatus'] = item['fundStatus']
-                    newData['updateTime'] = updateTime
-                    if item.has_key('timeoutLeftTime'):
-                        newData['timeoutLeftTime'] = item['timeoutLeftTime']
-                    else:
-                        newData['timeoutLeftTime'] = None
-                    if item.has_key('leftSendGoodMin'):
-                        newData['leftSendGoodMin'] = item['leftSendGoodMin']
-                    if item.has_key('leftSendGoodHour'):
-                        newData['leftSendGoodHour'] = item['leftSendGoodHour']
-                    if item.has_key('leftSendGoodDay'):
-                        newData['leftSendGoodDay'] = item['leftSendGoodDay']
+                        order = db.orderList.find_one({'orderId':str(od['orderId'])})
+                        if order:
 
-                    if item.has_key('memo'):
-                        newData['memo'] = item['memo']
+                            item = od
+                            for sku in item['productList']:
+                                sku['productId'] = str(sku['productId'])
+                                sku['childId'] = str(sku['childId'])
+                                sku['orderId'] = str(sku['orderId'])
+                                sku['skuId'] = None
+                                sku['skuAttr'] = None
+                                sku['purchaseNo'] = None
+                                sku['weight'] = None
+                                sku['pickStatus'] = 0
 
-                    if not order.has_key('gmtPayTime') and item.has_key('gmtPayTime'):
-                        newData['gmtPayTime'] = item['gmtPayTime']
+                            newData = dict()
+                            newData['productList'] = item['productList']
+                            newData['orderStatus'] = item['orderStatus']
+                            newData['frozenStatus'] = item['frozenStatus']
+                            newData['issueStatus'] = item['issueStatus']
+                            newData['fundStatus'] = item['fundStatus']
+                            newData['updateTime'] = updateTime
+                            if item.has_key('timeoutLeftTime'):
+                                newData['timeoutLeftTime'] = item['timeoutLeftTime']
+                            else:
+                                newData['timeoutLeftTime'] = None
+                            if item.has_key('leftSendGoodMin'):
+                                newData['leftSendGoodMin'] = item['leftSendGoodMin']
+                            if item.has_key('leftSendGoodHour'):
+                                newData['leftSendGoodHour'] = item['leftSendGoodHour']
+                            if item.has_key('leftSendGoodDay'):
+                                newData['leftSendGoodDay'] = item['leftSendGoodDay']
 
-                    db.orderList.update({'orderId':int(item['orderId'])},{'$set':newData})
+                            if item.has_key('memo'):
+                                newData['memo'] = item['memo']
 
-                    updateCount += 1
-                else:
-                    db.orderList.insert(item)
-                    addCount += 1
+                            if not order.has_key('gmtPayTime') and item.has_key('gmtPayTime'):
+                                newData['gmtPayTime'] = item['gmtPayTime']
+
+                            db.orderList.update({'orderId':int(item['orderId'])},{'$set':newData})
+
+                            updateCount += 1
+                        else:
+                            item = od
+                            item['orderId'] = str(item['orderId'])
+                            item['createTime'] = datetime.datetime.now()
+                            item['updateTime'] = updateTime
+                            item['storeInfo'] = {'storeId': app['storeId'], 'cnName': app['cnName'],
+                                                 'enName': app['enName'], "operator": app["operator"],
+                                                 'dealPeron': app['dealPeron']}
+                            item['platform'] = app['platform']
+
+                            item['dealStatus'] = 'WAIT_SYSTEM_CHECK'
+                            item['oprationLog'] = []
+                            item['weight'] = None
+                            item['totalCost'] = None
+                            item['totalProfit'] = None
+                            item['isLock'] = 0
+                            item['type'] = 0
+                            item['isShelve'] = 0
+                            item['isShelve'] = 0
+                            item['errorMsg'] = None
+                            item['isMakeup'] = 0
+                            item['reSendReason'] = 0
+                            item['isMergeOrder'] = 0
+                            item['isSplitOrder'] = 0
+                            item['hasMessage'] = 0
+                            item['isDelivery'] = 0
+                            item['checkName'] = 0
+                            item['orderMemo'] = []
+                            item['labels'] = []
+                            item['pickStatus'] = 0
+
+                            item['gmtCreate'] = datetime.datetime.strptime(od['gmtCreate'][:14], '%Y%m%d%H%M%S')
+
+                            if od.has_key('gmtPayTime'):
+                                item['gmtPayTime'] = datetime.datetime.strptime(od['gmtPayTime'][:14], '%Y%m%d%H%M%S')
+
+                            for sku in item['productList']:
+                                sku['productId'] = str(sku['productId'])
+                                sku['childId'] = str(sku['childId'])
+                                sku['orderId'] = str(sku['orderId'])
+                                sku['skuId'] = None
+                                sku['skuAttr'] = None
+                                sku['purchaseNo'] = None
+                                sku['weight'] = None
+                                sku['pickStatus'] = 0
+
+                            db.orderList.insert(item)
+                            addCount += 1
+                except:
+                    pass
 
 
             respon = {'success': True,"data":{"total":total,"addCount":addCount,'updateCount':updateCount}}
