@@ -8,6 +8,7 @@ from apps.database.databaseCase import *
 import json
 import re
 import tornado.web
+import random
 
 
 class JDOrderListHandler(BaseHandler):
@@ -21,13 +22,15 @@ class JDOrderListHandler(BaseHandler):
         mongo.connect()
         client = mongo.client
 
-        db = client.woderp
+        db = client.jingdong
 
         pageSize = 50
 
         status = self.get_argument('status','')
         wd = self.get_argument('wd','')
 
+        shop = self.get_argument('shop', '')
+        shopList = db.shopInfo.find()
 
         try:
             page = int(self.get_argument('page',1))
@@ -35,11 +38,38 @@ class JDOrderListHandler(BaseHandler):
             page = 1
 
         #totalCount = db.orderList.find({"order_state":"WAIT_SELLER_STOCK_OUT"}).count()
+        matchOption = dict()
         option = {'platform':'jingdong'}
-        if status == '0':
-            option['order_state'] = 'WAIT_SELLER_STOCK_OUT'
-        elif status == '1':
-            option['order_state'] = 'WAIT_GOODS_RECEIVE_CONFIRM'
+        if status != '':
+            option['order_state'] = status
+            matchOption['order_state'] = status
+
+        if shop != '':
+            option['shopId'] = shop
+            matchOption['shopId'] = shop
+
+        statusList = db.orderList.aggregate(
+            [{'$match': matchOption}, {'$group': {'_id': "$order_state", 'orderCount': {'$sum': 1}}}])
+
+        sL = []
+        for s in statusList:
+            if s['_id']:
+                stxt = ''
+                if s['_id'] == 'WAIT_SELLER_STOCK_OUT':
+                    stxt += '待发货'
+                elif s['_id'] == 'SEND_TO_DISTRIBUTION_CENER':
+                    stxt += '发往配送中心'
+                elif s['_id'] == 'TRADE_CANCELED':
+                    stxt += '已取消'
+                elif s['_id'] == 'RECEIPTS_CONFIRM':
+                    stxt += '收款确认'
+                elif s['_id'] == 'WAIT_GOODS_RECEIVE_CONFIRM':
+                    stxt += '待收货'
+                elif s['_id'] == 'LOCKED':
+                    stxt += '已锁定'
+                elif s['_id'] == 'FINISHED_L':
+                    stxt += '已结束'
+                sL.append({'status': s['_id'], 'orderCount': s['orderCount'], 'statusTxt': stxt})
 
 
         if wd != '':
@@ -78,7 +108,10 @@ class JDOrderListHandler(BaseHandler):
 
         filterData = dict()
         filterData['status'] = status
+        filterData['shop'] = shop
         filterData['wd'] = wd
+        filterData['shopList'] = shopList
+        filterData['statusList'] = sL
 
         self.render('jd/order-list.html',orderList = orderList,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
 
@@ -92,20 +125,22 @@ class JDCheckOrderHandler(BaseHandler):
 
         #result = o.getOrderList(order_state='WAIT_GOODS_RECEIVE_CONFIRM')
 
-        appKey = self.get_argument('appKey','40BF94D17B3F69D29294F645AD10BFC2')
-
+        shopId = self.get_argument('shop', '')
         mongo = MongoCase()
         mongo.connect()
         client = mongo.client
         db = client.jingdong
 
-        app = db.apiInfo.find_one({'app_key':appKey})
+        appList = db.shopInfo.find()
+
+        if shopId == '':
+            app = appList[random.randint(0, appList.count() - 1)]
+        else:
+            app = db.shopInfo.find_one({'shopId': shopId})
 
         if app != None:
 
-            dberp = client.woderp
-
-            api = JDAPI(app)
+            api = JDAPI(app['apiInfo'])
             result = api.getOrderList(order_state='WAIT_SELLER_STOCK_OUT')
 
             ol = result['order_search_response']['order_search']['order_info_list']
@@ -120,7 +155,7 @@ class JDCheckOrderHandler(BaseHandler):
                 item['purchaseInfo'] = None
                 item['dealRemark'] = None
                 item['logisticsInfo'] = None
-                item['shopId'] = '163184'
+                item['shopId'] = app['shopId']
                 item['platform'] = 'jingdong'
                 if not item.has_key('payment_confirm_time'):
                     item['payment_confirm_time'] = None
@@ -150,10 +185,10 @@ class JDCheckOrderHandler(BaseHandler):
                         sku['ware_id'] = None
 
 
-                if dberp.orderList.find({'order_id':item['order_id']}).count()>0:
+                if db.orderList.find({'order_id':item['order_id']}).count()>0:
                     updateCount += 1
                 else:
-                    dberp.orderList.insert(item)
+                    db.orderList.insert(item)
                     addCount += 1
 
                 total +=1
@@ -169,7 +204,7 @@ class JDCheckSkuHandler(BaseHandler):
 
     def get(self):
 
-        appKey = self.get_argument('appKey','40BF94D17B3F69D29294F645AD10BFC2')
+        shopId = self.get_argument('shop', '')
         sku = self.get_argument('sku','')
 
         mongo = MongoCase()
@@ -177,21 +212,19 @@ class JDCheckSkuHandler(BaseHandler):
         client = mongo.client
         db = client.jingdong
 
-        app = db.apiInfo.find_one({'app_key':appKey})
-
+        app = db.shopInfo.find_one({'shopId': shopId})
 
         data = dict()
         if sku != '' and app != None:
 
-
-            api = JDAPI(app)
+            api = JDAPI(app['apiInfo'])
             result = api.searchSkuList(option={'page_size':'100','skuId':sku,'field':'wareId,skuId,status,jdPrice,outerId,categoryId,logo,skuName,stockNum,wareTitle,created'})
             sl = result['jingdong_sku_read_searchSkuList_responce']['page']['data']
             for s in sl:
                 item = s
                 item['createTime'] = datetime.datetime.now()
                 item['updateTime'] = None
-                item['shopId'] = '163184'
+                item['shopId'] = app['shopId']
                 item['platform'] = 'jingdong'
                 item['stage'] = 0
                 item['oprationLog'] = []
@@ -211,7 +244,6 @@ class JDCheckSkuHandler(BaseHandler):
         self.write(json.dumps(data,ensure_ascii=False))
 
 
-
 class GetJdSkuImageHandler(BaseHandler):
     def get(self):
 
@@ -225,12 +257,10 @@ class GetJdSkuImageHandler(BaseHandler):
             client = mongo.client
             db = client.jingdong
 
-            dberp = client.woderp
-
             item = db.skuList.find({"skuId":skuId},{"logo":1})
             if item.count()>0:
                 imgUrl += item[0]['logo']
-                dberp.orderList.update({'platform':'jingdong',"item_info_list.sku_id":skuId,"item_info_list.skuImg":None},{"$set":{"item_info_list.$.skuImg":item[0]['logo']}})
+                db.orderList.update({'platform':'jingdong',"item_info_list.sku_id":skuId,"item_info_list.skuImg":None},{"$set":{"item_info_list.$.skuImg":item[0]['logo']}})
 
 
         if imgUrl == '':
@@ -239,7 +269,6 @@ class GetJdSkuImageHandler(BaseHandler):
 
         respon = {'imgUrl': imgUrl,'mark':mark}
         self.write(json.dumps(respon,ensure_ascii=False))
-
 
 
 class JdMatchPurchaseOrderHandler(BaseHandler):
@@ -253,14 +282,15 @@ class JdMatchPurchaseOrderHandler(BaseHandler):
         mongo = MongoCase()
         mongo.connect()
         client = mongo.client
-        db = client.woderp
+        db = client.jingdong
+        woderp = client.woderp
         for orderId in ids:
 
             order = db.orderList.find_one({'order_id':orderId})
 
             if order and order['order_state'] == 'WAIT_SELLER_STOCK_OUT':
 
-                purchase = db.purchaseList.find({'toFullName':order['consignee_info']['fullname'],'toMobile':order['consignee_info']['mobile'],'createTime':{'$gte':order['createTime']}})
+                purchase = woderp.purchaseList.find({'toFullName':order['consignee_info']['fullname'],'toMobile':order['consignee_info']['mobile'],'createTime':{'$gte':order['createTime']}})
 
 
                 if order.has_key('matchStatus') and order['matchStatus']>1 :
@@ -291,19 +321,17 @@ class JDChcekOrderInfoHanlder(BaseHandler):
     def get(self):
         data = dict()
         orderId = self.get_argument('orderId', '')
-        appKey = self.get_argument('appKey','40BF94D17B3F69D29294F645AD10BFC2')
+        shopId = self.get_argument('shopId', '')
 
         mongo = MongoCase()
         mongo.connect()
         client = mongo.client
         db = client.jingdong
 
-        app = db.apiInfo.find_one({'app_key':appKey})
+        app = db.shopInfo.find_one({'shopId': shopId})
 
         if orderId != '' and app:
-            dberp = client.woderp
-
-            api = JDAPI(app)
+            api = JDAPI(app['apiInfo'])
 
             result = api.getOrderDetail(order_id=orderId,
                                       option={"optional_fields": "order_state,pin,waybill,logistics_id,modified,return_order,order_state_remark,vender_remark,payment_confirm_time"})
@@ -329,7 +357,7 @@ class JDChcekOrderInfoHanlder(BaseHandler):
             item['payment_confirm_time'] = orderInfo['payment_confirm_time']
             item['updateTime'] = datetime.datetime.now()
 
-            dberp.orderList.update({"order_id": orderId}, {'$set': item})
+            db.orderList.update({"order_id": orderId}, {'$set': item})
 
             data['success'] = True
         else:
