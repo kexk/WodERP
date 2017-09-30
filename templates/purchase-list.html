@@ -31,10 +31,21 @@
 
 
 </div>
-
-        <p><a href="?status=0&page=1" class="label label-primary">等待发货</a>
-        <a href="?status=1&page=1" class="label label-primary">等待买家收货</a>
+            <div class="filterBox">
+                <div>
+                    <p> <span>账号：</span> <a href="?key=&status={{ filterData['status'] }}&page=1" class="label label-default{% if '' == filterData['key'] %} active{% end%}">全部</a>
+            {% for app in filterData['appList'] %}
+            <a href="?key={{ app['appKey'] }}&status={{ filterData['status'] }}&page=1" class="label label-default{% if app['appKey'] == filterData['key'] %} active{% end%}">{{ app['appName'] }}</a>
+            {% end %}
         </p>
+                </div>
+                <div>
+                    <p> <span>状态：</span> <a href="?status=&key={{ filterData['key'] }}&page=1" class="label label-default{% if '' == filterData['status'] %} active{% end%}">全部</a>
+            {% for s in filterData['statusList'] %}<a href="?status={{ s['status'] }}&key={{ filterData['key'] }}&page=1" class="label label-default{% if s['status'] == filterData['status'] %} active{% end%}">{{ s['statusTxt'] }} ({{ s['orderCount'] }})</a> {% end %}
+        </p>
+                </div>
+            </div>
+
 
 
         <nav aria-label="Page navigation" class="pull-right">
@@ -224,10 +235,24 @@
 {% block footer %}
 <script>
 
+    function GetQueryString(name)
+    {
+         var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+         var r = window.location.search.substr(1).match(reg);
+         if(r!=null)return  decodeURI(r[2]); return null;
+    }
+
     $(document).on('click', '#checkOrder', function() {
         $(this).attr('disabled',true);
 
-        $.getJSON('/purchase/api/checkPurchase',function (result) {
+        var key = GetQueryString('key');
+
+        var data = {};
+        if(key){
+            data['key'] = key;
+        }
+
+        $.getJSON('/purchase/api/checkPurchase',data,function (result) {
             if(result.success){
                 //window.location.href = '/purchase/';
                 window.history.go(0);

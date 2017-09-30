@@ -9,7 +9,7 @@ import json
 import datetime
 import re
 import tornado.web
-
+import random
 
 class PurchaseListHandler(BaseHandler):
     @tornado.web.authenticated
@@ -29,7 +29,9 @@ class PurchaseListHandler(BaseHandler):
 
         status = self.get_argument('status','')
         wd = self.get_argument('wd','')
+        key = self.get_argument('key','')
 
+        appList = db.appList.find({'platform': '1688'})
 
         try:
             page = int(self.get_argument('page',1))
@@ -37,11 +39,31 @@ class PurchaseListHandler(BaseHandler):
             page = 1
 
         option = {}
-        if status == '0':
-            option['status'] = 'waitsellersend'
-        elif status == '1':
-            option['status'] = 'waitbuyerreceive'
 
+        if status != '':
+            option['status'] = status
+
+        if key != '':
+            option['appKey'] = key
+
+        statusList = db.purchaseList.aggregate(
+            [{'$match': option}, {'$group': {'_id': "$status", 'orderCount': {'$sum': 1}}}])
+
+        sL = []
+        for s in statusList:
+            if s['_id']:
+                stxt = ''
+                if s['_id'] == 'waitbuyerpay':
+                    stxt += '等待买家付款'
+                elif s['_id'] == 'waitsellersend':
+                    stxt += '等待卖家发货'
+                elif s['_id'] == 'waitbuyerreceive':
+                    stxt += '等待买家收货'
+                elif s['_id'] == 'success':
+                    stxt += '交易完成'
+                elif s['_id'] == 'cancel':
+                    stxt += '交易取消'
+                sL.append({'status': s['_id'], 'orderCount': s['orderCount'], 'statusTxt': stxt})
 
         if wd != '':
             words = re.compile(wd)
@@ -83,6 +105,9 @@ class PurchaseListHandler(BaseHandler):
         filterData = dict()
         filterData['status'] = status
         filterData['wd'] = wd
+        filterData['key'] = key
+        filterData['appList'] = appList
+        filterData['statusList'] = sL
 
         self.render('purchase-list.html',purchaseList = purchaseList,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
 
@@ -97,37 +122,46 @@ class CheckPurchaseHandler(BaseHandler):
 
         data = dict()
 
-        appKey = self.get_argument('appKey','1700674')
-        orderStatus = self.get_argument('orderStatus','')
-        pageNO = self.get_argument('pageNO','1')
-        createStartTime = self.get_argument('createStartTime','')
-        createEndTime = self.get_argument('createEndTime','')
+        key = self.get_argument('key','')
 
-        option = {'pageNO':pageNO}
-        if orderStatus != '':
-            option['orderStatus'] = orderStatus
-        if createStartTime != '':
-            option['createStartTime'] = createStartTime
-        else:
-            option['createStartTime'] = (datetime.datetime.now()+datetime.timedelta(days=-1)).strftime('%Y-%m-%d %H:%M:%S')
-        if createEndTime != '':
-            option['createEndTime'] = createEndTime
-        else:
-            option['createEndTime'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-
-        data['total'] = 0
-        data['addCount'] = 0
-        data['success'] = False
         mongo = MongoCase()
         mongo.connect()
         client = mongo.client
         db = client.woderp
 
-        app = db.appList.find_one({'platform':'1688','appKey':appKey})
+        appList = db.appList.find({'platform': '1688'})
 
-        if app:
+        if key == '':
+            #appKey = aList[random.randint(0,len(aList)-1)]
+            app = appList[random.randint(0,appList.count()-1)]
+        else:
+            app = db.appList.find_one({'platform': '1688','appKey':key})
+
+        if app != None:
+
+            data['total'] = 0
+            data['addCount'] = 0
+            data['success'] = False
+
             api = ALIBABA(app)
+
+            orderStatus = self.get_argument('orderStatus', '')
+            pageNO = self.get_argument('pageNO', '1')
+            createStartTime = self.get_argument('createStartTime', '')
+            createEndTime = self.get_argument('createEndTime', '')
+
+            option = {'pageNO': pageNO}
+            if orderStatus != '':
+                option['orderStatus'] = orderStatus
+            if createStartTime != '':
+                option['createStartTime'] = createStartTime
+            else:
+                option['createStartTime'] = (datetime.datetime.now() + datetime.timedelta(days=-1)).strftime(
+                    '%Y-%m-%d %H:%M:%S')
+            if createEndTime != '':
+                option['createEndTime'] = createEndTime
+            else:
+                option['createEndTime'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
             d = json.loads(api.getOrderList(option))
 
@@ -140,14 +174,13 @@ class CheckPurchaseHandler(BaseHandler):
                     item['createTime'] = datetime.datetime.now()
                     item['updateTime'] = None
                     #item['buyerAccount'] = 'tj18690821588'
+                    item['appKey'] = app['appKey']
                     item['dealCompleteTime'] = None
                     item['dealRemark'] = None
-
 
                     item['dealStatus'] = 0
                     item['stage'] = 0
                     item['oprationLog'] = []
-
 
                     if db.purchaseList.find({'id':int(item['id'])}).count()>0:
                         pass
