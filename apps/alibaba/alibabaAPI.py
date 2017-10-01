@@ -83,3 +83,18 @@ class ALIBABA:
         else:
             return '''{"result:{"success":false}}'''
 
+
+    def fastCreateOrder(self,addressParam,cargoParamList,flow='general',invoiceParam={},subUserId='',message=''):
+        urlPath = 'param2/1/com.alibaba.trade/alibaba.trade.fastCreateOrder/'
+
+        data = {'appKey':self.appKey,'urlPath':urlPath,'flow':flow,'cargoParamList':json.dumps(cargoParamList),
+                'addressParam':json.dumps(addressParam),'invoiceParam':json.dumps(invoiceParam),
+                'subUserId':subUserId,'message':message}
+
+        r = requests.post(self.apiRoot+self.apiRoute,data=data)
+
+        if r.status_code == 200:
+            return r.content
+        else:
+            return '''{"result:{"success":false}}'''
+
