@@ -141,57 +141,62 @@ class JDCheckOrderHandler(BaseHandler):
         if app != None:
 
             api = JDAPI(app['apiInfo'])
-            result = api.getOrderList(order_state='WAIT_SELLER_STOCK_OUT')
 
-            ol = result['order_search_response']['order_search']['order_info_list']
+            statusList = ['WAIT_SELLER_STOCK_OUT','WAIT_GOODS_RECEIVE_CONFIRM','TRADE_CANCELED']
+
             total = 0
             addCount = 0
             updateCount = 0
-            for od in ol:
-                item = od
-                item['createTime'] = datetime.datetime.now()
-                item['updateTime'] = None
-                item['dealCompleteTime'] = None
-                item['purchaseInfo'] = None
-                item['dealRemark'] = None
-                item['logisticsInfo'] = None
-                item['shopId'] = app['shopId']
-                item['platform'] = 'jingdong'
-                if not item.has_key('payment_confirm_time'):
-                    item['payment_confirm_time'] = None
-                if not item.has_key('parent_order_id'):
-                    item['parent_order_id'] = None
-                if not item.has_key('pin'):
-                    item['pin'] = None
-                if not item.has_key('return_order'):
-                    item['return_order'] = None
-                if not item.has_key('order_state_remark'):
-                    item['order_state_remark'] = None
-                if not item.has_key('vender_remark'):
-                    item['vender_remark'] = None
+            for s in statusList:
+                result = api.getOrderList(order_state=s)
 
-                item['dealStatus'] = 0
-                item['stage'] = 0
-                item['oprationLog'] = []
+                ol = result['order_search_response']['order_search']['order_info_list']
 
-                for sku in item['item_info_list']:
-                    sku['skuImg'] = None
-                    sku['link'] = None
-                    if not sku.has_key('product_no'):
-                        sku['product_no'] = None
-                    if not sku.has_key('outer_sku_id'):
-                        sku['outer_sku_id'] = None
-                    if not sku.has_key('ware_id'):
-                        sku['ware_id'] = None
+                for od in ol:
+                    item = od
+                    item['createTime'] = datetime.datetime.now()
+                    item['updateTime'] = None
+                    item['dealCompleteTime'] = None
+                    item['purchaseInfo'] = None
+                    item['dealRemark'] = None
+                    item['logisticsInfo'] = None
+                    item['shopId'] = app['shopId']
+                    item['platform'] = 'jingdong'
+                    if not item.has_key('payment_confirm_time'):
+                        item['payment_confirm_time'] = None
+                    if not item.has_key('parent_order_id'):
+                        item['parent_order_id'] = None
+                    if not item.has_key('pin'):
+                        item['pin'] = None
+                    if not item.has_key('return_order'):
+                        item['return_order'] = None
+                    if not item.has_key('order_state_remark'):
+                        item['order_state_remark'] = None
+                    if not item.has_key('vender_remark'):
+                        item['vender_remark'] = None
+
+                    item['dealStatus'] = 0
+                    item['stage'] = 0
+                    item['oprationLog'] = []
+
+                    for sku in item['item_info_list']:
+                        sku['skuImg'] = None
+                        sku['link'] = None
+                        if not sku.has_key('product_no'):
+                            sku['product_no'] = None
+                        if not sku.has_key('outer_sku_id'):
+                            sku['outer_sku_id'] = None
+                        if not sku.has_key('ware_id'):
+                            sku['ware_id'] = None
 
 
-                if db.orderList.find({'order_id':item['order_id']}).count()>0:
-                    updateCount += 1
-                else:
-                    db.orderList.insert(item)
-                    addCount += 1
+                    if db.orderList.find({'order_id':item['order_id']}).count()>0:
+                        updateCount += 1
+                    else:
+                        db.orderList.insert(item)
+                        addCount += 1
 
-                total +=1
+                    total +=1
 
             respon = {'success': True,"data":{"total":total,"addCount":addCount,'updateCount':updateCount}}
 

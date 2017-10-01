@@ -60,7 +60,7 @@
         {% if p==pageInfo['pageNo'] %}
       <li class="active"><a href="#">{{ p }}<span class="sr-only">(current)</span></a></li>
         {% else %}
-      <li><a href="?page={{ p }}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}">{{ p }}</a></li>
+      <li><a href="?page={{ p }}&shop={{ filterData['shop'] }}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}">{{ p }}</a></li>
         {% end %}
     {% end %}
 
@@ -146,7 +146,13 @@
 
                         {% if order['order_state'] == 'WAIT_SELLER_STOCK_OUT' %}等待发货{% else %}
                         {% if order['order_state'] == 'WAIT_GOODS_RECEIVE_CONFIRM' %}等待买家收货{% else %}
+                        {% if order['order_state'] == 'TRADE_CANCELED' %}订单已取消{% else %}
+                        {% if order['order_state'] == 'FINISHED_L' %}订单已完成{% else %}
+                        {% if order['order_state'] == 'LOCKED' %}订单已锁定{% else %}
                         {{ order['order_state'] }}{% end %}
+						{% end %}
+						{% end %}
+						{% end %}
 						{% end %}
 
 
