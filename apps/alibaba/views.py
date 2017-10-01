@@ -373,3 +373,32 @@ class getPurchaseInfoHandler(BaseHandler):
 
         self.set_header('Content-Type', 'application/json; charset=UTF-8')
         self.write(json.dumps(data, ensure_ascii=False))
+
+
+
+class ParseAddressHandler(BaseHandler):
+
+    def get(self):
+        data = dict()
+        addressInfo = self.get_argument('addressInfo', '')
+        key = self.get_argument('key', '4647725')
+
+        data['success'] = False
+        if addressInfo!= '':
+
+            mongo = MongoCase()
+            mongo.connect()
+            client = mongo.client
+            db = client.woderp
+
+            app = db.appList.find_one({'platform': '1688','appKey':key})
+
+            if app != None:
+                api = ALIBABA(app)
+                data['success'] = True
+                data['address'] = json.loads(api.parseAddress(addressInfo))
+
+
+        self.set_header('Content-Type', 'application/json; charset=UTF-8')
+        self.write(json.dumps(data, ensure_ascii=False))
+

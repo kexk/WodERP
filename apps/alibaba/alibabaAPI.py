@@ -3,6 +3,7 @@
 
 import requests
 import datetime
+import json
 
 
 class ALIBABA:
@@ -55,7 +56,30 @@ class ALIBABA:
 
 
 
+    def parseAddress(self,addressInfo):
+        urlPath = 'param2/1/com.alibaba.trade/alibaba.trade.addresscode.parse/'
+
+        data = {'appKey':self.appKey,'urlPath':urlPath,'addressInfo':addressInfo}
+
+        r = requests.post(self.apiRoot+self.apiRoute,data=data)
+
+        if r.status_code == 200:
+            return r.content
+        else:
+            return '''{"result:{"success":false}}'''
 
 
+    def createOrder(self,cargoGroups,otherInfoGroup,receiveAddressGroup,invoiceGroup={}):
+        urlPath = 'param2/1/com.alibaba.trade/alibaba.trade.general.CreateOrder/'
 
+        data = {'appKey':self.appKey,'urlPath':urlPath,'cargoGroups':json.dumps(cargoGroups),
+                'otherInfoGroup':json.dumps(otherInfoGroup),'receiveAddressGroup':json.dumps(receiveAddressGroup),
+                'invoiceGroup':json.dumps(invoiceGroup)}
+
+        r = requests.post(self.apiRoot+self.apiRoute,data=data)
+
+        if r.status_code == 200:
+            return r.content
+        else:
+            return '''{"result:{"success":false}}'''
 

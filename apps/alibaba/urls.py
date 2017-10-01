@@ -8,4 +8,5 @@ urls = [
     (r"api/checkPurchase$", CheckPurchaseHandler),
     (r"api/checkPurchaseInfo$", CheckPurchaseInfoHandler),
     (r"api/checkPurchaseLogist$", CheckPurchaseLogistHandler),
+    (r"api/parseAddress$", ParseAddressHandler),
 ]
