@@ -107,9 +107,9 @@ class JDAPI:
 
 
     #获取订单列表
-    def getOrderList(self,order_state,page_size=100,page=1,option={}):
+    def getOrderList(self,order_state,option={}):
         method = '360buy.order.search'
-        data = {"start_date": "", "end_date": "", "order_state": order_state, "page": page, "page_size": page_size,
+        data = {"start_date": "", "end_date": "", "order_state": order_state, "page": 1, "page_size": 100,
          "optional_fields": "", "sortType": "", "dateType": ""}
 
         for (k,v) in  option.items():
