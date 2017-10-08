@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+        {% block header %}
+    <title>订单列表</title>
+{% end %}
+
+        {% block main %}
+		<div class="container theme-showcase" role="main">
+
+<div>
+    <div class="col-lg-6">
+    <button type="button" class="btn btn-danger" id="checkOrder">导入订单</button>
+<button type="button" class="btn btn-danger" id="checkSku">同步sku</button>
+    </div>
+
+    <div class="col-lg-6">
+        <form action="">
+        <div class="input-group">
+            <input type="hidden" name="page" value="1" />
+            <input type="hidden" name="status" value="{{ filterData['status'] }}" />
+
+          <input type="text" class="form-control" name="wd" value="{{ filterData['wd'] }}" placeholder="搜索产品标题/sku/订单号/买家姓名电话/快递单号">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="submit">搜索</button>
+          </span>
+        </div><!-- /input-group -->
+
+            </form>
+      </div>
+
+
+</div>
+            <div class="filterBox">
+                <div>
+                    <p> <span>店铺：</span> <a href="?shop=&status={{ filterData['status'] }}&page=1" class="label label-default{% if '' == filterData['shop'] %} active{% end%}">全部</a>
+            {% for shop in filterData['shopList'] %}
+            <a href="?shop={{ shop['shopId'] }}&status={{ filterData['status'] }}&page=1" class="label label-default{% if shop['shopId'] == filterData['shop'] %} active{% end%}">{{ shop['shopName'] }}</a>
+            {% end %}
+        </p>
+                </div>
+                <div>
+                    <p> <span>状态：</span> <a href="?status=&shop={{ filterData['shop'] }}&page=1" class="label label-default{% if '' == filterData['status'] %} active{% end%}">全部</a>
+            {% for s in filterData['statusList'] %}<a href="?status={{ s['status'] }}&shop={{ filterData['shop'] }}&page=1" class="label label-default{% if s['status'] == filterData['status'] %} active{% end%}">{{ s['statusTxt'] }} ({{ s['itemCount'] }})</a> {% end %}
+        </p>
+                </div>
+            </div>
+
+
+
+        <nav aria-label="Page navigation" class="pull-right">
+
+  <ul class="pagination">
+      <li> <span>总数量：{{ pageInfo['totalCount'] }}，每页{{ pageInfo['pageSize'] }}条，共{{ pageInfo['totalPage'] }} 页</span></li>
+    <li>
+      <a href="#" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+      {% for p in pageInfo['pageList'] %}
+        {% if p==pageInfo['pageNo'] %}
+      <li class="active"><a href="#">{{ p }}<span class="sr-only">(current)</span></a></li>
+        {% else %}
+      <li><a href="?page={{ p }}&shop={{ filterData['shop'] }}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}">{{ p }}</a></li>
+        {% end %}
+    {% end %}
+
+    <li>
+      <a href="#" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+        <div class="btn-toolbar" role="toolbar" style="display: none;">
+      <button type="button" class="btn btn-default btn-sm" id="checkSkuu">同步SKU</button>
+      <button type="button" class="btn btn-default btn-sm">更新订单</button>
+    </div>
+
+           <table class="table table-bordered table-hover">
+                <thead>
+                <tr>
+                    <th style="width: 30px;border-right:none; "><input type="checkbox" id="checkAll"/></th>
+                    <th style="border-left:none; ">商品信息</th>
+                    <th style="width: 120px;">金额</th>
+                    <th style="width: 100px;">订单状态</th>
+                    <th style="width: 100px;">物流信息</th>
+                    <th colspan="2" style="">买家信息</th>
+                    <th style="width: 120px;">操作</th>
+                </tr>
+                </thead>
+               {% for item in skuList %}
+                <tbody>
+                <input name="orderId" value="{{ item['skuId'] }}" class="orderid" type="hidden">
+                <tr>
+                    <td colspan="9" class="blank"></td>
+                </tr>
+                <tr class="head">
+                    <td colspan="8">
+                        <input type="checkbox" name="checkedOrder" value="{{ item['skuId'] }}">
+                        <span class="head-item" style="width: 190px">订单编号：
+                            <a href="javascript:;" target="_blank" class="suctext">{{ item['skuId'] }}</a></span>
+                            <span class="head-item">创建时间：{{ item['createTime'] }}</span>
+                            <span class="head-item"> 更新时间：{{ item['updateTime'] }}</span>
+
+                        <span class="pull-right"><a href="javascript:;" data-val="{{ item['skuId'] }}" data-shop="{{ item['shopId'] }}" class="refresOrder"><i class="glyphicon glyphicon-refresh"></i></a></span>
+                    </td>
+                </tr>
+                <tr class="content">
+                    <td colspan="2">
+
+						<div class="goodsItem">
+                        <input type="hidden" name="checkedSku" value="{{ item['skuId'] }}">
+                        <div style="clear: both"></div>
+                        <div class="goodsImg">
+						{% if item['logo'] != None %}
+                            <a href="javaScript:void(0);"  onMouseOver="toolTip('<img src=//img11.360buyimg.com/n5/s300x300_{{ item['logo'] }}>')" onMouseOut="toolTip()">
+                                <img class="skuImg" data-val="{{ item['skuId'] }}" src="//img11.360buyimg.com/n5/{{ item['logo'] }}" data-src="//img11.360buyimg.com/n5/s300x300_{{ item['logo'] }}">
+                            </a>{% else %}
+							<a href="javaScript:void(0);">
+							<img class="noSkuImg" data-val="{{ item['skuId'] }}" src="//img11.360buyimg.com/n5/jfs/t3271/88/7808807198/85040/49d5cf69/58bccd95Nd1b090a7.jpg">
+							</a>
+							{% end %}
+                        </div>
+                        <div class="goodsName">
+                            <a href="javaScript:void(0);" title="{{ item['skuName'] }}" data-val="{{ item['skuId'] }}">{{ item['skuName'] }}</a>
+                        </div>
+                        <div class="p-detail">
+                            <span class="p-amount">库存:<i class="badge">{{ item['stockNum'] }}</i></span>
+                            <span class="p-amount">货号:{% if item['wareId'] != "" %}<b>{{ item['wareId'] }}</b>{% end %}</span>
+                        </div>
+						</div>
+
+
+                    </td>
+                    <td class="t-c v-t">
+                        <div class="p-value">售价:<b class="orderAmount">{{ item['jdPrice'] }}</b></div>
+                        <div class="p-value discount"><small>无优惠信息</small></div>
+                    </td>
+                    <td class="t-c">
+
+                        {% if item['status'] == 1 %}上架{% else %}
+                        {% if item['status'] == 2 %}下架{% else %}
+                        {% if item['status'] == 4 %}删除{% else %}
+                        {{ item['status'] }}{% end %}
+						{% end %}
+						{% end %}
+
+						</td>
+                    <td>
+
+                    </td>
+                    <td class="t-c" colspan="2">
+
+
+                    </td>
+                    <td class="t-c">
+						<div class="actionLink">
+                        <a href="javascript:void(0);" style="display: block;" class="tjbz">修改SKU信息</a>
+                        <a href="javascript:void(0);" style="display: block;" target="_blank">查看详情</a>
+                        <a href="javascript:void(0);" style="display:block;">添加备注</a>
+						</div>
+                    </td>
+                </tr>
+                </tbody>
+
+               {% end %}
+
+            </table>
+
+<p class="pull-right p-b-1">
+    <span>总数量：{{ pageInfo['totalCount'] }}</span>
+    <span>，每页{{ pageInfo['pageSize'] }}条</span>
+    <span>，共{{ pageInfo['totalPage'] }} 页</span>
+
+    {% for p in pageInfo['pageList'] %}
+        {% if p==pageInfo['pageNo'] %}
+        <span class="label label-danger">{{ p }}</span>
+        {% else %}
+        <a href="?page={{ p }}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" class="">{{ p }}</a>
+        {% end %}
+    {% end %}
+</p>
+
+</div>
+        {% end %}
+
+{% block footer %}
+<script>
+    function GetQueryString(name)
+    {
+         var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+         var r = window.location.search.substr(1).match(reg);
+         if(r!=null)return  decodeURI(r[2]); return null;
+    }
+
+    $(document).on('click', '#checkOrder', function() {
+        $(this).attr('disabled',true);
+
+        $.getJSON('/jd/api/checkOrder',function (result) {
+            if(result.success){
+                window.location.href = '/jd/orderList';
+                //console.log(result.data);
+            }
+        });
+
+    });
+
+    $(document).on('click', '#checkAll', function() {
+        if(this.checked){
+            $("input[name='checkedOrder']").each(function(){
+                this.checked = true;
+                $('[role="toolbar"]').show();
+            });
+        }else{
+            $("input[name='checkedOrder']").each(function(){
+                this.checked = false;
+                $('[role="toolbar"]').hide();
+            });
+        }
+    });
+
+    $(document).on('click', '#checkSku', function() {
+        $(this).attr('disabled',true);
+
+        var shopId = GetQueryString('shop');
+
+        var arr = [];
+        $('[role="noSkuImg"]').each(function(){
+            arr.push($(this).attr('data-val'));
+        });
+        if(shopId && arr.length>0){
+            var data = {};
+            data['shop']=shopId;
+            data['sku'] = arr.join(',');
+            $.getJSON('/jd/api/checkSku',data,function(result){
+            if(result.success){
+                //window.location.href = '/orderList';
+                history.go(0);
+            }
+        });
+        }else{
+            alert('没有需要更新的SKU或者未选中店铺');
+            console.log('无需要更新的SKU');
+        }
+
+    });
+
+
+
+    $(document).on('click', '.refresOrder', function() {
+        var orderId = $(this).attr('data-val');
+        var shopId = $(this).attr('data-shop');
+        $.getJSON('/jd/api/checkOrderInfo',{orderId:orderId,'shopId':shopId},function (result) {
+            if(result.success){
+                history.go(0);
+            }
+        })
+    });
+
+
+
+
+</script>
+
+<script src="/static/js/ToolTip.js"></script>
+
+<script type="text/javascript">
+    function loadSkuImage() {
+        $('.noSkuImg').each(function(){
+            var obj = $(this);
+            var skuId = obj.attr('data-val');
+            $.getJSON('/jd/api/getSkuImage',{skuId:skuId},function (result) {
+                //console.log(skuId);
+                //console.log($(this));
+                obj.attr('src','//img11.360buyimg.com/n5/'+result.imgUrl);
+                obj.attr('data-src','//img11.360buyimg.com/n5/s300x300_'+result.imgUrl);
+                if(result.mark>0){
+                    obj.attr('role','noSkuImg');
+                }
+                obj.removeClass('noSkuImg');
+            });
+
+        });
+    }
+
+    loadSkuImage();
+
+
+</script>
+
+{% end %}
+

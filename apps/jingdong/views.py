@@ -120,6 +120,105 @@ class JDOrderListHandler(BaseHandler):
     def write_error(self, status_code, **kwargs):
         self.write("Gosh darnit, user! You caused a %d error.\n" % status_code)
 
+class JDSkuListHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        user = self.current_user
+        role = self.get_secure_cookie("role") if self.get_secure_cookie("role") else 'None'
+
+        mongo = MongoCase()
+        mongo.connect()
+        client = mongo.client
+
+        db = client.jingdong
+
+        pageSize = 100
+
+        status = self.get_argument('status', '')
+        wd = self.get_argument('wd', '')
+
+        shop = self.get_argument('shop', '')
+        shopList = db.shopInfo.find()
+
+        try:
+            page = int(self.get_argument('page', 1))
+        except:
+            page = 1
+
+        matchOption = dict()
+        option = {'platform': 'jingdong'}
+        if status != '':
+            try:
+                option['status'] = int(status)
+                matchOption['status'] = int(status)
+            except:
+                pass
+
+        if shop != '':
+            option['shopId'] = shop
+            matchOption['shopId'] = shop
+
+        statusList = db.skuList.aggregate(
+            [{'$match': matchOption}, {'$group': {'_id': "$status", 'itemCount': {'$sum': 1}}}])
+
+        sL = []
+        for s in statusList:
+            if s['_id']:
+                stxt = ''
+                if s['_id'] == 1:
+                    stxt += '上架'
+                elif s['_id'] == 2:
+                    stxt += '下架'
+                elif s['_id'] == 4:
+                    stxt += '删除'
+
+                sL.append({'status': s['_id'], 'itemCount': s['itemCount'], 'statusTxt': stxt})
+
+        if wd != '':
+            words = re.compile(wd)
+
+            filerList = []
+            filerList.append({'skuId': words})
+            filerList.append({'wareTitle': words})
+            filerList.append({'skuName': words})
+            filerList.append({'wareId': words})
+
+            option['$or'] = filerList
+
+        totalCount = db.skuList.find(option).count()
+
+        skuList = db.skuList.find(option).sort("created", -1).limit(pageSize).skip((page - 1) * pageSize)
+
+        p = divmod(totalCount, pageSize)
+
+        pageInfo = dict()
+
+        totalPage = p[0]
+        if p[1] > 0:
+            totalPage += 1
+
+        pageInfo['totalPage'] = totalPage
+        pageInfo['totalCount'] = totalCount
+        pageInfo['pageSize'] = pageSize
+        pageInfo['pageNo'] = page
+        pageInfo['pageList'] = range(1, totalPage + 1)
+
+        filterData = dict()
+        filterData['status'] = status
+        filterData['shop'] = shop
+        filterData['wd'] = wd
+        filterData['shopList'] = shopList
+        filterData['statusList'] = sL
+
+        self.render('jd/sku-list.html', skuList=skuList, pageInfo=pageInfo, filterData=filterData,
+                    userInfo={'account': user, 'role': role})
+
+
+
+
+
+
+
 class JDCheckOrderHandler(BaseHandler):
     def get(self):
 
