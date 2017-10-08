@@ -397,11 +397,13 @@ class JdMatchPurchaseOrderHandler(BaseHandler):
             order = db.orderList.find_one({'order_id':orderId})
 
 
-            if order and order['order_state'] == 'WAIT_SELLER_STOCK_OUT':
+            if order: #and order['order_state'] == 'WAIT_SELLER_STOCK_OUT':
 
-                purchase = woderp.purchaseList.find({'toFullName':order['consignee_info']['fullname'],'toMobile':order['consignee_info']['mobile'],'createTime':{'$gte':order['createTime']}})
 
-                if order.has_key('matchStatus') and order['matchStatus']>1 :
+                #purchase = woderp.purchaseList.find({'toFullName':order['consignee_info']['fullname'],'toMobile':order['consignee_info']['mobile'],'createTime':{'$gte':order['createTime']}})
+                purchase = woderp.purchaseList.find({'toFullName':order['consignee_info']['fullname'],'toMobile':order['consignee_info']['mobile']})
+
+                if order.has_key('matchStatus') and order['matchStatus']==1 :
                     pass
                 else:
 
