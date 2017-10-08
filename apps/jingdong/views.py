@@ -28,6 +28,7 @@ class JDOrderListHandler(BaseHandler):
 
         status = self.get_argument('status','')
         wd = self.get_argument('wd','')
+        m = self.get_argument('m','')
 
         shop = self.get_argument('shop', '')
         shopList = db.shopInfo.find()
@@ -47,6 +48,9 @@ class JDOrderListHandler(BaseHandler):
         if shop != '':
             option['shopId'] = shop
             matchOption['shopId'] = shop
+
+        if m == '1':
+            option['matchItem'] = { '$exists': True }
 
         statusList = db.orderList.aggregate(
             [{'$match': matchOption}, {'$group': {'_id': "$order_state", 'orderCount': {'$sum': 1}}}])
