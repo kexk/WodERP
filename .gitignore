@@ -6,3 +6,7 @@
 *.xml
 *.iml
 .idea/WodERP.iml
+
+*.iml
+
+*.xml
