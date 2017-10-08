@@ -55,6 +55,21 @@ class ALIBABA:
             return '''{"result:{"success":false}}'''
 
 
+    # 获取非授权用户的商品
+    def getProduct(self, productID, webSite='1688'):
+
+        urlPath = 'param2/1/com.alibaba.product/alibaba.agent.product.get/'
+
+        data = {'appKey': self.appKey, 'urlPath': urlPath, 'productID': productID, 'webSite': webSite}
+
+        r = requests.post(self.apiRoot + self.apiRoute, data=data)
+
+        if r.status_code == 200:
+            return r.content
+        else:
+            return '''{"result:{"success":false}}'''
+
+
 
     def parseAddress(self,addressInfo):
         urlPath = 'param2/1/com.alibaba.trade/alibaba.trade.addresscode.parse/'
