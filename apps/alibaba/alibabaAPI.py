@@ -70,6 +70,19 @@ class ALIBABA:
             return '''{"result:{"success":false}}'''
 
 
+    # 支付单生成(网银支付方式)
+    def createPayment(self, orderId):
+
+        urlPath = 'param2/1/com.alibaba.trade/alibaba.payment.order.bank.create/'
+
+        data = {'appKey': self.appKey, 'urlPath': urlPath, 'orderId': orderId}
+
+        r = requests.post(self.apiRoot + self.apiRoute, data=data)
+
+        if r.status_code == 200:
+            return r.content
+        else:
+            return '''{"result:{"success":false}}'''
 
     def parseAddress(self,addressInfo):
         urlPath = 'param2/1/com.alibaba.trade/alibaba.trade.addresscode.parse/'
@@ -90,6 +103,20 @@ class ALIBABA:
         data = {'appKey':self.appKey,'urlPath':urlPath,'cargoGroups':json.dumps(cargoGroups),
                 'otherInfoGroup':json.dumps(otherInfoGroup),'receiveAddressGroup':json.dumps(receiveAddressGroup),
                 'invoiceGroup':json.dumps(invoiceGroup)}
+
+        r = requests.post(self.apiRoot+self.apiRoute,data=data)
+
+        if r.status_code == 200:
+            return r.content
+        else:
+            return '''{"result:{"success":false}}'''
+
+    #创建订单的预先浏览展示(通用大市场)
+    def createPreorder(self,goods,receiveAddress,extension=[]):
+        urlPath = 'param2/1/com.alibaba.trade/alibaba.trade.general.preorder/'
+
+        data = {'appKey':self.appKey,'urlPath':urlPath,'goods':json.dumps(goods),
+                'receiveAddress':json.dumps(receiveAddress),'extension':json.dumps(extension)}
 
         r = requests.post(self.apiRoot+self.apiRoute,data=data)
 
