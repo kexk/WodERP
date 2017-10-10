@@ -104,9 +104,9 @@
                <tr data-val="{{ goods['sourceId'] }}" data-specId="{% if goods.has_key('specId') %}{{ goods['specId'] }}{% end %}" class="">
 
                    {% if isinstance(goods['productPic'],list)%}
-                   <td class="goodsPic"><a href="javaScript:void(0);" onMouseOver="toolTip('<img width=300 src={{ goods['productPic'][0] }}>')" onMouseOut="toolTip()"><img src="{{ static_url('img/nopic.png') }}" data-original="{{ goods['productPic'][0] }}" classs="img-thumbnail lazy"></a></td>
+                   <td class="goodsPic"><a href="javaScript:void(0);" onMouseOver="toolTip('<img width=300 src={{ goods['productPic'][0] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('img/nopic.png') }}" data-original="{{ goods['productPic'][0] }}" /></a></td>
                    {% else %}
-                   <td class="goodsPic"><a href="javaScript:void(0);" onMouseOver="toolTip('<img width=300 src={{ goods['productPic'] }}>')" onMouseOut="toolTip()"><img src="{{ static_url('img/nopic.png') }}" data-original="{{ goods['productPic'] }}" classs="img-thumbnail lazy"></a></td>
+                   <td class="goodsPic"><a href="javaScript:void(0);" onMouseOver="toolTip('<img width=300 src={{ goods['productPic'] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('img/nopic.png') }}" data-original="{{ goods['productPic'] }}" /></a></td>
                    {% end %}
                    <td class="goodsInfo"><div class="goodsName"><a href="#" >{{ goods['productName'] }}</a></div>
                        {% if goods.has_key('specInfo') %}
