@@ -3,6 +3,10 @@
         {% block header %}
     <title>订单列表</title>
 {% end %}
+        {% block styleblock %}
+<link rel="stylesheet" href="{{ static_url('plugin/notify/notification.css') }}"/>
+
+{% end %}
 
         {% block main %}
 		<div class="container theme-showcase" role="main">
@@ -91,7 +95,6 @@
                 </thead>
                {% for item in skuList %}
                 <tbody>
-                <input name="orderId" value="{{ item['skuId'] }}" class="orderid" type="hidden">
                 <tr>
                     <td colspan="9" class="blank"></td>
                 </tr>
@@ -99,7 +102,7 @@
                     <td colspan="8">
                         <input type="checkbox" name="checkedOrder" value="{{ item['skuId'] }}">
                         <span class="head-item" style="width: 190px">订单编号：
-                            <a href="javascript:;" target="_blank" class="suctext">{{ item['skuId'] }}</a></span>
+                            <a href="javascript:;" target="_blank" class="suctext limingcentUrlpic">{{ item['skuId'] }}</a></span>
                             <span class="head-item">创建时间：{{ item['createTime'] }}</span>
                             <span class="head-item"> 更新时间：{{ item['updateTime'] }}</span>
 
