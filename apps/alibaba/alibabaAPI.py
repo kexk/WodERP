@@ -55,6 +55,21 @@ class ALIBABA:
             return '''{"result:{"success":false}}'''
 
 
+    #物流公司列表-所有的物流公司
+    def getLogisticCompanyList(self):
+        urlPath = 'param2/1/com.alibaba.logistics/alibaba.logistics.OpQueryLogisticCompanyList/'
+
+        data = {'appKey':self.appKey,'urlPath':urlPath}
+
+        r = requests.post(self.apiRoot+self.apiRoute,data=data)
+
+        if r.status_code == 200:
+            return r.content
+        else:
+            return '''{"result:{"success":false}}'''
+
+
+
     #获取交易订单的物流跟踪信息(买家视角)
     def getLogisticsTraceInfo(self,orderId,logisticsId='',webSite='1688'):
         urlPath = 'param2/1/com.alibaba.logistics/alibaba.trade.getLogisticsTraceInfo.buyerView/'
