@@ -55,6 +55,20 @@ class ALIBABA:
             return '''{"result:{"success":false}}'''
 
 
+    #获取交易订单的物流跟踪信息(买家视角)
+    def getLogisticsTraceInfo(self,orderId,logisticsId='',webSite='1688'):
+        urlPath = 'param2/1/com.alibaba.logistics/alibaba.trade.getLogisticsTraceInfo.buyerView/'
+
+        data = {'appKey':self.appKey,'urlPath':urlPath,'orderId':orderId,
+                'logisticsId':logisticsId,'webSite':webSite}
+
+        r = requests.post(self.apiRoot+self.apiRoute,data=data)
+
+        if r.status_code == 200:
+            return r.content
+        else:
+            return '''{"result:{"success":false}}'''
+
     #获取交易订单的物流信息(买家视角)
     def getLogisticsInfos(self,orderId,fields='',webSite='1688'):
         urlPath = 'param2/1/com.alibaba.logistics/alibaba.trade.getLogisticsInfos.buyerView/'
