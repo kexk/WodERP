@@ -19,6 +19,18 @@ class ALIBABA:
         self.memberId = app['memberId']
 
 
+    #订单详情查看(买家视角)
+    def getOrderDetailBuyerView(self,orderId,webSite='1688',includeFields=''):
+        urlPath = 'param2/1/com.alibaba.trade/alibaba.trade.get.buyerView/'
+
+        data = {'urlPath':urlPath,'appKey':self.appKey,'orderId':orderId,'webSite':webSite,'includeFields':includeFields}
+
+        r = requests.post(self.apiRoot+self.apiRoute,data=data)
+        if r.status_code == 200:
+            return r.content
+        else:
+            return '''{"result:{"success":false}}'''
+
     def getOrderDetail(self,orderId):
 
         urlPath = 'param2/2/cn.alibaba.open/trade.order.orderDetail.get/'
