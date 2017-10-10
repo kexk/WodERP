@@ -31,6 +31,28 @@ class ALIBABA:
         else:
             return '''{"result:{"success":false}}'''
 
+    #订单列表查看(买家视角)
+    def getBuyerOrderList(self,option={}):
+        urlPath = 'param2/1/cn.alibaba.open/trade.order.orderList.get/'
+
+        data = {'appKey':self.appKey,'urlPath':urlPath,'sellerMemberId':'','sellerRateStatus':'','tradeType':'','bizTypes':json.dumps(["cn","ws"]),'orderStatus':'','refundStatus':'','page':'1','pageSize':'20','isHis':'false',
+        'createStartTime':datetime.datetime.now().strftime('%Y-%m-%d')+' 00:00:00','createEndTime':datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),'modifyStartTime':'',
+        'modifyEndTime':''}
+
+        for (k,v) in  option.items():
+            data[k] = v
+
+
+        r = requests.post(self.apiRoot+self.apiRoute,data=data)
+
+
+        if r.status_code == 200:
+            return r.content
+        else:
+            return '''{"result:{"success":false}}'''
+
+
+
     def getOrderDetail(self,orderId):
 
         urlPath = 'param2/2/cn.alibaba.open/trade.order.orderDetail.get/'
