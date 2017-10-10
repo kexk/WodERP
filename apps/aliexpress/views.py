@@ -281,3 +281,40 @@ class SMTCheckOrderHandler(BaseHandler):
             self.write(json.dumps(respon,ensure_ascii=False))
         else:
             self.write(json.dumps({'success':False},ensure_ascii=False))
+
+
+class SMTRefreshOrderStatusHandler(BaseHandler):
+    def get(self):
+        data = dict()
+        items = self.get_argument('items', '')
+        ol = json.loads(items)
+
+        mongo = MongoCase()
+        mongo.connect()
+        client = mongo.client
+        db = client.woderp
+
+        for (k,v) in  ol.items():
+            app = db.appList.find_one({'storeId': k})
+            if app != None:
+                api = ALIEXPRESS(app)
+                ids = v.strip(',').split(',')
+                for id in ids:
+                    c = api.getOrderBaseInfo(id)
+                    d = json.loads(c)
+                    if d != {}:
+                        newData = d
+                        newData['gmtModified'] = datetime.datetime.strptime(newData['gmtModified'], '%Y-%m-%d %H:%M:%S')
+                        newData['gmtCreate'] = datetime.datetime.strptime(newData['gmtCreate'], '%Y-%m-%d %H:%M:%S')
+
+                        if newData['orderStatus'] == 'FINISH' or newData['orderStatus'] == 'WAIT_BUYER_ACCEPT_GOODS' or newData['orderStatus'] == 'FUND_PROCESSING':
+                            newData['timeoutLeftTime'] = None
+                            newData['leftSendGoodMin'] = None
+                            newData['leftSendGoodDay'] = None
+                            newData['leftSendGoodHour'] = None
+
+                        db.orderList.update({'orderId':id},{'$set':newData})
+
+        data['success'] = True
+
+        self.write(json.dumps(data, ensure_ascii=False))

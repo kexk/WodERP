@@ -5,4 +5,5 @@ from apps.aliexpress.views import *
 urls = [
     (r"orderList$", SMTOrderListHandler),
     (r"api/checkOrder$", SMTCheckOrderHandler),
+    (r"api/refreshOrderStatus$", SMTRefreshOrderStatusHandler),
 ]

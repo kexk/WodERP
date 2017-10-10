@@ -26,7 +26,7 @@
     <div class="col-lg-6">
     <button type="button" class="btn btn-danger" id="checkOrder">导入订单</button>
 <button type="button" class="btn btn-danger" id="checkSku">同步sku</button>
-<button type="button" class="btn btn-danger" id="matchPurchase">匹配采购订单</button></div>
+    </div>
 
     <div class="col-lg-6">
         <form action="">
@@ -126,7 +126,7 @@
 </div>
 
       <button type="button" class="btn btn-default btn-sm" id="checkSkuu">同步SKU</button>
-      <button type="button" class="btn btn-default btn-sm">更新订单</button>
+      <button type="button" class="btn btn-default btn-sm" id="refreshOrder">更新订单</button>
 
 
     </div>
@@ -146,13 +146,12 @@
                 </thead>
                {% for order in orderList %}
                 <tbody>
-                <input name="orderId" value="{{ order['orderId'] }}" class="orderid" type="hidden">
                 <tr>
                     <td colspan="9" class="blank"></td>
                 </tr>
                 <tr class="head">
                     <td colspan="9">
-                        <input type="checkbox" name="checkedOrder" value="{{ order['orderId'] }}">
+                        <input type="checkbox" name="checkedOrder" data-store="{{ order['storeInfo']['storeId'] }}" value="{{ order['orderId'] }}">
                         <span class="head-item" style="width: 190px">订单编号：
                             <a href="javascript:;" target="_blank" class="suctext limingcentUrlpic">{{ order['orderId'] }}</a></span>
                         {% if order.has_key('storeInfo') %}
@@ -404,6 +403,56 @@
         }
     });
 
+    //勾选显示操作按钮
+    $(document).on('click', "input[name='checkedOrder']", function() {
+        if($("input[name='checkedOrder']:checked").length>0){
+            $('[role="toolbar"]').show();
+        }else{
+            $('[role="toolbar"]').hide();
+        }
+
+    });
+
+    //
+    $(document).on('click', '#refreshOrder', function() {
+        $(this).attr('disabled',true);
+
+        var storeId = GetQueryString('store');
+
+        //data = {'items':[{'storeId':'12515','ids':['1111','2222','3333']}]}
+        var items = {};
+        if(storeId){
+
+            var arr = [];
+            $('input[name="checkedOrder"]:checked').each(function(){
+                arr.push($(this).val());
+            });
+            items[storeId] = arr.join(',');
+        }else{
+
+            var arr2 = [];
+            $('input[name="checkedOrder"]:checked').each(function(){
+                if($.inArray($(this).attr('data-store'), arr2)==-1){
+                    arr2.push($(this).attr('data-store'));
+                    items[$(this).attr('data-store')] = $(this).val();
+                }else{
+                    items[$(this).attr('data-store')] += ','+$(this).val();
+                }
+            });
+        }
+
+        console.log(items);
+        $.getJSON('/smt/api/refreshOrderStatus',{items:JSON.stringify(items)},function (result) {
+            if(result.success){
+                //window.location.href = '/smt/orderList';
+                window.history.go(0);
+                //console.log(result.data);
+            }
+        });
+
+
+    });
+
     $(document).on('click', '#checkSku', function() {
         $(this).attr('disabled',true);
 
@@ -423,38 +472,6 @@
         }
 
     });
-
-
-    $(document).on('click', '#matchPurchase', function() {
-        $(this).attr('disabled',true);
-
-        var arr = [];
-        $('input[name="checkedOrder"]:checked').each(function(){
-            arr.push($(this).val());
-        });
-        if(arr.length>0){
-            $.getJSON('/api/matchPurchaseOrder',{ids:arr.join(',')},function(result){
-                console.log(result);
-                if(result.matchCount>0){
-                    alert('匹配订单'+result.matchCount+'个');
-                    //window.location.href = '/orderList';
-                    history.go(0);
-                    //console.log(result.matchCount);
-                }else{
-                    alert('无匹配订单！');
-                    $('#matchPurchase').removeAttr('disabled');
-                }
-            });
-        }else{
-            console.log('没有选择订单');
-            alert('请选择订单！');
-            $('#matchPurchase').removeAttr('disabled');
-        }
-
-    });
-
-
-
 
 
     //showPurchase

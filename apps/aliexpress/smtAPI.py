@@ -32,6 +32,22 @@ class ALIEXPRESS:
             return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
 
 
+    def getOrderBaseInfo(self,orderId):
+
+        apiPath = 'api.findOrderBaseInfo'
+
+
+        data = {'orderId':orderId,'apiPath':apiPath,'appKey':self.appKey}
+
+        try:
+            r = requests.post(self.apiRoot+self.apiRoute,data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
+
     def getOrderList(self,option={}):
 
         apiPath = 'api.findOrderListQuery'
