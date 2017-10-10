@@ -99,7 +99,7 @@
                     <td colspan="8">
                         <input type="checkbox" name="checkedOrder" value="{{ order['order_id'] }}">
                         <span class="head-item" style="width: 190px">订单编号：
-                            <a href="//neworder.shop.jd.com/order/orderDetail?orderId={{ order['order_id'] }}" target="_blank" class="suctext">{{ order['order_id'] }}</a></span>
+                            <a href="//neworder.shop.jd.com/order/orderDetail?orderId={{ order['order_id'] }}" target="_blank" class="suctext limingcentUrlpic">{{ order['order_id'] }}</a></span>
                             <span class="head-item">货款金额：{{ order['order_total_price'] }}</span>
                             <span class="head-item">下单时间：{{ order['order_start_time'] }}</span>
                             <span class="head-item"> 付款时间：{{ order['order_start_time'] }}</span>
@@ -126,7 +126,7 @@
 							{% end %}
                         </div>
                         <div class="goodsName">
-                            <a href="javaScript:void(0);" title="{{ sku['sku_name'] }}" data-val="{{ sku['sku_id'] }}">{{ sku['sku_name'] }}</a>
+                            <a href="javaScript:void(0);" title="{{ sku['sku_name'] }}" data-val="{{ sku['sku_id'] }}" class="">{{ sku['sku_name'] }}</a>
                         </div>
                         <div class="p-detail">
                             <span class="p-amount">售价:<b>{{ sku['jd_price'] }}</b> x 数量:<i class="badge">{{ sku['item_total'] }}</i></span>
@@ -174,7 +174,8 @@
                         {% end %}
                     </td>
                     <td class="t-c" colspan="2">
-                        {{ order['consignee_info']['fullname'] }} / {{ order['consignee_info']['mobile'] }} <br>
+                        <a href="javascript:;" class="limingcentUrlpic">{{ order['consignee_info']['fullname'] }}</a> /
+                        <a href="javascript:;" class="limingcentUrlpic">{{ order['consignee_info']['mobile'] }}</a> <br>
                         {{ order['consignee_info']['full_address'] }} <br>
 
                         {% if order.has_key('matchItem') %}
@@ -187,7 +188,7 @@
                                     {% for logist in item['logistics'] %}
                                     <br>
                                         <span>{{ logist['logisticsCompanyName'] }}
-                                        <b>{{ logist['logisticsBillNo'] }}</b></span>
+                                        <b><a href="javascript:;" class="limingcentUrlpic">{{ logist['logisticsBillNo'] }}</a></b></span>
                                     {% end %}
                                 {% else %}
                                 <span class="text-danger">待发货</span>
