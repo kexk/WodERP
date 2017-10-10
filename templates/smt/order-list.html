@@ -441,7 +441,7 @@
             });
         }
 
-        console.log(items);
+        //console.log(items);
         $.getJSON('/smt/api/refreshOrderStatus',{items:JSON.stringify(items)},function (result) {
             if(result.success){
                 //window.location.href = '/smt/orderList';
