@@ -10,5 +10,11 @@
 *.iml
 
 *.xml
+<<<<<<< HEAD
 
 *.pyc
+=======
+.idea/WodERP.iml
+>>>>>>> origin/master
+
+.idea/WodERP.iml
