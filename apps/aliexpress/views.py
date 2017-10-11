@@ -17,6 +17,8 @@ class SMTOrderListHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
 
+        AUTHOR_MOUDLE = 'ViewSMTOrder'
+
         user = self.current_user
         role = self.get_secure_cookie("role") if self.get_secure_cookie("role") else 'None'
 
@@ -26,112 +28,132 @@ class SMTOrderListHandler(BaseHandler):
 
         db = client.woderp
 
-        pageSize = 100
 
-        status = self.get_argument('status','')
-        store = self.get_argument('store','')
-        wd = self.get_argument('wd','')
-        platform = self.get_argument('platform','aliexpress')
+        account = db.user.find_one({'account':user})
 
-        appList = db.appList.find({'platform': 'aliexpress'})
+        authority = self.getAuthority(account)
+
+        if authority['role'] == 'Supper' or AUTHOR_MOUDLE in authority['authority']['Permission']:
 
 
-        try:
-            page = int(self.get_argument('page',1))
-        except:
-            page = 1
+            pageSize = 100
 
-        #totalCount = db.orderList.find({"order_state":"WAIT_SELLER_STOCK_OUT"}).count()
-        option = {'platform':platform}
+            status = self.get_argument('status','')
+            store = self.get_argument('store','')
+            wd = self.get_argument('wd','')
+            platform = self.get_argument('platform','aliexpress')
 
-        matchOption = dict()
-
-
-        if status != '':
-            option['orderStatus'] = status
-            matchOption['orderStatus'] = status
-
-        if store != '':
-            option['storeInfo.storeId'] = store
-            matchOption['storeInfo.storeId'] = store
-
-        statusList = db.orderList.aggregate([{ '$match' : matchOption },{'$group': {'_id': "$orderStatus", 'orderCount': {'$sum': 1}}}])
-
-        sL = []
-        for s in statusList:
-            if s['_id']:
-                stxt = ''
-                if s['_id'] == 'PLACE_ORDER_SUCCESS':
-                    stxt += '未付款'
-                elif s['_id'] == 'RISK_CONTROL':
-                    stxt += '风控中'
-                elif s['_id'] == 'IN_CANCEL':
-                    stxt += '已取消'
-                elif s['_id'] == 'WAIT_SELLER_SEND_GOODS':
-                    stxt += '待发货'
-                elif s['_id'] == 'SELLER_PART_SEND_GOODS':
-                    stxt += '部分发货'
-                elif s['_id'] == 'WAIT_BUYER_ACCEPT_GOODS':
-                    stxt += '待收货'
-                elif s['_id'] == 'IN_ISSUE':
-                    stxt += '纠纷中'
-                elif s['_id'] == 'IN_FROZEN':
-                    stxt += '冻结中'
-                elif s['_id'] == 'FUND_PROCESSING':
-                    stxt += '待放款'
-                elif s['_id'] == 'WAIT_SELLER_EXAMINE_MONEY':
-                    stxt += '待确认金额'
-                elif s['_id'] == 'FINISH':
-                    stxt += '已结束'
-                sL.append({'status': s['_id'], 'orderCount': s['orderCount'], 'statusTxt': stxt})
+            appList = db.appList.find({'platform': 'aliexpress'})
 
 
-        if wd != '':
-            words = re.compile(wd)
+            try:
+                page = int(self.get_argument('page',1))
+            except:
+                page = 1
 
-            filerList = []
-            filerList.append({'productList.productName':words})
-            filerList.append({'productList.skuCode':words})
-            filerList.append({'buyerLoginId':words})
-            filerList.append({'buyerSignerFullname':words})
-            filerList.append({'receiptAddress.contactPerson':words})
-            filerList.append({'receiptAddress.mobileNo':words})
-            filerList.append({'logisticInfoList.logisticsNo':words})
-            filerList.append({'orderId':words})
-            filerList.append({'productList.productId':words})
+            #totalCount = db.orderList.find({"order_state":"WAIT_SELLER_STOCK_OUT"}).count()
+            option = {'platform':platform}
 
-            option['$or'] = filerList
+            matchOption = dict()
 
+            if authority['role'] == 'Supper':
+                appList = db.appList.find({'platform': 'aliexpress'})
+            else:
+                appList = db.appList.find({'platform': 'aliexpress','storeId':{'$in':authority['authority']['smtStore']}})
 
 
-        totalCount = db.orderList.find(option).count()
+            if status != '':
+                option['orderStatus'] = status
+                matchOption['orderStatus'] = status
 
-        orderList = db.orderList.find(option).sort("gmtPayTime",-1).limit(pageSize).skip((page-1)*pageSize)
+            if store != '':
+                option['storeInfo.storeId'] = store
+                matchOption['storeInfo.storeId'] = store
+            elif authority['role'] != 'Supper' :
+                option['storeInfo.storeId'] = {'$in':authority['authority']['smtStore']}
+                matchOption['storeInfo.storeId'] = {'$in':authority['authority']['smtStore']}
 
-        p = divmod(totalCount,pageSize)
+            statusList = db.orderList.aggregate([{ '$match' : matchOption },{'$group': {'_id': "$orderStatus", 'orderCount': {'$sum': 1}}}])
 
-        pageInfo = dict()
+            sL = []
+            for s in statusList:
+                if s['_id']:
+                    stxt = ''
+                    if s['_id'] == 'PLACE_ORDER_SUCCESS':
+                        stxt += '未付款'
+                    elif s['_id'] == 'RISK_CONTROL':
+                        stxt += '风控中'
+                    elif s['_id'] == 'IN_CANCEL':
+                        stxt += '已取消'
+                    elif s['_id'] == 'WAIT_SELLER_SEND_GOODS':
+                        stxt += '待发货'
+                    elif s['_id'] == 'SELLER_PART_SEND_GOODS':
+                        stxt += '部分发货'
+                    elif s['_id'] == 'WAIT_BUYER_ACCEPT_GOODS':
+                        stxt += '待收货'
+                    elif s['_id'] == 'IN_ISSUE':
+                        stxt += '纠纷中'
+                    elif s['_id'] == 'IN_FROZEN':
+                        stxt += '冻结中'
+                    elif s['_id'] == 'FUND_PROCESSING':
+                        stxt += '待放款'
+                    elif s['_id'] == 'WAIT_SELLER_EXAMINE_MONEY':
+                        stxt += '待确认金额'
+                    elif s['_id'] == 'FINISH':
+                        stxt += '已结束'
+                    sL.append({'status': s['_id'], 'orderCount': s['orderCount'], 'statusTxt': stxt})
 
-        totalPage = p[0]
-        if p[1]>0:
-            totalPage += 1
 
-        pageInfo['totalPage'] = totalPage
-        pageInfo['totalCount'] = totalCount
-        pageInfo['pageSize'] = pageSize
-        pageInfo['pageNo'] = page
-        pageInfo['pageList'] = range(1,totalPage+1)
+            if wd != '':
+                words = re.compile(wd)
 
-        filterData = dict()
-        filterData['status'] = status
-        filterData['store'] = store
-        filterData['wd'] = wd
-        filterData['statusList'] = sL
-        filterData['appList'] = appList
+                filerList = []
+                filerList.append({'productList.productName':words})
+                filerList.append({'productList.skuCode':words})
+                filerList.append({'buyerLoginId':words})
+                filerList.append({'buyerSignerFullname':words})
+                filerList.append({'receiptAddress.contactPerson':words})
+                filerList.append({'receiptAddress.mobileNo':words})
+                filerList.append({'logisticInfoList.logisticsNo':words})
+                filerList.append({'orderId':words})
+                filerList.append({'productList.productId':words})
 
-        self.render('smt/order-list.html',orderList = orderList,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
+                option['$or'] = filerList
 
-        #self.render('index.html')
+
+
+            totalCount = db.orderList.find(option).count()
+
+            orderList = db.orderList.find(option).sort("gmtPayTime",-1).limit(pageSize).skip((page-1)*pageSize)
+
+            p = divmod(totalCount,pageSize)
+
+            pageInfo = dict()
+
+            totalPage = p[0]
+            if p[1]>0:
+                totalPage += 1
+
+            pageInfo['totalPage'] = totalPage
+            pageInfo['totalCount'] = totalCount
+            pageInfo['pageSize'] = pageSize
+            pageInfo['pageNo'] = page
+            pageInfo['pageList'] = range(1,totalPage+1)
+
+            filterData = dict()
+            filterData['status'] = status
+            filterData['store'] = store
+            filterData['wd'] = wd
+            filterData['statusList'] = sL
+            filterData['appList'] = appList
+
+            self.render('smt/order-list.html',orderList = orderList,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
+
+            #self.render('index.html')
+
+        else:
+            self.write("No Permission")
+
 
     def write_error(self, status_code, **kwargs):
         self.write("Gosh darnit, user! You caused a %d error.\n" % status_code)

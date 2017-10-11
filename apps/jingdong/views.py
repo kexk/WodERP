@@ -67,6 +67,7 @@ class JDOrderListHandler(BaseHandler):
                 matchOption['shopId'] = shop
             elif authority['role'] != 'Supper' :
                 option['shopId'] = {'$in':authority['authority']['jdStore']}
+                matchOption['shopId'] = {'$in':authority['authority']['jdStore']}
 
             if m == '1':
                 option['matchItem'] = { '$exists': True }
