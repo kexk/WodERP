@@ -15,6 +15,8 @@ class JDOrderListHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
 
+        AUTHOR_MOUDLE = 'ViewJDOrder'
+
         user = self.current_user
         role = self.get_secure_cookie("role") if self.get_secure_cookie("role") else 'None'
 
@@ -22,102 +24,121 @@ class JDOrderListHandler(BaseHandler):
         mongo.connect()
         client = mongo.client
 
-        db = client.jingdong
-
-        pageSize = 50
-
-        status = self.get_argument('status','')
-        wd = self.get_argument('wd','')
-        m = self.get_argument('m','')
-
-        shop = self.get_argument('shop', '')
-        shopList = db.shopInfo.find()
-
-        try:
-            page = int(self.get_argument('page',1))
-        except:
-            page = 1
-
-        #totalCount = db.orderList.find({"order_state":"WAIT_SELLER_STOCK_OUT"}).count()
-        matchOption = dict()
-        option = {'platform':'jingdong'}
-        if status != '':
-            option['order_state'] = status
-            matchOption['order_state'] = status
-
-        if shop != '':
-            option['shopId'] = shop
-            matchOption['shopId'] = shop
-
-        if m == '1':
-            option['matchItem'] = { '$exists': True }
-
-        statusList = db.orderList.aggregate(
-            [{'$match': matchOption}, {'$group': {'_id': "$order_state", 'orderCount': {'$sum': 1}}}])
-
-        sL = []
-        for s in statusList:
-            if s['_id']:
-                stxt = ''
-                if s['_id'] == 'WAIT_SELLER_STOCK_OUT':
-                    stxt += '待发货'
-                elif s['_id'] == 'SEND_TO_DISTRIBUTION_CENER':
-                    stxt += '发往配送中心'
-                elif s['_id'] == 'TRADE_CANCELED':
-                    stxt += '已取消'
-                elif s['_id'] == 'RECEIPTS_CONFIRM':
-                    stxt += '收款确认'
-                elif s['_id'] == 'WAIT_GOODS_RECEIVE_CONFIRM':
-                    stxt += '待收货'
-                elif s['_id'] == 'LOCKED':
-                    stxt += '已锁定'
-                elif s['_id'] == 'FINISHED_L':
-                    stxt += '已结束'
-                sL.append({'status': s['_id'], 'orderCount': s['orderCount'], 'statusTxt': stxt})
+        erp = client.woderp
 
 
-        if wd != '':
-            words = re.compile(wd)
+        account = erp.user.find_one({'account':user})
 
-            filerList = []
-            filerList.append({'item_info_list.sku_name':words})
-            filerList.append({'item_info_list.sku_id':words})
-            filerList.append({'order_id':words})
-            filerList.append({'consignee_info.fullname':words})
-            filerList.append({'consignee_info.mobile':words})
-            filerList.append({'consignee_info.telephone':words})
-            filerList.append({'logisticsInfo.waybill':words})
+        authority = self.getAuthority(account)
 
-            option['$or'] = filerList
+        if authority['role'] == 'Supper' or AUTHOR_MOUDLE in authority['authority']['Permission']:
+
+            db = client.jingdong
+
+            pageSize = 50
+
+            status = self.get_argument('status','')
+            wd = self.get_argument('wd','')
+            m = self.get_argument('m','')
+
+            shop = self.get_argument('shop', '')
+
+            try:
+                page = int(self.get_argument('page',1))
+            except:
+                page = 1
+
+            #totalCount = db.orderList.find({"order_state":"WAIT_SELLER_STOCK_OUT"}).count()
+            matchOption = dict()
+            option = {'platform':'jingdong'}
+
+            if status != '':
+                option['order_state'] = status
+                matchOption['order_state'] = status
 
 
+            if authority['role'] == 'Supper':
+                shopList = db.shopInfo.find()
+            else:
+                shopList = db.shopInfo.find({'shopId':{'$in':authority['authority']['jdStore']}})
 
-        totalCount = db.orderList.find(option).count()
+            if shop != '':
+                option['shopId'] = shop
+                matchOption['shopId'] = shop
+            elif authority['role'] != 'Supper' :
+                option['shopId'] = {'$in':authority['authority']['jdStore']}
 
-        orderList = db.orderList.find(option).sort("order_start_time",-1).limit(pageSize).skip((page-1)*pageSize)
+            if m == '1':
+                option['matchItem'] = { '$exists': True }
 
-        p = divmod(totalCount,pageSize)
+            statusList = db.orderList.aggregate(
+                [{'$match': matchOption}, {'$group': {'_id': "$order_state", 'orderCount': {'$sum': 1}}}])
 
-        pageInfo = dict()
+            sL = []
+            for s in statusList:
+                if s['_id']:
+                    stxt = ''
+                    if s['_id'] == 'WAIT_SELLER_STOCK_OUT':
+                        stxt += '待发货'
+                    elif s['_id'] == 'SEND_TO_DISTRIBUTION_CENER':
+                        stxt += '发往配送中心'
+                    elif s['_id'] == 'TRADE_CANCELED':
+                        stxt += '已取消'
+                    elif s['_id'] == 'RECEIPTS_CONFIRM':
+                        stxt += '收款确认'
+                    elif s['_id'] == 'WAIT_GOODS_RECEIVE_CONFIRM':
+                        stxt += '待收货'
+                    elif s['_id'] == 'LOCKED':
+                        stxt += '已锁定'
+                    elif s['_id'] == 'FINISHED_L':
+                        stxt += '已结束'
+                    sL.append({'status': s['_id'], 'orderCount': s['orderCount'], 'statusTxt': stxt})
 
-        totalPage = p[0]
-        if p[1]>0:
-            totalPage += 1
 
-        pageInfo['totalPage'] = totalPage
-        pageInfo['totalCount'] = totalCount
-        pageInfo['pageSize'] = pageSize
-        pageInfo['pageNo'] = page
-        pageInfo['pageList'] = range(1,totalPage+1)
+            if wd != '':
+                words = re.compile(wd)
 
-        filterData = dict()
-        filterData['status'] = status
-        filterData['shop'] = shop
-        filterData['wd'] = wd
-        filterData['shopList'] = shopList
-        filterData['statusList'] = sL
+                filerList = []
+                filerList.append({'item_info_list.sku_name':words})
+                filerList.append({'item_info_list.sku_id':words})
+                filerList.append({'order_id':words})
+                filerList.append({'consignee_info.fullname':words})
+                filerList.append({'consignee_info.mobile':words})
+                filerList.append({'consignee_info.telephone':words})
+                filerList.append({'logisticsInfo.waybill':words})
 
-        self.render('jd/order-list.html',orderList = orderList,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
+                option['$or'] = filerList
+
+
+            totalCount = db.orderList.find(option).count()
+
+            orderList = db.orderList.find(option).sort("order_start_time",-1).limit(pageSize).skip((page-1)*pageSize)
+
+            p = divmod(totalCount,pageSize)
+
+            pageInfo = dict()
+
+            totalPage = p[0]
+            if p[1]>0:
+                totalPage += 1
+
+            pageInfo['totalPage'] = totalPage
+            pageInfo['totalCount'] = totalCount
+            pageInfo['pageSize'] = pageSize
+            pageInfo['pageNo'] = page
+            pageInfo['pageList'] = range(1,totalPage+1)
+
+            filterData = dict()
+            filterData['status'] = status
+            filterData['shop'] = shop
+            filterData['wd'] = wd
+            filterData['shopList'] = shopList
+            filterData['statusList'] = sL
+
+            self.render('jd/order-list.html',orderList = orderList,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
+
+        else:
+            self.write("No Permission")
 
         #self.render('index.html')
 
