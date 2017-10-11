@@ -293,6 +293,7 @@ class SMTCheckOrderHandler(BaseHandler):
                             option['page'] = str(page)
                             #print(option)
                             m = api.getOrderList(option)
+                            moreUpdateTime = datetime.datetime.now()
                             try:
                                 moreOrder = json.loads(m)
                                 moreOrderList = moreOrder['orderList']
@@ -320,7 +321,7 @@ class SMTCheckOrderHandler(BaseHandler):
                                         newData['frozenStatus'] = moreItem['frozenStatus']
                                         newData['issueStatus'] = moreItem['issueStatus']
                                         newData['fundStatus'] = moreItem['fundStatus']
-                                        newData['updateTime'] = updateTime
+                                        newData['updateTime'] = moreUpdateTime
                                         if moreItem.has_key('timeoutLeftTime'):
                                             newData['timeoutLeftTime'] = moreItem['timeoutLeftTime']
                                         else:
@@ -351,7 +352,7 @@ class SMTCheckOrderHandler(BaseHandler):
                                         moreItem = orderItem
                                         moreItem['orderId'] = str(moreItem['orderId'])
                                         moreItem['createTime'] = datetime.datetime.now()
-                                        moreItem['updateTime'] = updateTime
+                                        moreItem['updateTime'] = moreUpdateTime
                                         moreItem['storeInfo'] = {'storeId': app['storeId'], 'cnName': app['cnName'],
                                                              'enName': app['enName'], "operator": app["operator"],
                                                              'dealPeron': app['dealPeron']}
