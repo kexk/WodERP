@@ -297,7 +297,6 @@ class SMTCheckOrderHandler(BaseHandler):
                             try:
                                 moreOrder = json.loads(m)
                                 moreOrderList = moreOrder['orderList']
-                                total += moreOrder['totalItem']
 
                                 for orderItem in moreOrderList:
 
