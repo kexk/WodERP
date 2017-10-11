@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 
         {% block header %}
-    <title>订单列表</title>
+    <title>采购列表</title>
 {% end %}
 
+{% block styleblock %}
+<link rel="stylesheet" href="{{ static_url('plugin/notify/notification.css') }}"/>
+
+{% end %}
         {% block main %}
 		<div class="container theme-showcase" role="main">
 
@@ -84,10 +88,10 @@
            <table class="table table-bordered table-hover" id="purchaseOrderList">
                <thead><tr><th style="width:30px;border-right:none;"><input type="checkbox" id="checkAll"></th><th style="width:360px;border-left:none;">商品信息</th><th style="width: 120px;">单价</th><th style="width: 100px;">数量</th><th style="width: 100px;">总金额</th><th style="width: 100px;">订单状态</th><th style="" colspan="2">买家信息</th><th style="width: 120px;">操作</th></tr></thead>
                {% for order in purchaseList %}
-               <tbody><input name="orderId" value="{{ order['id'] }}" class="orderid" type="hidden">
+               <tbody>
                <tr><td colspan="9" class="blank"></td></tr><tr class="head"><td colspan="9">
                <input type="checkbox" name="checkedOrder" value="{{ order['id'] }}"><span class="head-item">订单编号：
-                   <a href="#" target="_blank" class="suctext">{{ order['id'] }}</a></span><span class="head-item">货款金额：{{ format(float(order['sumPayment'])/float(100),'.2f') }}</span>
+                   <a href="#" target="_blank" class="suctext limingcentUrlpic">{{ order['id'] }}</a></span><span class="head-item">货款金额：{{ format(float(order['sumPayment'])/float(100),'.2f') }}</span>
 
                    <span class="head-item">下单时间：{{ order['gmtCreate'] }}</span>
                    {% if order.has_key('gmtPayment')  %}
