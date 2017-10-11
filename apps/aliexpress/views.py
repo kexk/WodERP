@@ -165,7 +165,8 @@ class SMTCheckOrderHandler(BaseHandler):
             addCount = 0
             updateCount = 0
 
-            statusList = ['WAIT_SELLER_SEND_GOODS','PLACE_ORDER_SUCCESS','IN_CANCEL','IN_ISSUE','RISK_CONTROL','WAIT_BUYER_ACCEPT_GOODS']
+            #statusList = ['WAIT_SELLER_SEND_GOODS','PLACE_ORDER_SUCCESS','IN_CANCEL','IN_ISSUE','RISK_CONTROL','WAIT_BUYER_ACCEPT_GOODS']
+            statusList = ['']
 
             for s in statusList:
 
