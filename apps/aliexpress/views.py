@@ -28,13 +28,11 @@ class SMTOrderListHandler(BaseHandler):
 
         db = client.woderp
 
-
         account = db.user.find_one({'account':user})
 
-        authority = self.getAuthority(account)
+        authority = self.getAuthority(account,AUTHOR_MOUDLE)
 
-        if authority['role'] == 'Supper' or AUTHOR_MOUDLE in authority['authority']['Permission']:
-
+        if authority['Allow']:
 
             pageSize = 100
 

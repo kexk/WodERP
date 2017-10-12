@@ -26,12 +26,11 @@ class JDOrderListHandler(BaseHandler):
 
         erp = client.woderp
 
-
         account = erp.user.find_one({'account':user})
 
         authority = self.getAuthority(account)
 
-        if authority['role'] == 'Supper' or AUTHOR_MOUDLE in authority['authority']['Permission']:
+        if authority['Allow']:
 
             db = client.jingdong
 
