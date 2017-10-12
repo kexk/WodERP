@@ -162,10 +162,11 @@ class AdminHandler(BaseHandler):
 
                 self.render('admin/admin.html',userList=userList,userInfo=userInfo[0])
             else:
-                self.redirect('/')
+                self.render('error/message.html',
+                            msg={'Msg': 'No Permission', 'Code': 400, 'Title': '无权限！', 'Link': '/'})
         else:
             self.clear_cookie('account')
-            self.render('error.html',msg=u'非法用户！')
+            self.render('error/message.html', msg={'Msg': 'No Permission', 'Code': 400, 'Title': '非法用户！', 'Link': '/'})
 
 #文件上传（CKEditor使用）
 class UploadHandler(BaseHandler):
