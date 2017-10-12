@@ -11,6 +11,7 @@ import re
 import tornado.web
 import random
 
+
 class PurchaseListHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
