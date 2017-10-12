@@ -150,11 +150,9 @@ class SMTOrderListHandler(BaseHandler):
             #self.render('index.html')
 
         else:
-            self.write("No Permission")
+            #self.write("No Permission")
+            self.render('error/message.html', msg={'Msg': 'No Permission', 'Code': 400,'Title':'无权限！','Link':'/'})
 
-
-    def write_error(self, status_code, **kwargs):
-        self.write("Gosh darnit, user! You caused a %d error.\n" % status_code)
 
 
 class SMTCheckOrderHandler(BaseHandler):

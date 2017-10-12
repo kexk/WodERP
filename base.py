@@ -37,11 +37,11 @@ class BaseHandler(tornado.web.RequestHandler):
         message['Link'] = '/'
         if status_code == 404:
             message['Title'] = 'Page Not Found'
-            message['Msg'] = u'页面未找到'.decode()
+            message['Msg'] = '页面未找到'
             self.render('error/message.html', msg=message)
         elif status_code == 500:
             message['Title'] = 'Service Unavailable'
-            message['Msg'] = u'服务器内部错误'.decode()
+            message['Msg'] = '服务器内部错误'
             self.render('error/message.html', msg=message)
         else:
             #self.write('error:' + str(status_code))
