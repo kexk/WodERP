@@ -41,9 +41,6 @@ class SMTOrderListHandler(BaseHandler):
             wd = self.get_argument('wd','')
             platform = self.get_argument('platform','aliexpress')
 
-            appList = db.appList.find({'platform': 'aliexpress'})
-
-
             try:
                 page = int(self.get_argument('page',1))
             except:

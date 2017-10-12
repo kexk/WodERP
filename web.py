@@ -27,7 +27,6 @@ class IndexHandler(BaseHandler):
         greeting = self.get_argument('greeting', 'Hello')
         greeting += ', friendly user! '
 
-
         user = self.current_user
         role = self.get_secure_cookie("role") if self.get_secure_cookie("role") else 'None'
 
@@ -36,8 +35,6 @@ class IndexHandler(BaseHandler):
 
         #self.render('index.html')
 
-    def write_error(self, status_code, **kwargs):
-        self.write("Gosh darnit, user! You caused a %d error.\n" % status_code)
 
 
 

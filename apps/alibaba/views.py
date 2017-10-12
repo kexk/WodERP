@@ -14,7 +14,7 @@ import random
 class PurchaseListHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-
+        AUTHOR_MOUDLE = 'ViewPurchase'
 
         user = self.current_user
         role = self.get_secure_cookie("role") if self.get_secure_cookie("role") else 'None'
@@ -25,96 +25,107 @@ class PurchaseListHandler(BaseHandler):
 
         db = client.woderp
 
-        pageSize = 50
+        account = db.user.find_one({'account': user})
 
-        status = self.get_argument('status','')
-        wd = self.get_argument('wd','')
-        key = self.get_argument('key','')
+        authority = self.getAuthority(account, AUTHOR_MOUDLE)
 
-        appList = db.appList.find({'platform': '1688'})
+        if authority['Allow']:
 
-        try:
-            page = int(self.get_argument('page',1))
-        except:
-            page = 1
+            pageSize = 50
 
-        option = {}
+            status = self.get_argument('status','')
+            wd = self.get_argument('wd','')
+            key = self.get_argument('key','')
 
-        if status != '':
-            option['status'] = status
-
-        if key != '':
-            option['appKey'] = key
-
-        statusList = db.purchaseList.aggregate(
-            [{'$match': option}, {'$group': {'_id': "$status", 'orderCount': {'$sum': 1}}}])
-
-        sL = []
-        for s in statusList:
-            if s['_id']:
-                stxt = ''
-                if s['_id'] == 'waitbuyerpay':
-                    stxt += '等待买家付款'
-                elif s['_id'] == 'waitsellersend':
-                    stxt += '等待卖家发货'
-                elif s['_id'] == 'waitbuyerreceive':
-                    stxt += '等待买家收货'
-                elif s['_id'] == 'success':
-                    stxt += '交易完成'
-                elif s['_id'] == 'cancel':
-                    stxt += '交易取消'
-                sL.append({'status': s['_id'], 'orderCount': s['orderCount'], 'statusTxt': stxt})
-
-        if wd != '':
-            words = re.compile(wd)
-
-            filerList = []
-            filerList.append({'orderEntries.productName':words})
-            filerList.append({'toFullName':words})
-            filerList.append({'toMobile':words})
-            filerList.append({'buyerAccount':words})
-            filerList.append({'sellerCompanyName':words})
-            filerList.append({'logistics.toContact':words})
-            filerList.append({'logistics.logisticsBillNo':words})
             try:
-                filerList.append({'id':int(wd)})
+                page = int(self.get_argument('page',1))
             except:
-                pass
+                page = 1
 
-            option['$or'] = filerList
+            option = {}
+
+            if authority['role'] == 'Supper':
+                appList = db.appList.find({'platform': '1688'})
+            else:
+                appList = db.appList.find({'platform': '1688','appKey':{'$in':authority['authority']['purchaseAccount']}})
+
+            if status != '':
+                option['status'] = status
+
+            if key != '':
+                option['appKey'] = key
+            elif authority['role'] != 'Supper':
+                option['appKey'] = {'$in':authority['authority']['purchaseAccount']}
+
+            statusList = db.purchaseList.aggregate(
+                [{'$match': option}, {'$group': {'_id': "$status", 'orderCount': {'$sum': 1}}}])
+
+            sL = []
+            for s in statusList:
+                if s['_id']:
+                    stxt = ''
+                    if s['_id'] == 'waitbuyerpay':
+                        stxt += '等待买家付款'
+                    elif s['_id'] == 'waitsellersend':
+                        stxt += '等待卖家发货'
+                    elif s['_id'] == 'waitbuyerreceive':
+                        stxt += '等待买家收货'
+                    elif s['_id'] == 'success':
+                        stxt += '交易完成'
+                    elif s['_id'] == 'cancel':
+                        stxt += '交易取消'
+                    sL.append({'status': s['_id'], 'orderCount': s['orderCount'], 'statusTxt': stxt})
+
+            if wd != '':
+                words = re.compile(wd)
+
+                filerList = []
+                filerList.append({'orderEntries.productName':words})
+                filerList.append({'toFullName':words})
+                filerList.append({'toMobile':words})
+                filerList.append({'buyerAccount':words})
+                filerList.append({'sellerCompanyName':words})
+                filerList.append({'logistics.toContact':words})
+                filerList.append({'logistics.logisticsBillNo':words})
+                try:
+                    filerList.append({'id':int(wd)})
+                except:
+                    pass
+
+                option['$or'] = filerList
 
 
-        totalCount = db.purchaseList.find(option).count()
+            totalCount = db.purchaseList.find(option).count()
 
-        purchaseList = db.purchaseList.find(option).sort("gmtCreate",-1).limit(pageSize).skip((page-1)*pageSize)
+            purchaseList = db.purchaseList.find(option).sort("gmtCreate",-1).limit(pageSize).skip((page-1)*pageSize)
 
-        p = divmod(totalCount,pageSize)
+            p = divmod(totalCount,pageSize)
 
-        pageInfo = dict()
+            pageInfo = dict()
 
-        totalPage = p[0]
-        if p[1]>0:
-            totalPage += 1
+            totalPage = p[0]
+            if p[1]>0:
+                totalPage += 1
 
-        pageInfo['totalPage'] = totalPage
-        pageInfo['totalCount'] = totalCount
-        pageInfo['pageSize'] = pageSize
-        pageInfo['pageNo'] = page
-        pageInfo['pageList'] = range(1,totalPage+1)
+            pageInfo['totalPage'] = totalPage
+            pageInfo['totalCount'] = totalCount
+            pageInfo['pageSize'] = pageSize
+            pageInfo['pageNo'] = page
+            pageInfo['pageList'] = range(1,totalPage+1)
 
-        filterData = dict()
-        filterData['status'] = status
-        filterData['wd'] = wd
-        filterData['key'] = key
-        filterData['appList'] = appList
-        filterData['statusList'] = sL
+            filterData = dict()
+            filterData['status'] = status
+            filterData['wd'] = wd
+            filterData['key'] = key
+            filterData['appList'] = appList
+            filterData['statusList'] = sL
 
-        self.render('purchase-list.html',purchaseList = purchaseList,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
+            self.render('purchase-list.html',purchaseList = purchaseList,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role,'authority':authority})
 
-        #self.render('index.html')
+            #self.render('index.html')
+        else:
+            self.render('error/message.html', msg={'Msg': 'No Permission', 'Code': 400, 'Title': '无权限！', 'Link': '/'})
 
-    def write_error(self, status_code, **kwargs):
-        self.write("Gosh darnit, user! You caused a %d error.\n" % status_code)
 
 
 class CheckPurchaseHandler(BaseHandler):
