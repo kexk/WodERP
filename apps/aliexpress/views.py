@@ -160,6 +160,7 @@ class SMTOrderListHandler(BaseHandler):
 
 
 class SMTCheckOrderHandler(BaseHandler):
+    @tornado.web.asynchronous
     def get(self):
 
         #result = o.getOrderList(order_state='WAIT_GOODS_RECEIVE_CONFIRM')
@@ -433,6 +434,8 @@ class SMTCheckOrderHandler(BaseHandler):
             self.write(json.dumps(respon,ensure_ascii=False))
         else:
             self.write(json.dumps({'success':False},ensure_ascii=False))
+
+        self.finish()
 
 
 class SMTRefreshOrderStatusHandler(BaseHandler):
