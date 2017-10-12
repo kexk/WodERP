@@ -363,11 +363,15 @@
         $(this).attr('disabled',true);
 
         var storeId = GetQueryString('store');
+        var status = GetQueryString('status');
 
         var data = {};
 
         if(storeId){
             data['storeId']=storeId;
+        }
+        if(status){
+            data['status']=status;
         }
 
         $.getJSON('/smt/api/checkOrder',data,function (result) {

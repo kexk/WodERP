@@ -159,6 +159,7 @@ class SMTCheckOrderHandler(BaseHandler):
         #result = o.getOrderList(order_state='WAIT_GOODS_RECEIVE_CONFIRM')
 
         storeId = self.get_argument('storeId','')
+        status = self.get_argument('status','')
 
         mongo = MongoCase()
         mongo.connect()
@@ -182,7 +183,7 @@ class SMTCheckOrderHandler(BaseHandler):
             updateCount = 0
 
             #statusList = ['WAIT_SELLER_SEND_GOODS','PLACE_ORDER_SUCCESS','IN_CANCEL','IN_ISSUE','RISK_CONTROL','WAIT_BUYER_ACCEPT_GOODS']
-            statusList = ['']
+            statusList = status.split(',')
 
             for s in statusList:
 
@@ -418,8 +419,8 @@ class SMTCheckOrderHandler(BaseHandler):
                             except:
                                 pass
 
-                except:
-                    pass
+                except Exception as e:
+                    print(e)
 
 
             respon = {'success': True,"data":{"total":total,"addCount":addCount,'updateCount':updateCount}}
