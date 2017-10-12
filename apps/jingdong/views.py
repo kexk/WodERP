@@ -235,11 +235,6 @@ class JDSkuListHandler(BaseHandler):
                     userInfo={'account': user, 'role': role})
 
 
-
-
-
-
-
 class JDCheckOrderHandler(BaseHandler):
     def get(self):
 
