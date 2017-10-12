@@ -28,7 +28,7 @@ class JDOrderListHandler(BaseHandler):
 
         account = erp.user.find_one({'account':user})
 
-        authority = self.getAuthority(account)
+        authority = self.getAuthority(account,AUTHOR_MOUDLE)
 
         if authority['Allow']:
 
