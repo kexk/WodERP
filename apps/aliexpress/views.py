@@ -7,13 +7,13 @@ from apps.aliexpress.smtAPI import *
 from apps.database.databaseCase import *
 import json
 import datetime
-import random
 
 import re
 import tornado.web
 import tornado.httpclient
 import tornado.gen
 from tornado.httpclient import HTTPRequest
+import urllib
 
 
 class SMTOrderListHandler(BaseHandler):
@@ -160,8 +160,6 @@ class SMTCheckOrderHandler(BaseHandler):
     @tornado.gen.engine
     def get(self):
 
-        #result = o.getOrderList(order_state='WAIT_GOODS_RECEIVE_CONFIRM')
-
         storeId = self.get_argument('storeId','')
         status = self.get_argument('status','')
         url = "http://127.0.0.1:5000/smt/api/checkOrder?storeId=%s&status=%s" % (storeId, status)
@@ -174,37 +172,16 @@ class SMTCheckOrderHandler(BaseHandler):
 
 
 class SMTRefreshOrderStatusHandler(BaseHandler):
+    @tornado.web.asynchronous
+    @tornado.gen.engine
     def get(self):
-        data = dict()
+
         items = self.get_argument('items', '')
-        ol = json.loads(items)
+        url = "http://127.0.0.1:5000/smt/api/refreshOrderStatus?" +urllib.urlencode({'items':items})
+        request = HTTPRequest(url=url,method="GET",follow_redirects=False,request_timeout=3000)
+        client = tornado.httpclient.AsyncHTTPClient()
+        response = yield tornado.gen.Task(client.fetch, request)
+        result = json.loads(response.body)
+        self.write(result)
+        self.finish()
 
-        mongo = MongoCase()
-        mongo.connect()
-        client = mongo.client
-        db = client.woderp
-
-        for (k,v) in  ol.items():
-            app = db.appList.find_one({'storeId': k})
-            if app != None:
-                api = ALIEXPRESS(app)
-                ids = v.strip(',').split(',')
-                for id in ids:
-                    c = api.getOrderBaseInfo(id)
-                    d = json.loads(c)
-                    if d != {}:
-                        newData = d
-                        newData['gmtModified'] = datetime.datetime.strptime(newData['gmtModified'], '%Y-%m-%d %H:%M:%S')
-                        newData['gmtCreate'] = datetime.datetime.strptime(newData['gmtCreate'], '%Y-%m-%d %H:%M:%S')
-
-                        if newData['orderStatus'] == 'FINISH' or newData['orderStatus'] == 'WAIT_BUYER_ACCEPT_GOODS' or newData['orderStatus'] == 'FUND_PROCESSING':
-                            newData['timeoutLeftTime'] = None
-                            newData['leftSendGoodMin'] = None
-                            newData['leftSendGoodDay'] = None
-                            newData['leftSendGoodHour'] = None
-
-                        db.orderList.update({'orderId':id},{'$set':newData})
-
-        data['success'] = True
-
-        self.write(json.dumps(data, ensure_ascii=False))
