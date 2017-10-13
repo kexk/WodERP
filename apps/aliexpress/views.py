@@ -13,6 +13,8 @@ import tornado.gen
 from tornado.httpclient import HTTPRequest
 import urllib
 
+apiServer = 'http://127.0.0.1:5000'
+
 
 class SMTOrderListHandler(BaseHandler):
     @tornado.web.authenticated
@@ -160,7 +162,7 @@ class SMTCheckOrderHandler(BaseHandler):
 
         storeId = self.get_argument('storeId','')
         status = self.get_argument('status','')
-        url = "http://127.0.0.1:5000/smt/api/checkOrder?storeId=%s&status=%s" % (storeId, status)
+        url = apiServer+"/smt/api/checkOrder?storeId=%s&status=%s" % (storeId, status)
         request = HTTPRequest(url=url,method="GET",follow_redirects=False,request_timeout=3000)
         client = tornado.httpclient.AsyncHTTPClient()
         response = yield tornado.gen.Task(client.fetch, request)
@@ -175,7 +177,7 @@ class SMTRefreshOrderStatusHandler(BaseHandler):
     def get(self):
 
         items = self.get_argument('items', '')
-        url = "http://127.0.0.1:5000/smt/api/refreshOrderStatus?" +urllib.urlencode({'items':items})
+        url = apiServer+"/smt/api/refreshOrderStatus?" +urllib.urlencode({'items':items})
         request = HTTPRequest(url=url,method="GET",follow_redirects=False,request_timeout=3000)
         client = tornado.httpclient.AsyncHTTPClient()
         response = yield tornado.gen.Task(client.fetch, request)
