@@ -305,6 +305,7 @@ def refreshSMTOrderStatus():
     client = mongo.client
     db = client.woderp
 
+    errCount = 0
     for (k,v) in  ol.items():
         app = db.appList.find_one({'storeId': k})
         if app != None:
@@ -312,21 +313,26 @@ def refreshSMTOrderStatus():
             ids = v.strip(',').split(',')
             for id in ids:
                 c = api.getOrderBaseInfo(id)
-                d = json.loads(c)
-                if d != {}:
-                    newData = d
-                    newData['gmtModified'] = datetime.datetime.strptime(newData['gmtModified'], '%Y-%m-%d %H:%M:%S')
-                    newData['gmtCreate'] = datetime.datetime.strptime(newData['gmtCreate'], '%Y-%m-%d %H:%M:%S')
+                try:
+                    d = json.loads(c)
+                    if d != {}:
+                        newData = d
+                        newData['gmtModified'] = datetime.datetime.strptime(newData['gmtModified'], '%Y-%m-%d %H:%M:%S')
+                        newData['gmtCreate'] = datetime.datetime.strptime(newData['gmtCreate'], '%Y-%m-%d %H:%M:%S')
 
-                    if newData['orderStatus'] == 'FINISH' or newData['orderStatus'] == 'WAIT_BUYER_ACCEPT_GOODS' or newData['orderStatus'] == 'FUND_PROCESSING':
-                        newData['timeoutLeftTime'] = None
-                        newData['leftSendGoodMin'] = None
-                        newData['leftSendGoodDay'] = None
-                        newData['leftSendGoodHour'] = None
+                        if newData['orderStatus'] == 'FINISH' or newData['orderStatus'] == 'WAIT_BUYER_ACCEPT_GOODS' or newData['orderStatus'] == 'FUND_PROCESSING':
+                            newData['timeoutLeftTime'] = None
+                            newData['leftSendGoodMin'] = None
+                            newData['leftSendGoodDay'] = None
+                            newData['leftSendGoodHour'] = None
 
-                    db.orderList.update({'orderId':id},{'$set':newData})
+                        db.orderList.update({'orderId':id},{'$set':newData})
+                except:
+                    print(c)
+                    errCount += 1
 
     data['success'] = True
+    data['errCount'] = errCount
 
     return json.dumps(data, ensure_ascii=False)
 
