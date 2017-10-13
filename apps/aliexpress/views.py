@@ -3,10 +3,8 @@
 
 from base import BaseHandler
 
-from apps.aliexpress.smtAPI import *
 from apps.database.databaseCase import *
 import json
-import datetime
 
 import re
 import tornado.web
@@ -37,7 +35,7 @@ class SMTOrderListHandler(BaseHandler):
 
         if authority['Allow']:
 
-            pageSize = 100
+            pageSize = 200
 
             status = self.get_argument('status','')
             store = self.get_argument('store','')
