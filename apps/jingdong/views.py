@@ -10,6 +10,14 @@ import re
 import tornado.web
 import random
 
+import tornado.gen
+import tornado.httpclient
+from tornado.httpclient import HTTPRequest
+import urllib
+
+
+apiServer = 'http://127.0.0.1:5000'
+
 
 class JDOrderListHandler(BaseHandler):
     @tornado.web.authenticated
@@ -236,88 +244,22 @@ class JDSkuListHandler(BaseHandler):
 
 
 class JDCheckOrderHandler(BaseHandler):
+    @tornado.web.asynchronous
+    @tornado.gen.engine
     def get(self):
 
         #result = o.getOrderList(order_state='WAIT_GOODS_RECEIVE_CONFIRM')
 
         shopId = self.get_argument('shop', '')
-        mongo = MongoCase()
-        mongo.connect()
-        client = mongo.client
-        db = client.jingdong
+        status = self.get_argument('status', '')
+        url = apiServer+"/jd/api/checkOrder?shop=%s&status=%s" % (shopId,status)
+        request = HTTPRequest(url=url,method="GET",follow_redirects=False,request_timeout=3000)
+        client = tornado.httpclient.AsyncHTTPClient()
+        response = yield tornado.gen.Task(client.fetch, request)
+        result = json.loads(response.body)
+        self.write(result)
+        self.finish()
 
-        appList = db.shopInfo.find()
-
-        if shopId == '':
-            app = appList[random.randint(0, appList.count() - 1)]
-        else:
-            app = db.shopInfo.find_one({'shopId': shopId})
-
-        if app != None:
-
-            api = JDAPI(app['apiInfo'])
-
-            statusList = ['WAIT_SELLER_STOCK_OUT','WAIT_GOODS_RECEIVE_CONFIRM','TRADE_CANCELED']
-
-            total = 0
-            addCount = 0
-            updateCount = 0
-            for s in statusList:
-                result = api.getOrderList(order_state=s)
-
-                ol = result['order_search_response']['order_search']['order_info_list']
-
-                for od in ol:
-                    item = od
-                    item['createTime'] = datetime.datetime.now()
-                    item['updateTime'] = None
-                    item['dealCompleteTime'] = None
-                    item['purchaseInfo'] = None
-                    item['dealRemark'] = None
-                    item['logisticsInfo'] = None
-                    item['shopId'] = app['shopId']
-                    item['platform'] = 'jingdong'
-                    if not item.has_key('payment_confirm_time'):
-                        item['payment_confirm_time'] = None
-                    if not item.has_key('parent_order_id'):
-                        item['parent_order_id'] = None
-                    if not item.has_key('pin'):
-                        item['pin'] = None
-                    if not item.has_key('return_order'):
-                        item['return_order'] = None
-                    if not item.has_key('order_state_remark'):
-                        item['order_state_remark'] = None
-                    if not item.has_key('vender_remark'):
-                        item['vender_remark'] = None
-
-                    item['dealStatus'] = 0
-                    item['stage'] = 0
-                    item['oprationLog'] = []
-
-                    for sku in item['item_info_list']:
-                        sku['skuImg'] = None
-                        sku['link'] = None
-                        if not sku.has_key('product_no'):
-                            sku['product_no'] = None
-                        if not sku.has_key('outer_sku_id'):
-                            sku['outer_sku_id'] = None
-                        if not sku.has_key('ware_id'):
-                            sku['ware_id'] = None
-
-
-                    if db.orderList.find({'order_id':item['order_id']}).count()>0:
-                        updateCount += 1
-                    else:
-                        db.orderList.insert(item)
-                        addCount += 1
-
-                    total +=1
-
-            respon = {'success': True,"data":{"total":total,"addCount":addCount,'updateCount':updateCount}}
-
-            self.write(json.dumps(respon,ensure_ascii=False))
-        else:
-            self.write(json.dumps({'success':False},ensure_ascii=False))
 
 
 class JDCheckSkuHandler(BaseHandler):

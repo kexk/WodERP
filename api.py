@@ -6,6 +6,7 @@ from flask import jsonify
 
 from apps.database.databaseCase import *
 from apps.aliexpress.smtAPI import *
+from apps.jingdong.jdAPI import *
 
 import random
 import datetime
@@ -335,6 +336,94 @@ def refreshSMTOrderStatus():
     data['errCount'] = errCount
 
     return json.dumps(data, ensure_ascii=False)
+
+
+@app.route('/jd/api/checkOrder')
+def CheckJDOrder():
+    shopId = request.args.get('shop', '')
+    status = request.args.get('status', '')
+    mongo = MongoCase()
+    mongo.connect()
+    client = mongo.client
+    db = client.jingdong
+
+    appList = db.shopInfo.find()
+    if shopId == '':
+        app = appList[random.randint(0, appList.count() - 1)]
+    else:
+        app = db.shopInfo.find_one({'shopId': shopId})
+
+    if app != None:
+        api = JDAPI(app['apiInfo'])
+
+
+        if status == '':
+            statusList = ['WAIT_SELLER_STOCK_OUT','WAIT_GOODS_RECEIVE_CONFIRM','TRADE_CANCELED']
+        else:
+            statusList = ['WAIT_SELLER_STOCK_OUT']
+
+
+        total = 0
+        addCount = 0
+        updateCount = 0
+
+        for s in statusList:
+            result = api.getOrderList(order_state=s)
+            try:
+                ol = result['order_search_response']['order_search']['order_info_list']
+            except:
+                ol = []
+            for od in ol:
+                item = od
+                item['createTime'] = datetime.datetime.now()
+                item['updateTime'] = None
+                item['dealCompleteTime'] = None
+                item['purchaseInfo'] = None
+                item['dealRemark'] = None
+                item['logisticsInfo'] = None
+                item['shopId'] = app['shopId']
+                item['platform'] = 'jingdong'
+                if not item.has_key('payment_confirm_time'):
+                    item['payment_confirm_time'] = None
+                if not item.has_key('parent_order_id'):
+                    item['parent_order_id'] = None
+                if not item.has_key('pin'):
+                    item['pin'] = None
+                if not item.has_key('return_order'):
+                    item['return_order'] = None
+                if not item.has_key('order_state_remark'):
+                    item['order_state_remark'] = None
+                if not item.has_key('vender_remark'):
+                    item['vender_remark'] = None
+
+                item['dealStatus'] = 0
+                item['stage'] = 0
+                item['oprationLog'] = []
+
+                for sku in item['item_info_list']:
+                    sku['skuImg'] = None
+                    sku['link'] = None
+                    if not sku.has_key('product_no'):
+                        sku['product_no'] = None
+                    if not sku.has_key('outer_sku_id'):
+                        sku['outer_sku_id'] = None
+                    if not sku.has_key('ware_id'):
+                        sku['ware_id'] = None
+
+                if db.orderList.find({'order_id':item['order_id']}).count()>0:
+                    updateCount += 1
+                else:
+                    db.orderList.insert(item)
+                addCount += 1
+
+                total +=1
+
+        respon = {'success': True,"data":{"total":total,"addCount":addCount,'updateCount':updateCount}}
+    else:
+        respon = {'success':False}
+
+    return json.dumps(respon, ensure_ascii=False)
+
 
 
 if __name__ == '__main__':
