@@ -366,7 +366,7 @@ def CheckJDOrder():
         if status == '':
             statusList = ['WAIT_SELLER_STOCK_OUT','WAIT_GOODS_RECEIVE_CONFIRM','TRADE_CANCELED']
         else:
-            statusList = ['WAIT_SELLER_STOCK_OUT']
+            statusList = status.strip(',').strip().split(',')
 
 
         total = 0
