@@ -24,6 +24,8 @@ def chekSMTOrder():
     storeId = request.args.get('storeId', '')
     status = request.args.get('status', '')
 
+    data = dict()
+
     mongo = MongoCase()
     mongo.connect()
     client = mongo.client
@@ -37,6 +39,7 @@ def chekSMTOrder():
     else:
         app = db.appList.find_one({'storeId': storeId})
 
+    data['error'] = []
     if app != None:
 
         api = ALIEXPRESS(app)
@@ -47,6 +50,7 @@ def chekSMTOrder():
 
         # statusList = ['WAIT_SELLER_SEND_GOODS','PLACE_ORDER_SUCCESS','IN_CANCEL','IN_ISSUE','RISK_CONTROL','WAIT_BUYER_ACCEPT_GOODS']
         statusList = status.split(',')
+
 
         for s in statusList:
 
@@ -285,14 +289,16 @@ def chekSMTOrder():
 
             except Exception as e:
                 print(e)
+                data['error'].append({'storeId': app['storeId'],'errMsg':str(e),'options':option})
 
-        respon = {'success': True, "data": {"total": total, "addCount": addCount, 'updateCount': updateCount}}
+        data['success'] = True
+        data['data'] = {"total": total, "addCount": addCount, 'updateCount': updateCount}
 
-        return json.dumps(respon, ensure_ascii=False)
+        return json.dumps(data, ensure_ascii=False)
     else:
-        return json.dumps({'success': False}, ensure_ascii=False)
-
-    #return 'Hello World!,Stote:%s,Status:%s'%(storeId,status)
+        data['success'] = False
+        data['error'].append({'storeId':storeId,'errMsg':'APP Unavailable','options':{'orderStatus':status}})
+        return json.dumps(data, ensure_ascii=False)
 
 @app.route('/smt/api/refreshOrderStatus')
 def refreshSMTOrderStatus():
@@ -305,7 +311,7 @@ def refreshSMTOrderStatus():
     client = mongo.client
     db = client.woderp
 
-    errCount = 0
+    data['error'] = []
     for (k,v) in  ol.items():
         app = db.appList.find_one({'storeId': k})
         if app != None:
@@ -329,10 +335,10 @@ def refreshSMTOrderStatus():
                         db.orderList.update({'orderId':id},{'$set':newData})
                 except:
                     print(c)
-                    errCount += 1
+                    data['error'].append({'id':id,'errMsg':str(c)})
 
     data['success'] = True
-    data['errCount'] = errCount
+    data['errCount'] = len(data['error'])
 
     return json.dumps(data, ensure_ascii=False)
 
