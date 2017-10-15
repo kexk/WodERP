@@ -7,6 +7,7 @@ from flask import jsonify
 from apps.database.databaseCase import *
 from apps.aliexpress.smtAPI import *
 from apps.jingdong.jdAPI import *
+from apps.alibaba.alibabaAPI import *
 
 import random
 import datetime
@@ -430,6 +431,81 @@ def CheckJDOrder():
 
     return json.dumps(respon, ensure_ascii=False)
 
+
+@app.route('/purchase/api/checkPurchase')
+def CheckPurchaseOrder():
+    key = request.args.get('key','')
+
+    data = dict()
+
+    mongo = MongoCase()
+    mongo.connect()
+    client = mongo.client
+    db = client.woderp
+
+    appList = db.appList.find({'platform': '1688'})
+
+    if key == '':
+        app = appList[random.randint(0,appList.count()-1)]
+    else:
+        app = db.appList.find_one({'platform': '1688','appKey':key})
+
+    if app != None:
+        data['total'] = 0
+        data['addCount'] = 0
+        data['success'] = False
+
+        api = ALIBABA(app)
+
+        orderStatus = request.args.get('orderStatus', '')
+        pageNO = request.args.get('pageNO', '1')
+        createStartTime = request.args.get('createStartTime', '')
+        createEndTime = request.args.get('createEndTime', '')
+
+        option = {'pageNO': pageNO}
+        if orderStatus != '':
+            option['orderStatus'] = orderStatus
+        if createStartTime != '':
+            option['createStartTime'] = createStartTime
+        else:
+            option['createStartTime'] = (datetime.datetime.now() + datetime.timedelta(days=-1)).strftime('%Y-%m-%d %H:%M:%S')
+        if createEndTime != '':
+            option['createEndTime'] = createEndTime
+        else:
+            option['createEndTime'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        d = json.loads(api.getOrderList(option))
+
+        if d.has_key('result') and d['result']['success']:
+            ol = d['result']['toReturn']
+            for od in ol:
+                item = od
+                item['createTime'] = datetime.datetime.now()
+                item['updateTime'] = None
+                item['appKey'] = app['appKey']
+                item['dealCompleteTime'] = None
+                item['dealRemark'] = None
+
+                item['dealStatus'] = 0
+                item['stage'] = 0
+                item['oprationLog'] = []
+
+                if db.purchaseList.find({'id':int(item['id'])}).count()>0:
+                    pass
+                else:
+                    db.purchaseList.insert(item)
+                    data['addCount'] += 1
+
+                data['total'] +=1
+
+            data['success'] = True
+        else:
+           data['success'] = False
+
+    else:
+        data['success'] = False
+
+    return json.dumps(data, ensure_ascii=False)
 
 
 if __name__ == '__main__':

@@ -11,6 +11,13 @@ import re
 import tornado.web
 import random
 
+import tornado.gen
+import tornado.httpclient
+from tornado.httpclient import HTTPRequest
+import urllib
+
+apiServer = 'http://127.0.0.1:5000'
+
 
 class PurchaseListHandler(BaseHandler):
     @tornado.web.authenticated
@@ -130,82 +137,25 @@ class PurchaseListHandler(BaseHandler):
 
 
 class CheckPurchaseHandler(BaseHandler):
+    @tornado.web.asynchronous
+    @tornado.gen.engine
     def get(self):
-
-        data = dict()
 
         key = self.get_argument('key','')
 
-        mongo = MongoCase()
-        mongo.connect()
-        client = mongo.client
-        db = client.woderp
+        orderStatus = self.get_argument('orderStatus', '')
+        pageNO = self.get_argument('pageNO', '1')
+        createStartTime = self.get_argument('createStartTime', '')
+        createEndTime = self.get_argument('createEndTime', '')
 
-        appList = db.appList.find({'platform': '1688'})
+        url = apiServer+"/purchase/api/checkPurchase?"+urllib.urlencode({'key':key,'orderStatus':orderStatus,'pageNO':pageNO,'createStartTime':createStartTime,'createEndTime':createEndTime})
+        request = HTTPRequest(url=url,method="GET",follow_redirects=False,request_timeout=3000)
+        client = tornado.httpclient.AsyncHTTPClient()
+        response = yield tornado.gen.Task(client.fetch, request)
+        result = json.loads(response.body)
+        self.write(result)
+        self.finish()
 
-        if key == '':
-            #appKey = aList[random.randint(0,len(aList)-1)]
-            app = appList[random.randint(0,appList.count()-1)]
-        else:
-            app = db.appList.find_one({'platform': '1688','appKey':key})
-
-        if app != None:
-
-            data['total'] = 0
-            data['addCount'] = 0
-            data['success'] = False
-
-            api = ALIBABA(app)
-
-            orderStatus = self.get_argument('orderStatus', '')
-            pageNO = self.get_argument('pageNO', '1')
-            createStartTime = self.get_argument('createStartTime', '')
-            createEndTime = self.get_argument('createEndTime', '')
-
-            option = {'pageNO': pageNO}
-            if orderStatus != '':
-                option['orderStatus'] = orderStatus
-            if createStartTime != '':
-                option['createStartTime'] = createStartTime
-            else:
-                option['createStartTime'] = (datetime.datetime.now() + datetime.timedelta(days=-1)).strftime(
-                    '%Y-%m-%d %H:%M:%S')
-            if createEndTime != '':
-                option['createEndTime'] = createEndTime
-            else:
-                option['createEndTime'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-            d = json.loads(api.getOrderList(option))
-
-            if d.has_key('result') and d['result']['success']:
-
-                ol = d['result']['toReturn']
-
-                for od in ol:
-                    item = od
-                    item['createTime'] = datetime.datetime.now()
-                    item['updateTime'] = None
-                    #item['buyerAccount'] = 'tj18690821588'
-                    item['appKey'] = app['appKey']
-                    item['dealCompleteTime'] = None
-                    item['dealRemark'] = None
-
-                    item['dealStatus'] = 0
-                    item['stage'] = 0
-                    item['oprationLog'] = []
-
-                    if db.purchaseList.find({'id':int(item['id'])}).count()>0:
-                        pass
-                    else:
-                        db.purchaseList.insert(item)
-                        data['addCount'] += 1
-
-                    data['total'] +=1
-
-                data['success'] = True
-
-
-        self.write(json.dumps(data, ensure_ascii=False))
 
 
 class CheckPurchaseInfoHandler(BaseHandler):
