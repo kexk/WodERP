@@ -2,6 +2,7 @@
 
 
 import requests
+import json
 
 
 class ALIEXPRESS:
@@ -10,9 +11,60 @@ class ALIEXPRESS:
     apiRoot = ''
     apiRoute = 'requestAPI.php'
 
+    status = 0
+
     def __init__(self,app):
         self.appKey = app['apiInfo']['appKey']
         self.apiRoot = app['apiInfo']['apiRoot']
+
+        d = self.getRemainingWindows()
+        if d['success']:
+            self.status = 1
+        else:
+            self.getToken()
+            self.status = 0
+
+
+    def getToken(self):
+
+        try:
+            r = requests.post(self.apiRoot+'getToken.php',data={'appKey':self.appKey})
+            if r.status_code == 200:
+                d = json.loads(r.content)
+
+                if d.has_key('error_code'):
+                    self.status = 0
+                    return {'success':False,'errMsg':d['error_message']}
+                else:
+                    self.status = 1
+                    return {'success':True}
+
+            else:
+                self.status = 0
+                return {'success':False,'errMsg':['请求失败']}
+        except:
+            self.status = 0
+            return {'success':False,'errMsg':['请求失败']}
+
+
+    def getRemainingWindows(self):
+
+        apiPath = 'api.getRemainingWindows'
+
+        data = {'apiPath':apiPath,'appKey':self.appKey}
+
+        try:
+            r = requests.post(self.apiRoot+self.apiRoute,data=data)
+            if r.status_code == 200:
+                d = json.loads(r.content)
+                if d.has_key('error_code'):
+                    return {'success':False,'errMsg':d['error_message']}
+                else:
+                    return {'success':True,'data':d}
+            else:
+                return {'success':False,'errMsg':'请求失败'}
+        except Exception as e:
+            return {'success':False,'errMsg':'抛出异常','errorData':str(e)}
 
 
     def getOrderDetail(self,orderId,fieldList='',extInfoBitFlag=''):
