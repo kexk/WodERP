@@ -119,7 +119,9 @@ def chekSMTOrder():
                             if not order.has_key('gmtPayTime') and item.has_key('gmtPayTime'):
                                 newData['gmtPayTime'] = item['gmtPayTime']
 
-                            db.orderList.update({'orderId': int(item['orderId'])}, {'$set': newData})
+                            db.orderList.update({'orderId': str(item['orderId'])}, {'$set': newData})
+
+                            print(newData)
 
                             updateCount += 1
                         else:
@@ -234,7 +236,7 @@ def chekSMTOrder():
                                         if not order.has_key('gmtPayTime') and moreItem.has_key('gmtPayTime'):
                                             newData['gmtPayTime'] = moreItem['gmtPayTime']
 
-                                        db.orderList.update({'orderId': int(moreItem['orderId'])}, {'$set': newData})
+                                        db.orderList.update({'orderId': str(moreItem['orderId'])}, {'$set': newData})
 
                                         updateCount += 1
                                     else:
@@ -325,26 +327,29 @@ def refreshSMTOrderStatus():
         app = db.appList.find_one({'storeId': k})
         if app != None:
             api = ALIEXPRESS(app)
-            ids = v.strip(',').split(',')
-            for id in ids:
-                c = api.getOrderBaseInfo(id)
-                try:
-                    d = json.loads(c)
-                    if d != {}:
-                        newData = d
-                        newData['gmtModified'] = datetime.datetime.strptime(newData['gmtModified'], '%Y-%m-%d %H:%M:%S')
-                        newData['gmtCreate'] = datetime.datetime.strptime(newData['gmtCreate'], '%Y-%m-%d %H:%M:%S')
+            if api.status >0:
+                ids = v.strip(',').split(',')
+                for id in ids:
+                    c = api.getOrderBaseInfo(id)
+                    try:
+                        d = json.loads(c)
+                        if d != {}:
+                            newData = d
+                            newData['gmtModified'] = datetime.datetime.strptime(newData['gmtModified'], '%Y-%m-%d %H:%M:%S')
+                            newData['gmtCreate'] = datetime.datetime.strptime(newData['gmtCreate'], '%Y-%m-%d %H:%M:%S')
 
-                        if newData['orderStatus'] == 'FINISH' or newData['orderStatus'] == 'WAIT_BUYER_ACCEPT_GOODS' or newData['orderStatus'] == 'FUND_PROCESSING':
-                            newData['timeoutLeftTime'] = None
-                            newData['leftSendGoodMin'] = None
-                            newData['leftSendGoodDay'] = None
-                            newData['leftSendGoodHour'] = None
+                            if newData['orderStatus'] == 'FINISH' or newData['orderStatus'] == 'WAIT_BUYER_ACCEPT_GOODS' or newData['orderStatus'] == 'FUND_PROCESSING':
+                                newData['timeoutLeftTime'] = None
+                                newData['leftSendGoodMin'] = None
+                                newData['leftSendGoodDay'] = None
+                                newData['leftSendGoodHour'] = None
 
-                        db.orderList.update({'orderId':id},{'$set':newData})
-                except:
-                    print(c)
-                    data['error'].append({'id':id,'errMsg':str(c)})
+                            db.orderList.update({'orderId':id},{'$set':newData})
+                    except:
+                        print(c)
+                        data['error'].append({'id':id,'errMsg':str(c)})
+            else:
+                data['error'].append({'storeId':k,'errMsg':'接口不可用'})
 
     data['success'] = True
     data['errCount'] = len(data['error'])
