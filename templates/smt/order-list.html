@@ -230,12 +230,14 @@
 
                         {% if order['orderStatus'] == 'WAIT_SELLER_SEND_GOODS' %}等待发货{% else %}
                         {% if order['orderStatus'] == 'WAIT_BUYER_ACCEPT_GOODS' %}等待买家收货{% else %}
+                        {% if order['orderStatus'] == 'SELLER_PART_SEND_GOODS' %}部分发货{% else %}
                         {% if order['orderStatus'] == 'RISK_CONTROL' %}风控中{% else %}
                         {% if order['orderStatus'] == 'IN_CANCEL' %}买家申请取消{% else %}
                         {% if order['orderStatus'] == 'PLACE_ORDER_SUCCESS' %}等待买家付款{% else %}
                         {% if order['orderStatus'] == 'FUND_PROCESSING' %}等待放款{% else %}
                         {% if order['orderStatus'] == 'FINISH' %}已结束{% else %}
                         {{ order['orderStatus'] }}{% end %}{% end %}
+						{% end %}
 						{% end %}
 						{% end %}
 						{% end %}
