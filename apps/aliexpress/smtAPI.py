@@ -22,7 +22,7 @@ class ALIEXPRESS:
             self.status = 1
         else:
             self.getToken()
-            self.status = 0
+
 
 
     def getToken(self):
