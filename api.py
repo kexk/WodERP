@@ -121,7 +121,7 @@ def chekSMTOrder():
 
                             db.orderList.update({'orderId': str(item['orderId'])}, {'$set': newData})
 
-                            print(newData)
+                            #print(newData)
 
                             updateCount += 1
                         else:
