@@ -11,6 +11,7 @@
                 interval = setInterval(go, 1000);
 
             updateDateStr = updateDateStr.replace(/-/g,"/");
+            updateDateStr = updateDateStr.split('.')[0];
 
             var endDate = new Date(updateDateStr);
             var now = new Date();
