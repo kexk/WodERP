@@ -209,8 +209,8 @@
                     <td>
                         {% if order.has_key('receiptAddress') %}
                         {{ order['receiptAddress']['contactPerson'] }}
-                        {% if order['receiptAddress'].has_key('countryName') %}
-                        <br/>[{{ order['receiptAddress']['countryName'] }}]
+                        {% if order['receiptAddress'].has_key('countryNameCN') %}
+                        <br/>[{{ order['receiptAddress']['countryNameCN'] }}]
                         {% else %}
                         <br/>[{{ order['receiptAddress']['country'] }}]
                         {% end %}
