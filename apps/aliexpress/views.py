@@ -185,3 +185,19 @@ class SMTRefreshOrderStatusHandler(BaseHandler):
         self.write(result)
         self.finish()
 
+class SMTRefreshOrderInfosHandler(BaseHandler):
+    @tornado.web.asynchronous
+    @tornado.gen.engine
+    def get(self):
+
+        items = self.get_argument('items', '')
+        url = apiServer+"/smt/api/refreshOrderInfos?" +urllib.urlencode({'items':items})
+        request = HTTPRequest(url=url,method="GET",follow_redirects=False,request_timeout=3000)
+        client = tornado.httpclient.AsyncHTTPClient()
+        response = yield tornado.gen.Task(client.fetch, request)
+        result = json.loads(response.body)
+        self.write(result)
+        self.finish()
+
+
+

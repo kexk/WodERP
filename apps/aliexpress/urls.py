@@ -6,4 +6,5 @@ urls = [
     (r"orderList$", SMTOrderListHandler),
     (r"api/checkOrder$", SMTCheckOrderHandler),
     (r"api/refreshOrderStatus$", SMTRefreshOrderStatusHandler),
+    (r"api/refreshOrderInfos$", SMTRefreshOrderInfosHandler),
 ]

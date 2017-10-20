@@ -125,8 +125,8 @@
   </ul>
 </div>
 
-      <button type="button" class="btn btn-default btn-sm" id="checkSkuu">同步SKU</button>
-      <button type="button" class="btn btn-default btn-sm" id="refreshOrder">更新订单</button>
+      <button type="button" class="btn btn-default btn-sm" id="refreshOrderInfos">同步订单</button>
+      <button type="button" class="btn btn-default btn-sm" id="refreshOrderStatus">更新订单</button>
 
 
     </div>
@@ -421,8 +421,8 @@
 
     });
 
-    //
-    $(document).on('click', '#refreshOrder', function() {
+    //更新订单状态
+    $(document).on('click', '#refreshOrderStatus', function() {
         $(this).attr('disabled',true);
 
         var storeId = GetQueryString('store');
@@ -460,6 +460,46 @@
 
     });
 
+    //更新订单详情
+    $(document).on('click', '#refreshOrderInfos', function() {
+        $(this).attr('disabled',true);
+
+        var storeId = GetQueryString('store');
+
+        //data = {'items':[{'storeId':'12515','ids':['1111','2222','3333']}]}
+        var items = {};
+        if(storeId){
+
+            var arr = [];
+            $('input[name="checkedOrder"]:checked').each(function(){
+                arr.push($(this).val());
+            });
+            items[storeId] = arr.join(',');
+        }else{
+
+            var arr2 = [];
+            $('input[name="checkedOrder"]:checked').each(function(){
+                if($.inArray($(this).attr('data-store'), arr2)==-1){
+                    arr2.push($(this).attr('data-store'));
+                    items[$(this).attr('data-store')] = $(this).val();
+                }else{
+                    items[$(this).attr('data-store')] += ','+$(this).val();
+                }
+            });
+        }
+
+        //console.log(items);
+        $.getJSON('/smt/api/refreshOrderInfos',{items:JSON.stringify(items)},function (result) {
+            if(result.success){
+                //window.location.href = '/smt/orderList';
+                window.history.go(0);
+                //console.log(result.data);
+            }
+        });
+
+    });
+
+    //匹配SKU
     $(document).on('click', '#checkSku', function() {
         $(this).attr('disabled',true);
 
