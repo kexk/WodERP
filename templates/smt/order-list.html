@@ -207,7 +207,15 @@
                     </td>
 
                     <td>
+                        {% if order.has_key('receiptAddress') %}
+                        {{ order['receiptAddress']['contactPerson'] }}
+                        {% if order['receiptAddress'].has_key('countryName') %}
+                        <br/>[{{ order['receiptAddress']['countryName'] }}]
+                        {% else %}
+                        <br/>[{{ order['receiptAddress']['country'] }}]
+                        {% end %}
 
+                        {% end %}
 
 
                     </td>
