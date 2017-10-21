@@ -200,4 +200,18 @@ class SMTRefreshOrderInfosHandler(BaseHandler):
         self.finish()
 
 
+class SMTCheckProductHandler(BaseHandler):
+    @tornado.web.asynchronous
+    @tornado.gen.engine
+    def get(self):
+
+        storeId = self.get_argument('storeId','')
+        status = self.get_argument('status','')
+        url = apiServer+"/smt/api/checkProduct?storeId=%s&status=%s" % (storeId, status)
+        request = HTTPRequest(url=url,method="GET",follow_redirects=False,request_timeout=3000)
+        client = tornado.httpclient.AsyncHTTPClient()
+        response = yield tornado.gen.Task(client.fetch, request)
+        result = json.loads(response.body)
+        self.write(result)
+        self.finish()
 
