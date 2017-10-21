@@ -7,4 +7,5 @@ urls = [
     (r"api/checkOrder$", SMTCheckOrderHandler),
     (r"api/refreshOrderStatus$", SMTRefreshOrderStatusHandler),
     (r"api/refreshOrderInfos$", SMTRefreshOrderInfosHandler),
+    (r"api/checkProduct$", SMTCheckProductHandler),
 ]

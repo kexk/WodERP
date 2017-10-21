@@ -311,6 +311,182 @@ def chekSMTOrder():
     return json.dumps(data, ensure_ascii=False)
 
 
+@app.route('/smt/api/checkProduct')
+def chekSMTProduct():
+    storeId = request.args.get('storeId', '')
+    status = request.args.get('status', 'onSelling')
+
+    data = dict()
+
+    mongo = MongoCase()
+    mongo.connect()
+    client = mongo.client
+    db = client.woderp
+
+    appList = db.appList.find({'platform': 'aliexpress', 'apiInfo.status': 1})
+
+    if storeId == '':
+        # appKey = aList[random.randint(0,len(aList)-1)]
+        app = appList[random.randint(0, appList.count() - 1)]
+    else:
+        app = db.appList.find_one({'storeId': storeId})
+
+    data['error'] = []
+    if app != None:
+
+        api = ALIEXPRESS(app)
+
+        #判断API是否可用
+        if api.status >0:
+
+            total = 0
+            addCount = 0
+            updateCount = 0
+
+            # statusList = ['onSelling','offline','auditing','editingRequired']
+            statusList = status.split(',')
+
+
+            for s in statusList:
+
+                option = dict()
+                option['pageSize'] = '100'
+                option['currentPage'] = '1'
+                option['productStatusType'] = s
+
+                c = api.getProductInfoList(option)
+
+                try:
+                    result = json.loads(c)
+
+                    if result['productCount'] >0:
+
+                        pl = result['aeopAEProductDisplayDTOList']
+                        total += result['productCount']
+
+                        updateTime = datetime.datetime.now()
+
+                        #db.productList.update({},{'$set':{'isDelete':1}})
+
+                        for pd in pl:
+
+                            product = db.productList.find_one({'productId': str(pd['productId'])})
+                            if product:
+
+                                newData = pd
+                                newData['productId'] = str(pd['productId'])
+                                newData['storeId'] = app['storeId']
+                                newData['isDelete'] = 0
+                                newData['updateTime'] = updateTime
+
+                                newData['wsOfflineDate'] = datetime.datetime.strptime(pd['wsOfflineDate'][:14], '%Y%m%d%H%M%S')
+                                newData['gmtCreate'] = datetime.datetime.strptime(pd['gmtCreate'][:14], '%Y%m%d%H%M%S')
+                                newData['gmtModified'] = datetime.datetime.strptime(pd['gmtModified'][:14], '%Y%m%d%H%M%S')
+
+                                db.productList.update({'productId': str(pd['productId'])}, {'$set': newData})
+
+                                #print(newData)
+
+                                updateCount += 1
+                            else:
+                                item = pd
+                                item['productId'] = str(pd['productId'])
+                                item['createTime'] = datetime.datetime.now()
+                                item['updateTime'] = updateTime
+                                item['storeInfo'] = {'storeId': app['storeId'], 'cnName': app['cnName'],
+                                                     'enName': app['enName'], "operator": app["operator"],
+                                                     'dealPeron': app['dealPeron']}
+                                item['platform'] = app['platform']
+
+                                item['isDelete'] = 0
+
+                                item['labels'] = []
+                                item['riskWords'] = []
+
+                                item['gmtCreate'] = datetime.datetime.strptime(pd['gmtCreate'][:14], '%Y%m%d%H%M%S')
+                                item['gmtModified'] = datetime.datetime.strptime(pd['gmtModified'][:14], '%Y%m%d%H%M%S')
+                                item['wsOfflineDate'] = datetime.datetime.strptime(pd['wsOfflineDate'][:14], '%Y%m%d%H%M%S')
+
+                                db.productList.insert(item)
+                                addCount += 1
+
+                        if int(result['productCount']) > int(option['pageSize']):
+                            totalPage = int(result['totalPage'])
+
+                            pl = range(2, totalPage + 1)
+                            for page in pl:
+                                option['currentPage'] = str(page)
+                                m = api.getProductInfoList(option)
+                                moreUpdateTime = datetime.datetime.now()
+                                try:
+                                    moreProduct = json.loads(m)
+
+                                    moreProductList = moreProduct['aeopAEProductDisplayDTOList']
+
+                                    for productItem in moreProductList:
+
+                                        mp = db.productList.find_one({'productId': str(productItem['productId'])})
+                                        if mp:
+
+                                            newData = productItem
+                                            newData['productId'] = str(productItem['productId'])
+                                            newData['storeId'] = app['storeId']
+                                            newData['isDelete'] = 0
+                                            newData['updateTime'] = moreUpdateTime
+
+                                            newData['wsOfflineDate'] = datetime.datetime.strptime(productItem['wsOfflineDate'][:14],'%Y%m%d%H%M%S')
+                                            newData['gmtCreate'] = datetime.datetime.strptime(productItem['gmtCreate'][:14],'%Y%m%d%H%M%S')
+                                            newData['gmtModified'] = datetime.datetime.strptime(productItem['gmtModified'][:14],'%Y%m%d%H%M%S')
+
+                                            db.productList.update({'productId': str(productItem['productId'])}, {'$set': newData})
+
+                                            updateCount += 1
+                                        else:
+                                            moreItem = productItem
+                                            moreItem['productId'] = str(moreItem['productId'])
+
+                                            moreItem['createTime'] = datetime.datetime.now()
+                                            moreItem['updateTime'] = moreUpdateTime
+                                            moreItem['storeInfo'] = {'storeId': app['storeId'], 'cnName': app['cnName'],
+                                                                 'enName': app['enName'], "operator": app["operator"],
+                                                                 'dealPeron': app['dealPeron']}
+                                            moreItem['platform'] = app['platform']
+
+                                            moreItem['isDelete'] = 0
+
+                                            moreItem['labels'] = []
+                                            moreItem['riskWords'] = []
+
+                                            moreItem['gmtCreate'] = datetime.datetime.strptime(productItem['gmtCreate'][:14],'%Y%m%d%H%M%S')
+                                            moreItem['gmtModified'] = datetime.datetime.strptime(productItem['gmtModified'][:14],'%Y%m%d%H%M%S')
+                                            moreItem['wsOfflineDate'] = datetime.datetime.strptime(productItem['wsOfflineDate'][:14],'%Y%m%d%H%M%S')
+
+                                            db.productList.insert(moreItem)
+                                            addCount += 1
+
+                                except Exception as e:
+                                    #print(e)
+                                    data['error'].append(
+                                        {'storeId': app['storeId'], 'errMsg': str(e), 'options': option})
+
+
+                except Exception as e:
+                    #print(e)
+                    data['error'].append({'storeId': app['storeId'],'errMsg':str(e),'options':option})
+
+            data['success'] = True
+            data['data'] = {"total": total, "addCount": addCount, 'updateCount': updateCount}
+
+        else:
+            data['success'] = False
+            data['error'].append({'storeId':storeId,'errMsg':'APP Unavailable','options':{'status':status}})
+    else:
+        data['success'] = False
+        data['error'].append({'storeId':storeId,'errMsg':'APP Unavailable','options':{'status':status}})
+
+    return json.dumps(data, ensure_ascii=False)
+
+
 @app.route('/smt/api/refreshOrderStatus')
 def refreshSMTOrderStatus():
     data = dict()
@@ -453,8 +629,6 @@ def refreshSMTOrderInfos():
     data['errCount'] = len(data['error'])
 
     return json.dumps(data, ensure_ascii=False)
-
-
 
 
 @app.route('/jd/api/checkOrder')

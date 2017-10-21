@@ -206,7 +206,7 @@ class SMTCheckProductHandler(BaseHandler):
     def get(self):
 
         storeId = self.get_argument('storeId','')
-        status = self.get_argument('status','')
+        status = self.get_argument('status','onSelling')
         url = apiServer+"/smt/api/checkProduct?storeId=%s&status=%s" % (storeId, status)
         request = HTTPRequest(url=url,method="GET",follow_redirects=False,request_timeout=3000)
         client = tornado.httpclient.AsyncHTTPClient()
