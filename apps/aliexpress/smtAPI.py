@@ -140,6 +140,31 @@ class ALIEXPRESS:
             return '''{"result:{"success":false,"msg":"%s"}}'''%str(e)
 
 
+    def getProductInfoList(self,option={}):
+
+        #productStatusType:商品业务状态，目前提供4种，输入参数分别是：上架:onSelling ；下架:offline ；审核中:auditing ；审核不通过:editingRequired。
+
+        apiPath = 'api.findProductInfoListQuery'
+
+        data = {'appKey': self.appKey, 'apiPath': apiPath, 'productStatusType': 'onSelling', 'currentPage': '1', 'pageSize': '20',
+                'subject': '', 'groupId': '', 'wsDisplay':'', 'offLineTime':'', 'productId':'', 'exceptedProductIds':''}
+
+        for (k, v) in option.items():
+            data[k] = v
+
+        try:
+            r = requests.post(self.apiRoot+self.apiRoute,data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}'''%str(e)
+
+
+
+
 
 
 
