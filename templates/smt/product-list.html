@@ -142,7 +142,7 @@
                     <th style="width: 180px;">时间</th>
                     <th colspan="2" style="">SKU信息</th>
                     <th style="width: 100px;">订单状态</th>
-                    <th style="width: 120px;">操作</th>
+                    <th style="width: 80px;">操作</th>
                 </tr>
                 </thead>
                {% for product in productData %}
@@ -169,12 +169,9 @@
                 <tr class="content">
                     <td class="t-c v-t">
 
-                        <div class="goodsImg">
-
                             <a href="//www.aliexpress.com/item/--/{{ product['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ product['imageURLs'].split(';')[0] }}>')" onMouseOut="toolTip()">
                                 <img class="skuImg lazy" data-val="{{ product['productId'] }}" src="{{ static_url('img/nopic.png') }}" data-original="{{ product['imageURLs'].split(';')[0] }}">
                             </a>
-                        </div>
 
                     </td>
                     <td class="t-c v-t">

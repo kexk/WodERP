@@ -669,7 +669,7 @@ def checkSMTNewOrderInfos():
         if app != None:
             api = ALIEXPRESS(app)
             if api.status >0:
-                ol = db.orderList.find({'receiptAddress': {'$exists':0}, 'storeInfo.storeId': app['storeId']}, {'orderId': 1})
+                ol = db.orderList.find({'receiptAddress': {'$exists':0}, 'storeInfo.storeId': app['storeId']}, {'orderId': 1}).limit(50)
                 for o in ol:
                     id = o['orderId']
                     c = api.getOrderDetail(id)
@@ -885,7 +885,7 @@ def refreshSMTNewProductInfos():
 
         #判断API是否可用
         if api.status >0:
-            pl = db.productList.find({'isNew': 1, 'storeInfo.storeId': app['storeId']}, {'productId': 1})
+            pl = db.productList.find({'isNew': 1, 'storeInfo.storeId': app['storeId']}, {'productId': 1}).limit(30)
             for p in pl:
                 id = p['productId']
                 c = api.getProductById(id)
