@@ -162,7 +162,7 @@
                             <span class="head-item">
                                 退款申请：<span style="display:inline;">无</span> </span>
 
-                        <span class="pull-right"><a href="javascript:;" data-val="{{ order['_id'] }}" class="refresOrder"><i class="glyphicon glyphicon-refresh"></i></a></span>
+                        <span class="pull-right"><a href="javascript:;" data-val="{{ order['_id'] }}" data-refresh="{{ order['storeInfo']['storeId'] }}|{{ order['orderId'] }}"  class="refreshOrder"><i class="glyphicon glyphicon-refresh"></i></a></span>
                     </td>
                 </tr>
                 <tr class="content">
@@ -396,9 +396,11 @@
 
     });
     //手动刷新订单
-    $(document).on('click', '.refresOrder', function() {
-        var id = $(this).attr('data-val');
-        $.getJSON('/smt/api/checkOrderInfo',{id:id},function (result) {
+    $(document).on('click', '.refreshOrder', function() {
+        var refresh = $(this).attr('data-refresh');
+        var itmes = {};
+        itmes[refresh.split('|')[0]] = refresh.split('|')[1];
+        $.getJSON('/smt/api/refreshOrderInfos',{'items':JSON.stringify(itmes)},function (result) {
             if(result.success){
                 history.go(0);
             }
