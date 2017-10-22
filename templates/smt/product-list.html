@@ -24,6 +24,7 @@
             <div>
     <div class="col-lg-6">
     <button type="button" class="btn btn-danger" id="checkProduct">导入产品</button>
+    <button type="button" class="btn btn-danger" id="checkNewProduct">同步产品</button>
     </div>
 
     <div class="col-lg-6">
@@ -357,7 +358,7 @@
          if(r!=null)return  decodeURI(r[2]); return null;
     }
 
-    //手动同步订单
+    //手动同步产品
     $(document).on('click', '#checkProduct', function() {
         $(this).attr('disabled',true);
 
@@ -382,7 +383,30 @@
         });
 
     });
-    //手动刷新订单
+
+    //手动同步产品
+    $(document).on('click', '#checkNewProduct', function() {
+        $(this).attr('disabled',true);
+
+        var storeId = GetQueryString('store');
+
+        var data = {};
+
+        if(storeId){
+            data['storeId']=storeId;
+        }
+
+        $.getJSON('/smt/api/refreshNewProductInfos',data,function (result) {
+            if(result.success){
+                //window.location.href = '/smt/orderList';
+                window.history.go(0);
+                //console.log(result.data);
+            }
+        });
+
+    });
+
+    //手动同步产品
     $(document).on('click', '.refreshProduct', function() {
         var refresh = $(this).attr('data-refresh');
         var itmes = {};

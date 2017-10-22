@@ -642,7 +642,6 @@ def refreshSMTOrderInfos():
 
     return json.dumps(data, ensure_ascii=False)
 
-
 @app.route('/smt/api/refreshProductStatus')
 def refreshSMTProductStatus():
     data = dict()
@@ -746,6 +745,75 @@ def refreshSMTProductInfos():
 
             else:
                 data['error'].append({'storeId':k,'errMsg':'接口不可用'})
+
+    data['success'] = True
+    data['errCount'] = len(data['error'])
+
+    return json.dumps(data, ensure_ascii=False)
+
+
+@app.route('/smt/api/refreshNewProductInfos')
+def refreshSMTNewProductInfos():
+    data = dict()
+    storeId = request.args.get('storeId', '')
+
+    mongo = MongoCase()
+    mongo.connect()
+    client = mongo.client
+    db = client.woderp
+
+    appList = db.appList.find({'platform': 'aliexpress', 'apiInfo.status': 1})
+
+    if storeId == '':
+        # appKey = aList[random.randint(0,len(aList)-1)]
+        app = appList[random.randint(0, appList.count() - 1)]
+    else:
+        app = db.appList.find_one({'storeId': storeId})
+
+    data['error'] = []
+
+    if app != None:
+
+        api = ALIEXPRESS(app)
+
+        #判断API是否可用
+        if api.status >0:
+            pl = db.productList.find({'isNew': 1, 'storeInfo.storeId': app['storeId']}, {'productId': 1})
+            for p in pl:
+                id = p['productId']
+                c = api.getProductById(id)
+                try:
+                    d = json.loads(c)
+                    productData = db.productList.find_one({'productId': id})
+
+                    if d.has_key('success') and d['success']:
+                        d['productId'] = str(d['productId'])
+                        d['gmtModified'] = datetime.datetime.strptime(d['gmtModified'][:14], '%Y%m%d%H%M%S')
+                        d['wsOfflineDate'] = datetime.datetime.strptime(d['wsOfflineDate'][:14], '%Y%m%d%H%M%S')
+                        d['gmtCreate'] = datetime.datetime.strptime(d['gmtCreate'][:14], '%Y%m%d%H%M%S')
+                        if d.has_key('couponStartDate'):
+                            d['couponStartDate'] = datetime.datetime.strptime(d['couponStartDate'][:14], '%Y%m%d%H%M%S')
+                        if d.has_key('couponEndDate'):
+                            d['couponEndDate'] = datetime.datetime.strptime(d['couponEndDate'][:14], '%Y%m%d%H%M%S')
+
+                        # 如果修改了标题,重新检查标题
+                        if productData['subject'] != d['subject']:
+                            d['checkTitleStatus'] = 'waitCheck'
+
+                        # print(newData)
+                        db.productList.update({'productId': id}, {'$set': d})
+                    elif d.has_key('error_message'):
+                        if d['error_code'] == '10004000':
+                            db.productList.update({'productId': id},
+                                                  {'$set': {'isDelete': 1, 'productStatusType': 'delete'}})
+                        data['error'].append({'id': id, 'errMsg': d['error_message']})
+
+                except Exception as e:
+                    data['error'].append({'id': id, 'errMsg': str(e)})
+
+        else:
+            data['error'].append({'storeId': app['storeId'], 'errMsg': '接口不可用'})
+
 
     data['success'] = True
     data['errCount'] = len(data['error'])
