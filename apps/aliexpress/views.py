@@ -223,6 +223,10 @@ class SMTProductListHandler(BaseHandler):
                         stxt += '审核中'
                     elif s['_id'] == 'editingRequired':
                         stxt += '审核不通过'
+                    elif s['_id'] == 'delete':
+                        stxt += '已删除'
+                    else:
+                        stxt += s['_id']
                     sL.append({'status': s['_id'], 'Count': s['Count'], 'statusTxt': stxt})
 
 

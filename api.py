@@ -407,6 +407,7 @@ def chekSMTProduct():
 
                                 item['labels'] = []
                                 item['riskWords'] = []
+                                item['isNew'] = 1
 
                                 item['gmtCreate'] = datetime.datetime.strptime(pd['gmtCreate'][:14], '%Y%m%d%H%M%S')
                                 item['gmtModified'] = datetime.datetime.strptime(pd['gmtModified'][:14], '%Y%m%d%H%M%S')
@@ -466,6 +467,7 @@ def chekSMTProduct():
 
                                             moreItem['labels'] = []
                                             moreItem['riskWords'] = []
+                                            moreItem['isNew'] = 1
 
                                             moreItem['gmtCreate'] = datetime.datetime.strptime(productItem['gmtCreate'][:14],'%Y%m%d%H%M%S')
                                             moreItem['gmtModified'] = datetime.datetime.strptime(productItem['gmtModified'][:14],'%Y%m%d%H%M%S')
