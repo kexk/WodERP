@@ -132,6 +132,7 @@ thead {background: #eeeeee;}
 .suctext {color: #080808;font-weight: bold;}
 .goodsName a{color: #080808;}
 .goodsName,.p-detail {padding-bottom: 10px;}
+.goodsName{max-width: 300px;}
 .goodsImg {float: left; padding-right: 20px;}
 .p-amount {display: block;}
 .p-amount b,.p-value b{padding: 0 5px;}

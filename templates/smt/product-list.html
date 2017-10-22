@@ -1,0 +1,529 @@
+{% extends "base.html" %}
+
+        {% block header %}
+    <title>产品列表</title>
+{% end %}
+{% block styleblock %}
+<link rel="stylesheet" href="{{ static_url('css/orderList.css') }}"/>
+<link rel="stylesheet" href="{{ static_url('plugin/notify/notification.css') }}"/>
+<script src="{{ static_url('js/orderlist/comm.js') }}" charset="utf-8"></script>
+
+{% end %}
+        {% block main %}
+
+<div class="siderBar">
+<ul class="nav nav-sidebar">
+            <li class="active"><a href="#">在线产品 <span class="sr-only">(current)</span></a></li>
+            <li><a href="#">待发布</a></li>
+            <li><a href="#">采集箱</a></li>
+          </ul>
+
+</div>
+
+		<div class="container theme-showcase rightBody" role="main">
+            <div>
+    <div class="col-lg-6">
+    <button type="button" class="btn btn-danger" id="checkProduct">导入产品</button>
+    </div>
+
+    <div class="col-lg-6">
+        <form action="">
+        <div class="input-group">
+            <input type="hidden" name="page" value="1" />
+            <input type="hidden" name="status" value="{{ filterData['status'] }}" />
+
+          <input type="text" class="form-control" name="wd" value="{{ filterData['wd'] }}" placeholder="搜索产品标题/sku/订单号/买家姓名电话/快递单号">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="submit">搜索</button>
+          </span>
+        </div><!-- /input-group -->
+
+            </form>
+      </div>
+
+
+</div>
+            <div class="filterBox">
+                <div>
+                    <p> <span>店铺：</span> <a href="?store=&status={{ filterData['status'] }}&page=1" class="label label-default{% if '' == filterData['store'] %} active{% end%}">全部</a>
+            {% for store in filterData['appList'] %}
+            <a href="?store={{ store['storeId'] }}&status={{ filterData['status'] }}&page=1" class="label label-default{% if store['storeId'] == filterData['store'] %} active{% end%}">{{ store['cnName'] }}</a>
+            {% end %}
+        </p>
+                </div>
+                <div>
+                    <p> <span>状态：</span> <a href="?status=&store={{ filterData['store'] }}&page=1" class="label label-default{% if '' == filterData['status'] %} active{% end%}">全部</a>
+            {% for s in filterData['statusList'] %}<a href="?status={{ s['status'] }}&store={{ filterData['store'] }}&page=1" class="label label-default{% if s['status'] == filterData['status'] %} active{% end%}">{{ s['statusTxt'] }} ({{ s['Count'] }})</a> {% end %}
+        </p>
+                </div>
+            </div>
+
+
+
+
+        <nav aria-label="Page navigation" class="pull-right">
+
+
+
+
+  {% if len(pageInfo['pageList'])>0  %}
+            <ul class="pagination">
+      <li> <span style="border-right:none;padding-right:5px;">总数量：{{ pageInfo['totalCount'] }}，每页</span></li>
+      <li> <span style="border-left:none;padding-left:5px;border-right:none;padding-right:5px;"><select name="pageSize" class="form-control pageSize"><option value="50" {% if pageInfo['pageSize']==50 %}selected{% end %} >50</option><option value="100" {% if pageInfo['pageSize']==100 %}selected{% end %}>100</option><option value="200" {% if pageInfo['pageSize']==200 %}selected{% end %}>200</option></select></span></li>
+      <li> <span style="border-left:none;padding-left:5px;border-right:none;padding-right:5px;">共{{ pageInfo['totalPage'] }} 页,跳转到</span><span style="border-left:none;padding-left:5px;border-right:none;padding-right:5px;"><input type="number" class="form-control pageNo" name="pageNo" value="{{ pageInfo['pageNo'] }}"></span> <span style="border-left:none;padding-left:5px;border-right:none;padding-right:5px;"><button class="btn btn-sm btn-primary">确定</button></span></li>
+
+
+
+
+      {% if pageInfo['pageNo'] == pageInfo['pageList'][0]%}
+
+      <li class="disabled"><a href="#" aria-label="First"><span aria-hidden="true">|&lt;</span></a></li>
+      <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+    </li>
+          {% else %}
+       <li><a href="?page={{ pageInfo['pageList'][0] }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="First"><span aria-hidden="false">|&lt;</span></a></li>
+      <li><a href="?page={{ pageInfo['pageNo']-1 }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+    </li>
+
+          {% end %}
+
+
+
+      <li class="active"><a href="#">{{ pageInfo['pageNo'] }}<span class="sr-only">(current)</span></a></li>
+
+
+
+          {% if pageInfo['pageNo'] == pageInfo['pageList'][-1]%}
+      <li class="disabled"><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+    </li>
+      <li class="disabled"><a href="#" aria-label="End"><span aria-hidden="true">&gt;|</span></a></li>
+          {% else %}
+      <li><a href="?page={{ pageInfo['pageNo']+1 }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+    </li>
+      <li><a href="?page={{ pageInfo['pageList'][-1] }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="End"><span aria-hidden="false">&gt;|</span></a></li>
+          {% end %}
+
+  </ul>
+
+            {% end %}
+</nav>
+
+        <div class="btn-toolbar" role="toolbar" style="display: none;">
+            <div class="dropdown">
+   <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+    批量操作
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+    <li><a href="#">Action</a></li>
+    <li><a href="#">Another action</a></li>
+    <li><a href="#">Something else here</a></li>
+    <li role="separator" class="divider"></li>
+    <li><a href="#">Separated link</a></li>
+  </ul>
+</div>
+
+      <button type="button" class="btn btn-default btn-sm" id="refreshProductInfos">同步产品</button>
+      <button type="button" class="btn btn-default btn-sm" id="refreshProductStatus">更新状态</button>
+      <button type="button" class="btn btn-default btn-sm" id="reChekTitle">检查标题</button>
+
+
+    </div>
+
+           <table class="table table-bordered table-hover">
+                <thead>
+                <tr>
+                    <th style="width: 30px;border-right:none; "><input type="checkbox" id="checkAll"/> <span style="margin-left: 10px;">图片</span></th>
+                    <th style=" ">商品信息</th>
+                    <th style="width: 120px;">价格</th>
+                    <th style="width: 100px;">分类/分组</th>
+                    <th style="width: 100px;">运费模板</th>
+                    <th style="width: 180px;">时间</th>
+                    <th colspan="2" style="">SKU信息</th>
+                    <th style="width: 100px;">订单状态</th>
+                    <th style="width: 120px;">操作</th>
+                </tr>
+                </thead>
+               {% for product in productData %}
+                <tbody>
+                <tr>
+                    <td colspan="10" class="blank"></td>
+                </tr>
+                <tr class="head">
+                    <td colspan="10">
+                        <input type="checkbox" name="checkedOrder" data-store="{{ product['storeInfo']['storeId'] }}" value="{{ product['productId'] }}">
+                        <span class="head-item" style="width: 190px">产品编号：
+                            <a href="javascript:;" target="_blank" class="suctext limingcentUrlpic">{{ product['productId'] }}</a></span>
+                        {% if product.has_key('storeInfo') %}
+                            <span class="head-item">店铺：{{ product['storeInfo']['cnName'] }}</span>
+                            <span class="head-item">负责人：{{ product['storeInfo']['dealPeron']['puerchase'] }}</span>
+                           {% end %}
+
+                            <span class="head-item">
+                                侵权关键词：<span style="display:inline;">无</span> </span>
+
+                        <span class="pull-right"><a href="javascript:;" data-val="{{ product['_id'] }}" data-refresh="{{ product['storeInfo']['storeId'] }}|{{ product['productId'] }}" class="refreshProduct"><i class="glyphicon glyphicon-refresh"></i></a></span>
+                    </td>
+                </tr>
+                <tr class="content">
+                    <td class="t-c v-t">
+
+                        <div class="goodsImg">
+
+                            <a href="//www.aliexpress.com/item/--/{{ product['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ product['imageURLs'].split(';')[0] }}>')" onMouseOut="toolTip()">
+                                <img class="skuImg lazy" data-val="{{ product['productId'] }}" src="{{ static_url('img/nopic.png') }}" data-original="{{ product['imageURLs'].split(';')[0] }}">
+                            </a>
+                        </div>
+
+                    </td>
+                    <td class="t-c v-t">
+                        <div class="goodsName">
+                            <a href="javascript:void(0);" title="{{ product['subject'] }}" data-val="{{ product['productId'] }}" class="limingcentUrlpic">{{ product['subject'] }}</a>
+                        </div>
+                    </td>
+                    <td class="t-c v-t">
+
+                        <div class="p-value">
+                            {% if product['productMinPrice'] != product['productMaxPrice'] %}
+                            <b class="orderAmount">{{ product['productMinPrice'] }}</b> - <b class="orderAmount">{{ product['productMaxPrice'] }}</b>{% else %}
+                            <b class="orderAmount">{{ product['productMinPrice'] }}</b>
+                            {% end %}
+
+                        </div>
+                        <div class="p-value discount"><small>无优惠信息</small></div>
+                    </td>
+
+                    <td>
+                        {% if product.has_key('categoryId') %}
+                        {{ product['categoryId'] }}
+                        {% end %}
+
+                        {% if product.has_key('groupId') %}
+                        {{ product['groupId'] }}
+                        {% end %}
+
+                    </td>
+                    <td>
+                        {% if product.has_key('freightTemplateId') %}
+                        {{ product['freightTemplateId'] }}
+                        {% end %}
+
+                    </td>
+                    <td>
+                        创建：{{ product['gmtCreate'] }}
+                        {% if product.has_key('gmtModified') %}<br>更新：{{ product['gmtModified'] }}{% end %}
+
+                        {% if product.has_key('wsOfflineDate') and product['wsOfflineDate'] != None %}<br>
+                        剩余：<code id="validTime-{{ product['_id'] }}"></code>
+                        <script>addTimer("validTime-{{ product['_id'] }}", "{{ product['wsOfflineDate'] }}","0");</script>
+                        {% end %}
+
+                        {% if product.has_key('deliveryTime') %}
+                        <br>备货：{{ product['deliveryTime'] }} 天
+                        {% end %}
+
+
+                    </td>
+                    <td class="t-c" colspan="2">
+                        <button class="btn btn-primary btn-sm showPurchase" data-toggle="modal" data-target="#myModal" data-val="{{ product['productId'] }}">同步SKU</button>
+
+                    </td>
+                    <td class="t-c">
+
+                        {% if product['productStatusType'] == 'onSelling' %}上架{% else %}
+                        {% if product['productStatusType'] == 'offline' %}下架{% else %}
+                        {% if product['productStatusType'] == 'auditing' %}审核中{% else %}
+                        {% if product['productStatusType'] == 'editingRequired' %}审核不通过{% else %}
+                        {% if product['productStatusType'] == 'delete' %}已删除{% else %}
+                        {{ product['productStatusType'] }}{% end %}{% end %}
+						{% end %}
+						{% end %}
+						{% end %}
+
+
+						</td>
+                    <td class="t-c">
+						<div class="actionLink">
+                            <a href="javascript:void(0);" style="display:block;">检测</a>
+                            <a href="javascript:void(0);" style="display: block;" class="tjbz">编辑</a>
+                            <a href="#" style="display: block;">下架</a>
+                            <a href="#" style="display: block;" target="_blank">删除</a>
+						</div>
+                    </td>
+                </tr>
+                </tbody>
+
+               {% end %}
+
+            </table>
+
+<p class="pull-right p-b-1">
+    <span>总数量：{{ pageInfo['totalCount'] }}</span>
+    <span>，每页{{ pageInfo['pageSize'] }}条</span>
+    <span>，共{{ pageInfo['totalPage'] }} 页</span>
+
+    {% for p in pageInfo['pageList'] %}
+        {% if p==pageInfo['pageNo'] %}
+        <span class="label label-danger">{{ p }}</span>
+        {% else %}
+        <a href="?page={{ p }}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" class="">{{ p }}</a>
+        {% end %}
+    {% end %}
+</p>
+
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">填写采购订单</h4>
+            </div>
+            <div class="modal-body">
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <td>产品信息</td>
+                        <td>金额</td>
+                        <td>采购信息</td>
+                        <td>操作</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary save">提交更改</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+
+        <div class="modal fade" id="purchaseOrderModal" tabindex="-2" role="dialog" aria-labelledby="purchaseOrderModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="purchaseOrderModalLabel">采购信息</h4>
+            </div>
+            <div class="modal-body">
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <td colspan="2" style="width:200px;">产品信息</td>
+                        <td>单价</td>
+                        <td>数量</td>
+                        <td>价格</td>
+                        <td>状态</td>
+                        <td colspan="3">买家信息</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary">更新订单</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+</div>
+        {% end %}
+
+{% block footer %}
+<script>
+
+    function GetQueryString(name)
+    {
+         var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+         var r = window.location.search.substr(1).match(reg);
+         if(r!=null)return  decodeURI(r[2]); return null;
+    }
+
+    //手动同步订单
+    $(document).on('click', '#checkProduct', function() {
+        $(this).attr('disabled',true);
+
+        var storeId = GetQueryString('store');
+        var status = GetQueryString('status');
+
+        var data = {};
+
+        if(storeId){
+            data['storeId']=storeId;
+        }
+        if(status){
+            data['status']=status;
+        }
+
+        $.getJSON('/smt/api/checkProduct',data,function (result) {
+            if(result.success){
+                //window.location.href = '/smt/orderList';
+                window.history.go(0);
+                //console.log(result.data);
+            }
+        });
+
+    });
+    //手动刷新订单
+    $(document).on('click', '.refreshProduct', function() {
+        var refresh = $(this).attr('data-refresh');
+        var itmes = {};
+        itmes[refresh.split('|')[0]] = refresh.split('|')[1];
+        $.getJSON('/smt/api/refreshProductInfos',{'items':JSON.stringify(itmes)},function (result) {
+            if(result.success){
+                history.go(0);
+            }
+        });
+
+    });
+
+    $(document).on('click', '#checkAll', function() {
+        if(this.checked){
+            $("input[name='checkedOrder']").each(function(){
+                this.checked = true;
+                $('[role="toolbar"]').show();
+            });
+        }else{
+            $("input[name='checkedOrder']").each(function(){
+                this.checked = false;
+                $('[role="toolbar"]').hide();
+            });
+        }
+    });
+
+    //勾选显示操作按钮
+    $(document).on('click', "input[name='checkedOrder']", function() {
+        if($("input[name='checkedOrder']:checked").length>0){
+            $('[role="toolbar"]').show();
+        }else{
+            $('[role="toolbar"]').hide();
+        }
+
+    });
+
+    //更新订单状态
+    $(document).on('click', '#refreshProductStatus', function() {
+        $(this).attr('disabled',true);
+
+        var storeId = GetQueryString('store');
+
+        //data = {'items':[{'storeId':'12515','ids':['1111','2222','3333']}]}
+        var items = {};
+        if(storeId){
+
+            var arr = [];
+            $('input[name="checkedOrder"]:checked').each(function(){
+                arr.push($(this).val());
+            });
+            items[storeId] = arr.join(',');
+        }else{
+
+            var arr2 = [];
+            $('input[name="checkedOrder"]:checked').each(function(){
+                if($.inArray($(this).attr('data-store'), arr2)==-1){
+                    arr2.push($(this).attr('data-store'));
+                    items[$(this).attr('data-store')] = $(this).val();
+                }else{
+                    items[$(this).attr('data-store')] += ','+$(this).val();
+                }
+            });
+        }
+
+        //console.log(items);
+        $.getJSON('/smt/api/refreshProductStatus',{items:JSON.stringify(items)},function (result) {
+            if(result.success){
+                //window.location.href = '/smt/orderList';
+                window.history.go(0);
+                //console.log(result.data);
+            }
+        });
+
+    });
+
+    //更新产品详情
+    $(document).on('click', '#refreshProductInfos', function() {
+        $(this).attr('disabled',true);
+
+        var storeId = GetQueryString('store');
+
+        //data = {'items':[{'storeId':'12515','ids':['1111','2222','3333']}]}
+        var items = {};
+        if(storeId){
+
+            var arr = [];
+            $('input[name="checkedOrder"]:checked').each(function(){
+                arr.push($(this).val());
+            });
+            items[storeId] = arr.join(',');
+        }else{
+
+            var arr2 = [];
+            $('input[name="checkedOrder"]:checked').each(function(){
+                if($.inArray($(this).attr('data-store'), arr2)==-1){
+                    arr2.push($(this).attr('data-store'));
+                    items[$(this).attr('data-store')] = $(this).val();
+                }else{
+                    items[$(this).attr('data-store')] += ','+$(this).val();
+                }
+            });
+        }
+
+        //console.log(items);
+        $.getJSON('/smt/api/refreshProductInfos',{items:JSON.stringify(items)},function (result) {
+            if(result.success){
+                //window.location.href = '/smt/orderList';
+                window.history.go(0);
+                //console.log(result.data);
+            }
+        });
+
+    });
+
+    //showPurchase
+    $(document).on('click', '.showPurchase', function() {
+        //加载订单
+        var orderId = $(this).attr('data-val');
+
+    });
+
+
+</script>
+
+<script src="{{ static_url('plugin/toolTips/toolTips.js') }}"></script>
+<script src="{{ static_url('plugin/showFrame/showFrame.js') }}"></script>
+<script src="{{ static_url('plugin/notify/notify.min.js') }}"></script>
+<script src="{{ static_url('plugin/notify/notify-metro.js') }}"></script>
+<script src="{{ static_url('plugin/notify/notifications.js') }}"></script>
+<script src="{{ static_url('plugin/jscopy/clipboard.min.js') }}"></script>
+<script src="{{ static_url('plugin/jscopy/jscopy.js') }}"></script>
+<script src="{{ static_url('plugin/lazyload/jquery.lazyload.min.js') }}"></script>
+
+<script type="text/javascript">
+    $("img.lazy").lazyload({
+        effect: "fadeIn"
+    });
+
+
+</script>
+
+{% end %}
+
+
