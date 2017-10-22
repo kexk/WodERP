@@ -642,6 +642,113 @@ def refreshSMTOrderInfos():
 
     return json.dumps(data, ensure_ascii=False)
 
+@app.route('/smt/api/checkNewOrder')
+def checkSMTNewOrderInfos():
+    data = dict()
+    storeId = request.args.get('storeId', '')
+
+    mongo = MongoCase()
+    mongo.connect()
+    client = mongo.client
+    db = client.woderp
+
+    data['error'] = []
+
+    appList = db.appList.find({'platform': 'aliexpress', 'apiInfo.status': 1})
+
+    if storeId == '':
+        # appKey = aList[random.randint(0,len(aList)-1)]
+        app = appList[random.randint(0, appList.count() - 1)]
+    else:
+        app = db.appList.find_one({'storeId': storeId})
+
+    data['error'] = []
+
+    if app != None:
+
+        if app != None:
+            api = ALIEXPRESS(app)
+            if api.status >0:
+                ol = db.orderList.find({'receiptAddress': {'$exists':0}, 'storeInfo.storeId': app['storeId']}, {'orderId': 1})
+                for o in ol:
+                    id = o['orderId']
+                    c = api.getOrderDetail(id)
+                    if c != 'null':
+                        orderInfo = json.loads(c)
+                        orderData = db.orderList.find_one({'orderId':id})
+                        newData = dict()
+                        if not orderData.has_key('buyerInfo'):
+                            newData['buyerInfo'] = orderInfo['buyerInfo']
+                        if not orderData.has_key('receiptAddress'):
+                            newData['receiptAddress'] = orderInfo['receiptAddress']
+                        if not orderData.has_key('sellerOperatorLoginId'):
+                            newData['sellerOperatorLoginId'] = orderInfo['sellerOperatorLoginId']
+                        if not orderData.has_key('gmtPaySuccess') and orderInfo.has_key('gmtPaySuccess'):
+                            newData['gmtPaySuccess'] = datetime.datetime.strptime(orderInfo['gmtPaySuccess'][:14], '%Y%m%d%H%M%S')
+                        if not orderData.has_key('paymentType') and orderInfo.has_key('paymentType'):
+                            newData['paymentType'] = orderInfo['paymentType']
+                        if not orderData.has_key('initOderAmount'):
+                            newData['initOderAmount'] = orderInfo['initOderAmount']
+                        if not orderData.has_key('logisticsAmount'):
+                            newData['logisticsAmount'] = orderInfo['logisticsAmount']
+                        if not orderData.has_key('orderAmount'):
+                            newData['orderAmount'] = orderInfo['orderAmount']
+                        if not orderData.has_key('isPhone'):
+                            newData['isPhone'] = orderInfo['isPhone']
+
+                        if not orderData.has_key('childOrderExtInfoList'):
+                            childOrderExtInfoList = orderInfo['childOrderExtInfoList']
+                            newChild = []
+                            for child in childOrderExtInfoList:
+                                child['productId'] = str(child['productId'])
+                                child['sku'] = json.loads(child['sku'])['sku']
+                                newChild.append(child)
+
+                            newData['childOrderExtInfoList'] = newChild
+
+                        #子订单包含状态
+                        if 1!=1:
+                            childOrderList = orderInfo['childOrderList']
+                            newChild = []
+                            for child in childOrderList:
+                                child['id'] = str(child['id'])
+                                child['productId'] = str(child['productId'])
+                                child['productAttributes'] = json.loads(child['productAttributes'])['sku']
+                                newChild.append(child)
+
+                            newData['childOrderList'] = newChild
+
+                        newData['issueInfo'] = orderInfo['issueInfo']
+                        newData['issueStatus'] = orderInfo['issueStatus']
+                        newData['loanInfo'] = orderInfo['loanInfo']
+                        newData['logisticInfoList'] = orderInfo['logisticInfoList']
+                        newData['logisticsStatus'] = orderInfo['logisticsStatus']
+                        newData['oprLogDtoList'] = orderInfo['oprLogDtoList']
+                        newData['orderMsgList'] = orderInfo['orderMsgList']
+                        newData['orderStatus'] = orderInfo['orderStatus']
+                        newData['frozenStatus'] = orderInfo['frozenStatus']
+                        newData['fundStatus'] = orderInfo['fundStatus']
+                        newData['gmtModified'] = orderInfo['gmtModified']
+
+
+                        #print(newData)
+                        db.orderList.update({'orderId':id},{'$set':newData})
+
+                    else:
+
+                        data['error'].append({'id':id,'errMsg':'找不到该订单'})
+
+
+            else:
+                data['error'].append({'storeId':k,'errMsg':'接口不可用'})
+
+
+    data['success'] = True
+    data['errCount'] = len(data['error'])
+
+    return json.dumps(data, ensure_ascii=False)
+
+
 @app.route('/smt/api/refreshProductStatus')
 def refreshSMTProductStatus():
     data = dict()

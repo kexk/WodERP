@@ -25,7 +25,7 @@
             <div>
     <div class="col-lg-6">
     <button type="button" class="btn btn-danger" id="checkOrder">导入订单</button>
-<button type="button" class="btn btn-danger" id="checkSku">同步sku</button>
+<button type="button" class="btn btn-danger" id="checkNewOrder">同步订单</button>
     </div>
 
     <div class="col-lg-6">
@@ -395,6 +395,29 @@
         });
 
     });
+
+    //手动同步订单详情
+    $(document).on('click', '#checkNewOrder', function() {
+        $(this).attr('disabled',true);
+
+        var storeId = GetQueryString('store');
+
+        var data = {};
+
+        if(storeId){
+            data['storeId']=storeId;
+        }
+
+        $.getJSON('/smt/api/checkNewOrder',data,function (result) {
+            if(result.success){
+                //window.location.href = '/smt/orderList';
+                window.history.go(0);
+                //console.log(result.data);
+            }
+        });
+
+    });
+
     //手动刷新订单
     $(document).on('click', '.refreshOrder', function() {
         var refresh = $(this).attr('data-refresh');
@@ -506,27 +529,6 @@
                 //console.log(result.data);
             }
         });
-
-    });
-
-    //匹配SKU
-    $(document).on('click', '#checkSku', function() {
-        $(this).attr('disabled',true);
-
-        var arr = [];
-        $('[role="noSkuImg"]').each(function(){
-            arr.push($(this).attr('data-val'));
-        });
-        if(arr.length>0){
-            $.getJSON('/api/checkSku',{sku:arr.join(',')},function(result){
-            if(result.success){
-                //window.location.href = '/orderList';
-                history.go(0);
-            }
-        });
-        }else{
-            console.log('无需要更新的SKU');
-        }
 
     });
 
