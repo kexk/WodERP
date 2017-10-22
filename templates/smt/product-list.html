@@ -223,7 +223,35 @@
 
                     </td>
                     <td class="t-c" colspan="2">
-                        <button class="btn btn-primary btn-sm showPurchase" data-toggle="modal" data-target="#myModal" data-val="{{ product['productId'] }}">同步SKU</button>
+
+                        {% if product.has_key('aeopAeProductSKUs')%}
+
+                        {% for sku in product['aeopAeProductSKUs'] %}
+                        <div data-val="{{ sku['id'] }}">
+
+                        {% if sku['aeopSKUProperty'] %}
+                            {% for property in sku['aeopSKUProperty'] %}
+
+                            {% if property.has_key('skuImage') %}
+                            <span>
+                                <img src="{{ property['skuImage'] }}" width="40" alt=""/>
+                            </span>
+                            {% end %}
+
+                            {% if property.has_key('propertyValueDefinitionName') %}
+                            <span>{{ property['propertyValueDefinitionName'] }}</span>
+                            {% end %}
+
+                            {% end %}
+                        {% end %}
+                            <span class="orderAmount">{{ sku['skuPrice'] }}</span><span class="orderAmount">{{ sku['ipmSkuStock'] }}</span>
+                            </div>
+                        <hr/>
+                        {% end %}
+                        {% end %}
+
+
+                        <!--<button class="btn btn-primary btn-sm showPurchase" data-toggle="modal" data-target="#myModal" data-val="{{ product['productId'] }}">同步SKU</button>-->
 
                     </td>
                     <td class="t-c">
