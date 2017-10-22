@@ -740,7 +740,7 @@ def checkSMTNewOrderInfos():
 
 
             else:
-                data['error'].append({'storeId':k,'errMsg':'接口不可用'})
+                data['error'].append({'storeId':app['storeId'],'errMsg':'接口不可用'})
 
 
     data['success'] = True
