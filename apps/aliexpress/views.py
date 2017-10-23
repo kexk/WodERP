@@ -64,7 +64,7 @@ class SMTOrderListHandler(BaseHandler):
 
             if status != '':
                 option['orderStatus'] = status
-                matchOption['orderStatus'] = status
+                #matchOption['orderStatus'] = status
 
             if store != '':
                 option['storeInfo.storeId'] = store
@@ -218,7 +218,7 @@ class SMTProductListHandler(BaseHandler):
 
             if status != '':
                 option['productStatusType'] = status
-                matchOption['productStatusType'] = status
+                #matchOption['productStatusType'] = status
 
             if store != '':
                 option['storeInfo.storeId'] = store
