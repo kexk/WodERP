@@ -48,16 +48,25 @@
 </div>
             <div class="filterBox">
                 <div>
-                    <p> <span>店铺：</span> <a href="?store=&status={{ filterData['status'] }}&page=1" class="label label-default{% if '' == filterData['store'] %} active{% end%}">全部</a>
+                    <p> <span>店铺：</span> <a href="?store=&status={{ filterData['status'] }}&sort={{ filterData['sort'] }}&page=1" class="label label-default{% if '' == filterData['store'] %} active{% end%}">全部</a>
             {% for store in filterData['appList'] %}
-            <a href="?store={{ store['storeId'] }}&status={{ filterData['status'] }}&page=1" class="label label-default{% if store['storeId'] == filterData['store'] %} active{% end%}">{{ store['cnName'] }}</a>
+            <a href="?store={{ store['storeId'] }}&status={{ filterData['status'] }}&sort={{ filterData['sort'] }}&page=1" class="label label-default{% if store['storeId'] == filterData['store'] %} active{% end%}">{{ store['cnName'] }}</a>
             {% end %}
         </p>
                 </div>
                 <div>
-                    <p> <span>状态：</span> <a href="?status=&store={{ filterData['store'] }}&page=1" class="label label-default{% if '' == filterData['status'] %} active{% end%}">全部</a>
-            {% for s in filterData['statusList'] %}<a href="?status={{ s['status'] }}&store={{ filterData['store'] }}&page=1" class="label label-default{% if s['status'] == filterData['status'] %} active{% end%}">{{ s['statusTxt'] }} ({{ s['Count'] }})</a> {% end %}
+                    <p> <span>状态：</span> <a href="?status=&store={{ filterData['store'] }}&sort={{ filterData['sort'] }}&page=1" class="label label-default{% if '' == filterData['status'] %} active{% end%}">全部</a>
+            {% for s in filterData['statusList'] %}<a href="?status={{ s['status'] }}&store={{ filterData['store'] }}&sort={{ filterData['sort'] }}&page=1" class="label label-default{% if s['status'] == filterData['status'] %} active{% end%}">{{ s['statusTxt'] }} ({{ s['Count'] }})</a> {% end %}
         </p>
+                </div>
+                <div>
+                    <p> <span>排序：</span>
+                        <a href="?status={{ filterData['status'] }}&store={{ filterData['store'] }}&sort=gmtModified&page=1" class="label label-default{% if '' == filterData['sort'] or 'gmtModified' == filterData['sort'] %} active{% end%}">更新时间</a>
+                        <a href="?status={{ filterData['status'] }}&store={{ filterData['store'] }}&sort=gmtCreate&page=1" class="label label-default{% if 'gmtCreate' == filterData['sort'] %} active{% end%}">创建时间</a>
+                        <a href="?status={{ filterData['status'] }}&store={{ filterData['store'] }}&sort=wsOfflineDate&page=1" class="label label-default{% if 'wsOfflineDate' == filterData['sort'] %} active{% end%}">下架时间</a>
+                        <a href="?status={{ filterData['status'] }}&store={{ filterData['store'] }}&sort=stock&page=1" class="label label-default{% if 'stock' == filterData['sort'] %} active{% end%}">库存</a>
+                        <a href="?status={{ filterData['status'] }}&store={{ filterData['store'] }}&sort=price&page=1" class="label label-default{% if 'price' == filterData['sort'] %} active{% end%}">价格</a>
+                    </p>
                 </div>
             </div>
 
@@ -84,8 +93,8 @@
       <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
     </li>
           {% else %}
-       <li><a href="?page={{ pageInfo['pageList'][0] }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="First"><span aria-hidden="false">|&lt;</span></a></li>
-      <li><a href="?page={{ pageInfo['pageNo']-1 }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+       <li><a href="?page={{ pageInfo['pageList'][0] }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}&sort={{ filterData['sort'] }}" aria-label="First"><span aria-hidden="false">|&lt;</span></a></li>
+      <li><a href="?page={{ pageInfo['pageNo']-1 }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}&sort={{ filterData['sort'] }}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
     </li>
 
           {% end %}
@@ -101,9 +110,9 @@
     </li>
       <li class="disabled"><a href="#" aria-label="End"><span aria-hidden="true">&gt;|</span></a></li>
           {% else %}
-      <li><a href="?page={{ pageInfo['pageNo']+1 }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+      <li><a href="?page={{ pageInfo['pageNo']+1 }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}&sort={{ filterData['sort'] }}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
     </li>
-      <li><a href="?page={{ pageInfo['pageList'][-1] }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="End"><span aria-hidden="false">&gt;|</span></a></li>
+      <li><a href="?page={{ pageInfo['pageList'][-1] }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}&sort={{ filterData['sort'] }}" aria-label="End"><span aria-hidden="false">&gt;|</span></a></li>
           {% end %}
 
   </ul>

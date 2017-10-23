@@ -173,6 +173,8 @@ class SMTProductListHandler(BaseHandler):
 
         authority = self.getAuthority(account,AUTHOR_MOUDLE)
 
+        sortList = ['gmtModified','gmtCreate','wsOfflineDate','stock','price']
+
         if authority['Allow']:
 
             pageSize = 200
@@ -180,7 +182,20 @@ class SMTProductListHandler(BaseHandler):
             status = self.get_argument('status','')
             store = self.get_argument('store','')
             wd = self.get_argument('wd','')
+            sort = self.get_argument('sort','gmtModified')
             platform = self.get_argument('platform','aliexpress')
+
+            sortTxt = ''
+
+            if sort not in sortList:
+                sortTxt += 'gmtModified'
+            else:
+                if sort == 'stock':
+                    sortTxt += 'aeopAeProductSKUs.ipmSkuStock'
+                elif sort == 'price':
+                    sortTxt += 'aeopAeProductSKUs.skuPrice'
+                else:
+                    sortTxt += sort
 
             try:
                 page = int(self.get_argument('page',1))
@@ -245,7 +260,7 @@ class SMTProductListHandler(BaseHandler):
 
             totalCount = db.productList.find(option).count()
 
-            productData = db.productList.find(option).sort("gmtCreate",-1).limit(pageSize).skip((page-1)*pageSize)
+            productData = db.productList.find(option).sort(sortTxt,-1).limit(pageSize).skip((page-1)*pageSize)
 
             p = divmod(totalCount,pageSize)
 
@@ -267,6 +282,7 @@ class SMTProductListHandler(BaseHandler):
             filterData['wd'] = wd
             filterData['statusList'] = sL
             filterData['appList'] = appList
+            filterData['sort'] = sort
 
             self.render('smt/product-list.html',productData = productData,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
 
