@@ -9,6 +9,8 @@
 <script src="{{ static_url('js/orderlist/comm.js') }}" charset="utf-8"></script>
 
 {% end %}
+
+{% block bodycss %}procutList{% end %}
         {% block main %}
 
 <div class="siderBar">
@@ -140,7 +142,9 @@
                     <th style="width: 100px;">分类/分组</th>
                     <th style="width: 100px;">运费模板</th>
                     <th style="width: 180px;">时间</th>
-                    <th colspan="2" style="">SKU信息</th>
+                    <th style="">SKU信息</th>
+                    <th style="">价格</th>
+                    <th style="">库存</th>
                     <th style="width: 100px;">订单状态</th>
                     <th style="width: 80px;">操作</th>
                 </tr>
@@ -148,10 +152,10 @@
                {% for product in productData %}
                 <tbody>
                 <tr>
-                    <td colspan="10" class="blank"></td>
+                    <td colspan="11" class="blank"></td>
                 </tr>
                 <tr class="head">
-                    <td colspan="10">
+                    <td colspan="11">
                         <input type="checkbox" name="checkedOrder" data-store="{{ product['storeInfo']['storeId'] }}" value="{{ product['productId'] }}">
                         <span class="head-item" style="width: 190px">产品编号：
                             <a href="javascript:;" target="_blank" class="suctext limingcentUrlpic">{{ product['productId'] }}</a></span>
@@ -222,40 +226,60 @@
 
 
                     </td>
-                    <td class="t-c" colspan="2">
+                    <td class="t-c" colspan="3">
 
                         {% if product.has_key('aeopAeProductSKUs')%}
-                        <table>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        </table>
-                        {% for sku in product['aeopAeProductSKUs'] %}
 
+                        <table id="sku-{{ product['productId'] }}" class="skuTable">
+                            {% if len(product['aeopAeProductSKUs'])>10 %}
 
-                        <div data-val="{{ sku['id'] }}">
+                            {% for sku in product['aeopAeProductSKUs'][:10] %}
 
-                        {% if sku['aeopSKUProperty'] %}
-                            {% for property in sku['aeopSKUProperty'] %}
-
-                            {% if property.has_key('skuImage') %}
-                            <span>
-                                <img src="{{ property['skuImage'] }}" width="40" alt=""/>
-                            </span>
-                            {% end %}
-
-                            {% if property.has_key('propertyValueDefinitionName') %}
-                            <span>{{ property['propertyValueDefinitionName'] }}</span>
-                            {% end %}
-
-                            {% end %}
+                <tr data-val="{{ sku['id'] }}">
+                    <td class="skuInfo">
+                        {% for property in sku['aeopSKUProperty'] %}
+                        {% if property.has_key('skuImage') %}
+                        <div class="skuPic">
+                            <a href="//www.aliexpress.com/item/--/{{ product['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ property['skuImage'] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('img/nopic.png') }}" data-original="{{ property['skuImage'] }}" width="30" alt=""/></a>
+                        </div>
                         {% end %}
-                            <span class="orderAmount">{{ sku['skuPrice'] }}</span><span class="orderAmount">{{ sku['ipmSkuStock'] }}</span>
-                            </div>
-                        <hr/>
+                        {% if property.has_key('propertyValueDefinitionName') %}
+                        <span class="skuAttr">{{ property['propertyValueDefinitionName'] }}</span>
                         {% end %}
+                        {% end %}
+                        {% if sku.has_key('skuCode') and sku['skuCode'] !='' %}<span class="skuCode">货号：<b>{{ sku['skuCode'] }}</b></span>{% end %}
+                    </td>
+                    <td class="skuPrice"><span class="orderAmount">{{ sku['skuPrice'] }}</span></td>
+                    <td class="skuStock"><span class="orderAmount">{{ sku['ipmSkuStock'] }}</span></td>
+                </tr>
+                        {% end %}
+
+                            <tr><td colspan="3"><span class="pull-right"><a href="javascript:;">+展开</a></span></td></tr>
+
+                            {% else %}
+                            {% for sku in product['aeopAeProductSKUs'] %}
+
+                <tr data-val="{{ sku['id'] }}">
+                    <td class="skuInfo">
+                        {% for property in sku['aeopSKUProperty'] %}
+                        {% if property.has_key('skuImage') %}
+                        <div class="skuPic">
+                            <a href="//www.aliexpress.com/item/--/{{ product['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ property['skuImage'] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('img/nopic.png') }}" data-original="{{ property['skuImage'] }}" width="30" alt=""/></a>
+                        </div>
+                        {% end %}
+                        {% if property.has_key('propertyValueDefinitionName') %}
+                        <span class="skuAttr">{{ property['propertyValueDefinitionName'] }}</span>
+                        {% end %}
+                        {% end %}
+                        {% if sku.has_key('skuCode') and sku['skuCode'] !='' %}<span class="skuCode">货号：<b>{{ sku['skuCode'] }}</b></span>{% end %}
+                    </td>
+                    <td class="skuPrice"><span class="orderAmount">{{ sku['skuPrice'] }}</span></td>
+                    <td class="skuStock"><span class="orderAmount">{{ sku['ipmSkuStock'] }}</span></td>
+                </tr>
+                        {% end %}
+                            {% end %}
+
+                            </table>
                         {% end %}
 
 
