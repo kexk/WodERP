@@ -116,8 +116,8 @@ def chekSMTOrder():
                             if item.has_key('memo'):
                                 newData['memo'] = item['memo']
 
-                            if not order.has_key('gmtPayTime') and item.has_key('gmtPayTime'):
-                                newData['gmtPayTime'] = item['gmtPayTime']
+                            if item.has_key('gmtPayTime'):
+                                newData['gmtPayTime'] = datetime.datetime.strptime(item['gmtPayTime'][:14], '%Y%m%d%H%M%S')
 
                             db.orderList.update({'orderId': str(item['orderId'])}, {'$set': newData})
 
@@ -233,8 +233,8 @@ def chekSMTOrder():
                                         if moreItem.has_key('memo'):
                                             newData['memo'] = moreItem['memo']
 
-                                        if not order.has_key('gmtPayTime') and moreItem.has_key('gmtPayTime'):
-                                            newData['gmtPayTime'] = moreItem['gmtPayTime']
+                                        if moreItem.has_key('gmtPayTime'):
+                                            newData['gmtPayTime'] = datetime.datetime.strptime(moreItem['gmtPayTime'][:14],'%Y%m%d%H%M%S')
 
                                         db.orderList.update({'orderId': str(moreItem['orderId'])}, {'$set': newData})
 
@@ -686,6 +686,8 @@ def checkSMTNewOrderInfos():
                             newData['sellerOperatorLoginId'] = orderInfo['sellerOperatorLoginId']
                         if not orderData.has_key('gmtPaySuccess') and orderInfo.has_key('gmtPaySuccess'):
                             newData['gmtPaySuccess'] = datetime.datetime.strptime(orderInfo['gmtPaySuccess'][:14], '%Y%m%d%H%M%S')
+                        if not orderData.has_key('gmtPayTime') and orderInfo.has_key('gmtPaySuccess'):
+                            newData['gmtPayTime'] = datetime.datetime.strptime(orderInfo['gmtPaySuccess'][:14],'%Y%m%d%H%M%S')
                         if not orderData.has_key('paymentType') and orderInfo.has_key('paymentType'):
                             newData['paymentType'] = orderInfo['paymentType']
                         if not orderData.has_key('initOderAmount'):

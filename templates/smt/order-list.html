@@ -279,7 +279,7 @@
         {% if p==pageInfo['pageNo'] %}
         <span class="label label-danger">{{ p }}</span>
         {% else %}
-        <a href="?page={{ p }}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" class="">{{ p }}</a>
+        <a href="?page={{ p }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" class="">{{ p }}</a>
         {% end %}
     {% end %}
 </p>
