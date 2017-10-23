@@ -6,6 +6,8 @@ from base import BaseHandler
 from apps.database.databaseCase import *
 import json
 
+import datetime
+
 import re
 import tornado.web
 import tornado.httpclient
@@ -183,6 +185,7 @@ class SMTProductListHandler(BaseHandler):
             store = self.get_argument('store','')
             wd = self.get_argument('wd','')
             sort = self.get_argument('sort','gmtModified')
+            create = self.get_argument('create','')
             platform = self.get_argument('platform','aliexpress')
 
             sortTxt = ''
@@ -224,6 +227,42 @@ class SMTProductListHandler(BaseHandler):
                 option['storeInfo.storeId'] = {'$in':authority['authority']['smtStore']}
                 matchOption['storeInfo.storeId'] = {'$in':authority['authority']['smtStore']}
 
+
+            if create == '30':
+                d1 = datetime.datetime.now().date()+ datetime.timedelta(days=1)
+                d0 = datetime.date(datetime.date.today().year, datetime.date.today().month, 1)
+                option['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                  {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                matchOption['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                  {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+            elif create == '7':
+                d1 = datetime.datetime.now().date() + datetime.timedelta(days=1)
+                d0 = datetime.datetime.now().date()+ datetime.timedelta(days=-6)
+                option['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                  {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                matchOption['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                  {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+            elif create == '3':
+                d1 = datetime.datetime.now().date() + datetime.timedelta(days=1)
+                d0 = datetime.datetime.now().date() + datetime.timedelta(days=-2)
+                option['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                  {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                matchOption['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                  {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+            elif create == '1':
+                d1 = datetime.datetime.now().date()
+                d0 = datetime.datetime.now().date() + datetime.timedelta(days=-1)
+                option['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                  {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                matchOption['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                  {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+            elif create == '0':
+                d1 = datetime.datetime.now().date() + datetime.timedelta(days=1)
+                d0 = datetime.datetime.now().date()
+                option['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year,d0.month,d0.day)}}, {'gmtCreate': {'$lt': datetime.datetime(d1.year,d1.month,d1.day)}}]
+                matchOption['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                  {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+
             statusList = db.productList.aggregate([{ '$match' : matchOption },{'$group': {'_id': "$productStatusType", 'Count': {'$sum': 1}}}])
 
             sL = []
@@ -258,6 +297,7 @@ class SMTProductListHandler(BaseHandler):
 
 
 
+            #print(option)
             totalCount = db.productList.find(option).count()
 
             productData = db.productList.find(option).sort(sortTxt,-1).limit(pageSize).skip((page-1)*pageSize)
@@ -283,6 +323,7 @@ class SMTProductListHandler(BaseHandler):
             filterData['statusList'] = sL
             filterData['appList'] = appList
             filterData['sort'] = sort
+            filterData['create'] = create
 
             self.render('smt/product-list.html',productData = productData,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
 
