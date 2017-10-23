@@ -137,14 +137,14 @@
                 <thead>
                 <tr>
                     <th style="width: 70px;border-right:none; "><input type="checkbox" id="checkAll"/> <span style="margin-left: 10px;">图片</span></th>
-                    <th style=" ">商品信息</th>
+                    <th style="width: 300px;">商品信息</th>
                     <th style="width: 120px;">价格</th>
                     <th style="width: 100px;">分类/分组</th>
                     <th style="width: 100px;">运费模板</th>
                     <th style="width: 180px;">时间</th>
                     <th style="">SKU信息</th>
-                    <th style="">价格</th>
-                    <th style="">库存</th>
+                    <th style="width: 100px;">价格</th>
+                    <th style="width: 100px;">库存</th>
                     <th style="width: 100px;">订单状态</th>
                     <th style="width: 80px;">操作</th>
                 </tr>
@@ -233,28 +233,51 @@
                         <table id="sku-{{ product['productId'] }}" class="skuTable">
                             {% if len(product['aeopAeProductSKUs'])>10 %}
 
+                            <tbody class="">
                             {% for sku in product['aeopAeProductSKUs'][:10] %}
-
-                <tr data-val="{{ sku['id'] }}">
-                    <td class="skuInfo">
-                        {% for property in sku['aeopSKUProperty'] %}
-                        {% if property.has_key('skuImage') %}
-                        <div class="skuPic">
-                            <a href="//www.aliexpress.com/item/--/{{ product['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ property['skuImage'] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('img/nopic.png') }}" data-original="{{ property['skuImage'] }}" width="30" alt=""/></a>
-                        </div>
-                        {% end %}
-                        {% if property.has_key('propertyValueDefinitionName') %}
-                        <span class="skuAttr">{{ property['propertyValueDefinitionName'] }}</span>
-                        {% end %}
-                        {% end %}
-                        {% if sku.has_key('skuCode') and sku['skuCode'] !='' %}<span class="skuCode">货号：<b>{{ sku['skuCode'] }}</b></span>{% end %}
-                    </td>
-                    <td class="skuPrice"><span class="orderAmount">{{ sku['skuPrice'] }}</span></td>
-                    <td class="skuStock"><span class="orderAmount">{{ sku['ipmSkuStock'] }}</span></td>
-                </tr>
-                        {% end %}
-
-                            <tr><td colspan="3"><span class="pull-right"><a href="javascript:;">+展开</a></span></td></tr>
+                            <tr data-val="{{ sku['id'] }}">
+                                <td class="skuInfo">
+                                    {% for property in sku['aeopSKUProperty'] %}
+                                    {% if property.has_key('skuImage') %}
+                                    <div class="skuPic">
+                                        <a href="//www.aliexpress.com/item/--/{{ product['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ property['skuImage'] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('img/nopic.png') }}" data-original="{{ property['skuImage'] }}" width="30" alt=""/></a>
+                                    </div>
+                                    {% end %}
+                                    {% if property.has_key('propertyValueDefinitionName') %}
+                                    <span class="skuAttr">{{ property['propertyValueDefinitionName'] }}</span>
+                                    {% end %}
+                                    {% end %}
+                                    {% if sku.has_key('skuCode') and sku['skuCode'] !='' %}<span class="skuCode">货号：<b>{{ sku['skuCode'] }}</b></span>{% end %}
+                                </td>
+                                <td class="skuPrice"><span class="orderAmount">{{ sku['skuPrice'] }}</span></td>
+                                <td class="skuStock"><span class="orderAmount">{{ sku['ipmSkuStock'] }}</span></td>
+                            </tr>
+                            {% end %}
+                            </tbody>
+                            <tbody class="moreSKU" style="display: none;">
+                            {% for sku in product['aeopAeProductSKUs'][10:] %}
+                            <tr data-val="{{ sku['id'] }}" class="" >
+                                <td class="skuInfo">
+                                    {% for property in sku['aeopSKUProperty'] %}
+                                    {% if property.has_key('skuImage') %}
+                                    <div class="skuPic">
+                                        <a href="//www.aliexpress.com/item/--/{{ product['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ property['skuImage'] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('img/nopic.png') }}" data-original="{{ property['skuImage'] }}" width="30" alt=""/></a>
+                                    </div>
+                                    {% end %}
+                                    {% if property.has_key('propertyValueDefinitionName') %}
+                                    <span class="skuAttr">{{ property['propertyValueDefinitionName'] }}</span>
+                                    {% end %}
+                                    {% end %}
+                                    {% if sku.has_key('skuCode') and sku['skuCode'] !='' %}<span class="skuCode">货号：<b>{{ sku['skuCode'] }}</b></span>{% end %}
+                                </td>
+                                <td class="skuPrice"><span class="orderAmount">{{ sku['skuPrice'] }}</span></td>
+                                <td class="skuStock"><span class="orderAmount">{{ sku['ipmSkuStock'] }}</span></td>
+                            </tr>
+                            {% end %}
+                            </tbody>
+                            <tbody>
+                            <tr><td colspan="3"><span class="pull-right"><a href="javascript:;" class="showMoreSKU">+展开</a></span></td></tr>
+                            </tbody>
 
                             {% else %}
                             {% for sku in product['aeopAeProductSKUs'] %}
@@ -586,6 +609,24 @@
         var orderId = $(this).attr('data-val');
 
     });
+
+    //展开更多SKU
+    $(document).on('click', '.showMoreSKU', function() {
+        //加载订单
+        $(this).removeClass('showMoreSKU');
+        $(this).addClass('hideMoreSKU');
+        $(this).text('-收起');
+        $(this).parent().parent().parent().parent().parent().find('.moreSKU').show();
+    });
+    //隐藏更多SKU
+    $(document).on('click', '.hideMoreSKU', function() {
+        //加载订单
+        $(this).removeClass('hideMoreSKU');
+        $(this).addClass('showMoreSKU');
+        $(this).text('+展开');
+        $(this).parent().parent().parent().parent().parent().find('.moreSKU').hide();
+    });
+
 
 
 </script>
