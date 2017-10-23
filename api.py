@@ -663,6 +663,7 @@ def checkSMTNewOrderInfos():
         app = db.appList.find_one({'storeId': storeId})
 
     data['error'] = []
+    data['count'] = 0
 
     if app != None:
 
@@ -733,6 +734,7 @@ def checkSMTNewOrderInfos():
 
                         #print(newData)
                         db.orderList.update({'orderId':id},{'$set':newData})
+                        data['count'] += 1
 
                     else:
 
@@ -878,6 +880,7 @@ def refreshSMTNewProductInfos():
         app = db.appList.find_one({'storeId': storeId})
 
     data['error'] = []
+    data['count'] = 0
 
     if app != None:
 
@@ -909,10 +912,12 @@ def refreshSMTNewProductInfos():
 
                         # print(newData)
                         db.productList.update({'productId': id}, {'$set': d})
+                        data['count'] += 1
                     elif d.has_key('error_message'):
                         if d['error_code'] == '10004000':
                             db.productList.update({'productId': id},
                                                   {'$set': {'isDelete': 1, 'productStatusType': 'delete'}})
+                            data['count'] += 1
                         data['error'].append({'id': id, 'errMsg': d['error_message']})
 
                 except Exception as e:
