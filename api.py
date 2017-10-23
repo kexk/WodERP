@@ -885,7 +885,7 @@ def refreshSMTNewProductInfos():
 
         #判断API是否可用
         if api.status >0:
-            pl = db.productList.find({'isNew': 1, 'storeInfo.storeId': app['storeId']}, {'productId': 1}).limit(30)
+            pl = db.productList.find({'aeopAeProductSKUs': {'$exists':0}, 'storeInfo.storeId': app['storeId']}, {'productId': 1}).limit(30)
             for p in pl:
                 id = p['productId']
                 c = api.getProductById(id)

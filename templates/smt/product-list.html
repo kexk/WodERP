@@ -134,7 +134,7 @@
            <table class="table table-bordered table-hover">
                 <thead>
                 <tr>
-                    <th style="width: 30px;border-right:none; "><input type="checkbox" id="checkAll"/> <span style="margin-left: 10px;">图片</span></th>
+                    <th style="width: 70px;border-right:none; "><input type="checkbox" id="checkAll"/> <span style="margin-left: 10px;">图片</span></th>
                     <th style=" ">商品信息</th>
                     <th style="width: 120px;">价格</th>
                     <th style="width: 100px;">分类/分组</th>
@@ -225,8 +225,16 @@
                     <td class="t-c" colspan="2">
 
                         {% if product.has_key('aeopAeProductSKUs')%}
-
+                        <table>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </table>
                         {% for sku in product['aeopAeProductSKUs'] %}
+
+
                         <div data-val="{{ sku['id'] }}">
 
                         {% if sku['aeopSKUProperty'] %}
@@ -261,7 +269,9 @@
                         {% if product['productStatusType'] == 'auditing' %}审核中{% else %}
                         {% if product['productStatusType'] == 'editingRequired' %}审核不通过{% else %}
                         {% if product['productStatusType'] == 'delete' %}已删除{% else %}
+                        {% if product['productStatusType'] == 'service-delete' %}系统删除{% else %}
                         {{ product['productStatusType'] }}{% end %}{% end %}
+						{% end %}
 						{% end %}
 						{% end %}
 						{% end %}
