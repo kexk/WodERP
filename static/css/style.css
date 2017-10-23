@@ -162,7 +162,7 @@ thead {background: #eeeeee;}
 .procutList .skuTable { width: 100%;}
 .procutList .skuInfo { width: 130px;}
 .procutList .skuPic { float: left;padding: 5px;}
-.procutList .skuAttr,.procutList .skuCode {line-height: 180%;}
+.procutList .skuAttr,.procutList .skuCode {line-height: 180%;display: inline-block;}
 .procutList .skuTable .skuPrice,.procutList .skuTable .skuStock { text-align: center;}
 .procutList .skuTable tr { border-bottom: 1px solid #ccc;}
 .procutList .skuTable tr:last-child { border-bottom: none;}
