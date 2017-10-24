@@ -1,0 +1,530 @@
+{% extends "base.tpl" %}
+
+        {% block header %}
+    <title>订单列表</title>
+{% end %}
+{% block styleblock %}
+<link rel="stylesheet" href="{{ static_url('css/orderList.css') }}"/>
+<link rel="stylesheet" href="{{ static_url('plugin/notify/notification.css') }}"/>
+<script src="{{ static_url('js/orderlist/comm.js') }}" charset="utf-8"></script>
+
+{% end %}
+        {% block main %}
+
+<div class="siderBar">
+<ul class="nav nav-sidebar">
+            <li class="active"><a href="#">全部订单 <span class="sr-only">(current)</span></a></li>
+            <li><a href="#">待处理</a></li>
+            <li><a href="#">待打单</a></li>
+            <li><a href="#">已发货</a></li>
+          </ul>
+
+</div>
+
+		<div class="container theme-showcase rightBody" role="main">
+            <div>
+    <div class="col-lg-6">
+    <button type="button" class="btn btn-danger" id="checkOrder">导入订单</button>
+<button type="button" class="btn btn-danger" id="checkNewOrder">同步订单</button>
+    </div>
+
+    <div class="col-lg-6">
+        <form action="/smt/orderList">
+        <div class="input-group">
+            <input type="hidden" name="page" value="1" />
+            <input type="hidden" name="status" value="{{ filterData['status'] }}" />
+
+          <input type="text" class="form-control" name="wd" placeholder="搜索产品标题/sku/订单号/买家姓名电话/快递单号">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="submit">搜索</button>
+          </span>
+        </div><!-- /input-group -->
+
+            </form>
+      </div>
+
+
+</div>
+            <div class="filterBox">
+                <div>
+                    <p> <span>店铺：</span> <a href="?store=&status={{ filterData['status'] }}" class="label label-default{% if '' == filterData['store'] %} active{% end%}">全部</a>
+            {% for store in filterData['appList'] %}
+            <a href="?store={{ store['storeId'] }}&status={{ filterData['status'] }}" class="label label-default{% if store['storeId'] == filterData['store'] %} active{% end%}">{{ store['cnName'] }}</a>
+            {% end %}
+        </p>
+                </div>
+                <div>
+                    <p> <span>状态：</span> <a href="?status=&store={{ filterData['store'] }}" class="label label-default{% if '' == filterData['status'] %} active{% end%}">全部</a>
+            {% for s in filterData['statusList'] %}<a href="?status={{ s['status'] }}&store={{ filterData['store'] }}" class="label label-default{% if s['status'] == filterData['status'] %} active{% end%}">{{ s['statusTxt'] }} ({{ s['orderCount'] }})</a> {% end %}
+        </p>
+                </div>
+            </div>
+
+
+
+
+
+
+        <div class="btn-toolbar" role="toolbar" style="display: none;">
+            <div class="dropdown">
+   <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+    批量操作
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+    <li><a href="#">Action</a></li>
+    <li><a href="#">Another action</a></li>
+    <li><a href="#">Something else here</a></li>
+    <li role="separator" class="divider"></li>
+    <li><a href="#">Separated link</a></li>
+  </ul>
+</div>
+
+      <button type="button" class="btn btn-default btn-sm" id="refreshOrderInfos">同步订单</button>
+      <button type="button" class="btn btn-default btn-sm" id="refreshOrderStatus">更新订单</button>
+
+
+    </div>
+
+           <table class="table table-bordered table-hover">
+                <thead>
+                <tr>
+                    <th style="width: 30px;border-right:none; "><input type="checkbox" id="checkAll"/></th>
+                    <th style="border-left:none; ">商品信息</th>
+                    <th style="width: 120px;">金额</th>
+                    <th style="width: 100px;">买家信息</th>
+                    <th style="width: 180px;">时间</th>
+                    <th colspan="2" style="">物流信息</th>
+                    <th style="width: 100px;">订单状态</th>
+                    <th style="width: 120px;">操作</th>
+                </tr>
+                </thead>
+
+               {% for group in orderList %}
+               <tbody>
+               <tr>
+                    <td colspan="9" class="blank">
+
+
+
+                    </td>
+                </tr>
+
+               {% for order in group['orderItems'] %}
+
+                <tr class="head">
+                    <td colspan="9">
+                        <input type="checkbox" name="checkedOrder" data-store="{{ order['storeInfo']['storeId'] }}" value="{{ order['orderId'] }}">
+                        <span class="head-item" style="width: 190px">订单编号：
+                            <a href="javascript:;" target="_blank" class="suctext limingcentUrlpic">{{ order['orderId'] }}</a></span>
+                        {% if order.has_key('storeInfo') %}
+                            <span class="head-item">店铺：{{ order['storeInfo']['cnName'] }}</span>
+                            <span class="head-item">负责人：{{ order['storeInfo']['dealPeron']['puerchase'] }}</span>
+                           {% end %}
+
+                            <span class="head-item">
+                                退款申请：<span style="display:inline;">无</span> </span>
+
+                        <span class="pull-right"><a href="javascript:;" data-val="{{ order['_id'] }}" data-refresh="{{ order['storeInfo']['storeId'] }}|{{ order['orderId'] }}"  class="refreshOrder"><i class="glyphicon glyphicon-refresh"></i></a></span>
+                    </td>
+                </tr>
+                <tr class="content">
+                    <td colspan="2">
+                        {% for sku in order['productList'] %}
+						<div class="goodsItem">
+                        <input type="hidden" name="checkedSku" value="{{ sku['productId'] }}">
+                        <div style="clear: both"></div>
+                        <div class="goodsImg">
+						{% if sku['productImgUrl'] != None %}
+                            <a href="//www.aliexpress.com/item/--/{{ sku['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ sku['productImgUrl'].split('_50x')[0] }}>')" onMouseOut="toolTip()">
+                                <img class="skuImg lazy" data-val="{{ sku['productId'] }}" src="{{ static_url('img/nopic.png') }}" data-original="{{ sku['productImgUrl'] }}">
+                            </a>{% else %}
+							<a href="//www.aliexpress.com/item/--/{{ sku['productId'] }}.html" target="_blank">
+							<img class="noSkuImg" data-val="{{ sku['productId'] }}" src="//img11.360buyimg.com/n5/jfs/t3271/88/7808807198/85040/49d5cf69/58bccd95Nd1b090a7.jpg">
+							</a>
+							{% end %}
+                        </div>
+                        <div class="goodsName">
+                            <a href="javascript:void(0);" title="{{ sku['productName'] }}" data-val="{{ sku['productId'] }}" class="limingcentUrlpic">{{ sku['productId'] }}</a>
+                        </div>
+                        <div class="p-detail">
+                            <span class="p-amount">售价:<b>{{ sku['productUnitPrice']['amount'] }}</b> x 数量:<i class="badge">{{ sku['productCount'] }}</i></span>
+                            <span class="p-amount">货号:{% if sku.has_key('skuCode') %}<b><a href="javascript:void(0);" class="limingcentUrlpic">{{ sku['skuCode'] }}</a></b>{% end %}</span>
+                        </div>
+						</div>
+                        {% end %}
+
+                    </td>
+                    <td class="t-c v-t">
+                        <div class="p-value">订单金额:
+                            {% if order.has_key('orderAmount') %}
+                            <b class="orderAmount">{{ order['orderAmount']['amount'] }}</b>{% else %}
+                            <b class="orderAmount">{{ order['payAmount']['amount'] }}</b>
+                            {% end %}
+
+                        </div>
+                        {% if order.has_key('logisticsAmount') and order['logisticsAmount']['amount'] !=0 %}
+                        <div class="p-value">运费:<b class="logisticsAmount">{{ order['logisticsAmount']['amount'] }}</b></div>
+                        {% end %}
+                        <div class="p-value discount"><small>无优惠信息</small></div>
+                    </td>
+
+                    <td>
+                        {{ order['buyerSignerFullname'] }}<br>
+
+
+                    </td>
+                    <td>
+                        下单：{{ order['gmtCreate'] }}
+                        {% if order.has_key('gmtPayTime') %}<br>付款：{{ order['gmtPayTime'] }}{% end %}
+
+                        {% if order.has_key('timeoutLeftTime') and order['timeoutLeftTime'] != None %}<br>
+                        剩余：<code id="validTime-{{ order['_id'] }}"></code>
+                        <script>addTimer("validTime-{{ order['_id'] }}", "{{ order['updateTime'] }}","{{ order['timeoutLeftTime'] }}");</script>
+                        {% end %}
+
+
+                    </td>
+                    <td class="t-c" colspan="2">
+                        {% if order.has_key('receiptAddress') %}
+                        收件人:{{ order['receiptAddress']['contactPerson'] }}
+                        {% if order['receiptAddress'].has_key('countryNameCN') %}
+                        <br/>国家:[{{ order['receiptAddress']['countryNameCN'] }}]
+                        {% else %}
+                        <br/>国家:[{{ order['receiptAddress']['country'] }}]
+                        {% end %}
+
+                        <br/>地址:{% if order['receiptAddress'].has_key('address2') %}{{ order['receiptAddress']['address2'] }}{% end %}
+                        {{ order['receiptAddress']['detailAddress'] }}
+                        <br>城市:{{ order['receiptAddress']['city'] }}
+                        省/州:{{ order['receiptAddress']['province'] }}
+
+                        {% if order['receiptAddress'].has_key('zip') %}
+                        <br/>邮编:{{ order['receiptAddress']['zip'] }}
+                        {% end %}
+                        {% if order['receiptAddress'].has_key('mobileNo') %}
+                        <br/>手机:{{ order['receiptAddress']['mobileNo'] }}
+                        {% end %}
+                        {% if order['receiptAddress'].has_key('phoneNumber') and order['receiptAddress']['phoneNumber'] != '' %}
+                        电话:{{ order['receiptAddress']['phoneNumber'] }}
+                        {% end %}
+
+
+                        {% end %}
+
+                    </td>
+                    <td class="t-c">
+
+                        {% if order['orderStatus'] == 'WAIT_SELLER_SEND_GOODS' %}等待发货{% else %}
+                        {% if order['orderStatus'] == 'WAIT_BUYER_ACCEPT_GOODS' %}等待买家收货{% else %}
+                        {% if order['orderStatus'] == 'SELLER_PART_SEND_GOODS' %}部分发货{% else %}
+                        {% if order['orderStatus'] == 'RISK_CONTROL' %}风控中{% else %}
+                        {% if order['orderStatus'] == 'IN_CANCEL' %}买家申请取消{% else %}
+                        {% if order['orderStatus'] == 'PLACE_ORDER_SUCCESS' %}等待买家付款{% else %}
+                        {% if order['orderStatus'] == 'FUND_PROCESSING' %}等待放款{% else %}
+                        {% if order['orderStatus'] == 'FINISH' %}已结束{% else %}
+                        {{ order['orderStatus'] }}{% end %}{% end %}
+						{% end %}
+						{% end %}
+						{% end %}
+						{% end %}
+						{% end %}
+						{% end %}
+
+
+						</td>
+                    <td class="t-c">
+						<div class="actionLink">
+                        <a href="javascript:void(0);" style="display: block;" class="tjbz">修改收货信息</a>
+                        <a href="#" style="display: block;">多库发货</a>
+                        <a href="#" style="display: block;" target="_blank">查看详情</a>
+                        <a href="javascript:void(0);" style="display:block;">添加备注</a>
+                        <a href="javascript:void(0);" style="">延迟发货提醒</a>
+						</div>
+                    </td>
+                </tr>
+
+               {% end %}
+               </tbody>
+               {% end %}
+
+            </table>
+
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">填写采购订单</h4>
+            </div>
+            <div class="modal-body">
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <td>产品信息</td>
+                        <td>金额</td>
+                        <td>采购信息</td>
+                        <td>操作</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary save">提交更改</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+
+        <div class="modal fade" id="purchaseOrderModal" tabindex="-2" role="dialog" aria-labelledby="purchaseOrderModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="purchaseOrderModalLabel">采购信息</h4>
+            </div>
+            <div class="modal-body">
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <td colspan="2" style="width:200px;">产品信息</td>
+                        <td>单价</td>
+                        <td>数量</td>
+                        <td>金额</td>
+                        <td>订单状态</td>
+                        <td colspan="3">买家信息</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary">更新订单</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+</div>
+        {% end %}
+
+{% block footer %}
+<script>
+
+    function GetQueryString(name)
+    {
+         var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+         var r = window.location.search.substr(1).match(reg);
+         if(r!=null)return  decodeURI(r[2]); return null;
+    }
+
+    //手动同步订单
+    $(document).on('click', '#checkOrder', function() {
+        $(this).attr('disabled',true);
+
+        var storeId = GetQueryString('store');
+        var status = GetQueryString('status');
+
+        var data = {};
+
+        if(storeId){
+            data['storeId']=storeId;
+        }
+        if(status){
+            data['status']=status;
+        }
+
+        $.getJSON('/smt/api/checkOrder',data,function (result) {
+            if(result.success){
+                //window.location.href = '/smt/orderList';
+                window.history.go(0);
+                //console.log(result.data);
+            }
+        });
+
+    });
+
+    //手动同步订单详情
+    $(document).on('click', '#checkNewOrder', function() {
+        $(this).attr('disabled',true);
+
+        var storeId = GetQueryString('store');
+
+        var data = {};
+
+        if(storeId){
+            data['storeId']=storeId;
+        }
+
+        $.getJSON('/smt/api/checkNewOrder',data,function (result) {
+            if(result.success){
+                //window.location.href = '/smt/orderList';
+                window.history.go(0);
+                //console.log(result.data);
+            }
+        });
+
+    });
+
+    //手动刷新订单
+    $(document).on('click', '.refreshOrder', function() {
+        var refresh = $(this).attr('data-refresh');
+        var itmes = {};
+        itmes[refresh.split('|')[0]] = refresh.split('|')[1];
+        $.getJSON('/smt/api/refreshOrderInfos',{'items':JSON.stringify(itmes)},function (result) {
+            if(result.success){
+                history.go(0);
+            }
+        })
+    });
+
+    $(document).on('click', '#checkAll', function() {
+        if(this.checked){
+            $("input[name='checkedOrder']").each(function(){
+                this.checked = true;
+                $('[role="toolbar"]').show();
+            });
+        }else{
+            $("input[name='checkedOrder']").each(function(){
+                this.checked = false;
+                $('[role="toolbar"]').hide();
+            });
+        }
+    });
+
+    //勾选显示操作按钮
+    $(document).on('click', "input[name='checkedOrder']", function() {
+        if($("input[name='checkedOrder']:checked").length>0){
+            $('[role="toolbar"]').show();
+        }else{
+            $('[role="toolbar"]').hide();
+        }
+
+    });
+
+    //更新订单状态
+    $(document).on('click', '#refreshOrderStatus', function() {
+        $(this).attr('disabled',true);
+
+        var storeId = GetQueryString('store');
+
+        //data = {'items':[{'storeId':'12515','ids':['1111','2222','3333']}]}
+        var items = {};
+        if(storeId){
+
+            var arr = [];
+            $('input[name="checkedOrder"]:checked').each(function(){
+                arr.push($(this).val());
+            });
+            items[storeId] = arr.join(',');
+        }else{
+
+            var arr2 = [];
+            $('input[name="checkedOrder"]:checked').each(function(){
+                if($.inArray($(this).attr('data-store'), arr2)==-1){
+                    arr2.push($(this).attr('data-store'));
+                    items[$(this).attr('data-store')] = $(this).val();
+                }else{
+                    items[$(this).attr('data-store')] += ','+$(this).val();
+                }
+            });
+        }
+
+        //console.log(items);
+        $.getJSON('/smt/api/refreshOrderStatus',{items:JSON.stringify(items)},function (result) {
+            if(result.success){
+                //window.location.href = '/smt/orderList';
+                window.history.go(0);
+                //console.log(result.data);
+            }
+        });
+
+    });
+
+    //更新订单详情
+    $(document).on('click', '#refreshOrderInfos', function() {
+        $(this).attr('disabled',true);
+
+        var storeId = GetQueryString('store');
+
+        //data = {'items':[{'storeId':'12515','ids':['1111','2222','3333']}]}
+        var items = {};
+        if(storeId){
+
+            var arr = [];
+            $('input[name="checkedOrder"]:checked').each(function(){
+                arr.push($(this).val());
+            });
+            items[storeId] = arr.join(',');
+        }else{
+
+            var arr2 = [];
+            $('input[name="checkedOrder"]:checked').each(function(){
+                if($.inArray($(this).attr('data-store'), arr2)==-1){
+                    arr2.push($(this).attr('data-store'));
+                    items[$(this).attr('data-store')] = $(this).val();
+                }else{
+                    items[$(this).attr('data-store')] += ','+$(this).val();
+                }
+            });
+        }
+
+        //console.log(items);
+        $.getJSON('/smt/api/refreshOrderInfos',{items:JSON.stringify(items)},function (result) {
+            if(result.success){
+                //window.location.href = '/smt/orderList';
+                window.history.go(0);
+                //console.log(result.data);
+            }
+        });
+
+    });
+
+
+    //showPurchase
+    $(document).on('click', '.showPurchase', function() {
+        //加载订单
+        var orderId = $(this).attr('data-val');
+
+    });
+
+
+</script>
+
+<script src="{{ static_url('plugin/toolTips/toolTips.js') }}"></script>
+<script src="{{ static_url('plugin/showFrame/showFrame.js') }}"></script>
+<script src="{{ static_url('plugin/notify/notify.min.js') }}"></script>
+<script src="{{ static_url('plugin/notify/notify-metro.js') }}"></script>
+<script src="{{ static_url('plugin/notify/notifications.js') }}"></script>
+<script src="{{ static_url('plugin/jscopy/clipboard.min.js') }}"></script>
+<script src="{{ static_url('plugin/jscopy/jscopy.js') }}"></script>
+<script src="{{ static_url('plugin/lazyload/jquery.lazyload.min.js') }}"></script>
+
+<script type="text/javascript">
+    $("img.lazy").lazyload({
+        effect: "fadeIn"
+    });
+
+
+</script>
+
+{% end %}
+
