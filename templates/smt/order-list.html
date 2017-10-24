@@ -26,6 +26,7 @@
     <div class="col-lg-6">
     <button type="button" class="btn btn-danger" id="checkOrder">导入订单</button>
 <button type="button" class="btn btn-danger" id="checkNewOrder">同步订单</button>
+{% if MergeCount >0 %}<a class="btn btn-danger" href="/smt/orderMergeList">{{ MergeCount}}</a>{% end %}
     </div>
 
     <div class="col-lg-6">

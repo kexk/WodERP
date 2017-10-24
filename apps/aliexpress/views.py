@@ -121,6 +121,31 @@ class SMTOrderListHandler(BaseHandler):
                 option['$or'] = filerList
 
 
+            mergeOrder = db.orderList.aggregate(
+                [{'$group': {
+                    '_id': {'contactPerson': "$receiptAddress.contactPerson",
+                            'country': "$receiptAddress.country",
+                            'orderStatus': "$orderStatus",
+                            'storeId': "$storeInfo.storeId"
+                            },
+                    'uniqueIds': {'$addToSet': "$_id"},
+                    'count': {'$sum': 1},
+                    'orderStatus': {'$max': "$orderStatus"}
+                }},
+                    {'$match': {
+                        'count': {'$gt': 1},
+                        "orderStatus": "WAIT_SELLER_SEND_GOODS"
+                    }
+                    }
+                ])
+
+            MergeCount = 0
+            for item in mergeOrder:
+                if item['_id'].has_key('contactPerson'):
+                    MergeCount += 1
+                    orderItem = []
+
+
 
             totalCount = db.orderList.find(option).count()
 
@@ -147,7 +172,7 @@ class SMTOrderListHandler(BaseHandler):
             filterData['statusList'] = sL
             filterData['appList'] = appList
 
-            self.render('smt/order-list.html',orderList = orderList,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
+            self.render('smt/order-list.html',orderList = orderList,pageInfo = pageInfo,MergeCount=MergeCount,filterData=filterData,userInfo={'account':user,'role':role})
 
             #self.render('index.html')
 
