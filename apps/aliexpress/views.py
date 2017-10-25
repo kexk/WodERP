@@ -41,7 +41,7 @@ class SMTOrderListHandler(BaseHandler):
 
             pageSize = 200
 
-            status = self.get_argument('status','')
+            status = self.get_argument('status','WAIT_SELLER_SEND_GOODS')
             store = self.get_argument('store','')
             wd = self.get_argument('wd','')
             sort = self.get_argument('sort', 'payTime')
