@@ -34,6 +34,7 @@
         <div class="input-group">
             <input type="hidden" name="page" value="1" />
             <input type="hidden" name="status" value="{{ filterData['status'] }}" />
+            <input type="hidden" name="create" value="{{ filterData['create'] }}" />
 
           <input type="text" class="form-control" name="wd" value="{{ filterData['wd'] }}" placeholder="搜索产品标题/sku/订单号/买家姓名电话/快递单号">
           <span class="input-group-btn">
@@ -48,16 +49,36 @@
 </div>
             <div class="filterBox">
                 <div>
-                    <p> <span>店铺：</span> <a href="?store=&status={{ filterData['status'] }}&page=1" class="label label-default{% if '' == filterData['store'] %} active{% end%}">全部</a>
+                    <p> <span>店铺：</span> <a href="?store=&status={{ filterData['status'] }}&create={{ filterData['create'] }}&sort={{ filterData['sort'] }}&page=1" class="label label-default{% if '' == filterData['store'] %} active{% end%}">全部</a>
             {% for store in filterData['appList'] %}
-            <a href="?store={{ store['storeId'] }}&status={{ filterData['status'] }}&page=1" class="label label-default{% if store['storeId'] == filterData['store'] %} active{% end%}">{{ store['cnName'] }}</a>
+            <a href="?store={{ store['storeId'] }}&status={{ filterData['status'] }}&create={{ filterData['create'] }}&sort={{ filterData['sort'] }}&page=1" class="label label-default{% if store['storeId'] == filterData['store'] %} active{% end%}">{{ store['cnName'] }}</a>
             {% end %}
         </p>
                 </div>
                 <div>
                     <p> <span>状态：</span> <a href="?status=&store={{ filterData['store'] }}&page=1" class="label label-default{% if '' == filterData['status'] %} active{% end%}">全部</a>
-            {% for s in filterData['statusList'] %}<a href="?status={{ s['status'] }}&store={{ filterData['store'] }}&page=1" class="label label-default{% if s['status'] == filterData['status'] %} active{% end%}">{{ s['statusTxt'] }} ({{ s['orderCount'] }})</a> {% end %}
+            {% for s in filterData['statusList'] %}<a href="?status={{ s['status'] }}&store={{ filterData['store'] }}&create={{ filterData['create'] }}&sort={{ filterData['sort'] }}&page=1" class="label label-default{% if s['status'] == filterData['status'] %} active{% end%}">{{ s['statusTxt'] }} ({{ s['orderCount'] }})</a> {% end %}
         </p>
+                </div>
+
+                <div>
+                    <p> <span>时间：</span>
+                        <a href="?store={{ filterData['store'] }}&status={{ filterData['status'] }}&sort={{ filterData['sort'] }}&create=&page=1" class="label label-default{% if '' == filterData['create'] %} active{% end%}">全部</a>
+                        <a href="?store={{ filterData['store'] }}&status={{ filterData['status'] }}&sort={{ filterData['sort'] }}&create=0&page=1" class="label label-default{% if '0' == filterData['create'] %} active{% end%}">今天</a>
+                        <a href="?store={{ filterData['store'] }}&status={{ filterData['status'] }}&sort={{ filterData['sort'] }}&create=1&page=1" class="label label-default{% if '1' == filterData['create'] %} active{% end%}">昨天</a>
+                        <a href="?store={{ filterData['store'] }}&status={{ filterData['status'] }}&sort={{ filterData['sort'] }}&create=3&page=1" class="label label-default{% if '3' == filterData['create'] %} active{% end%}">3天</a>
+                        <a href="?store={{ filterData['store'] }}&status={{ filterData['status'] }}&sort={{ filterData['sort'] }}&create=7&page=1" class="label label-default{% if '7' == filterData['create'] %} active{% end%}">7天</a>
+                        <a href="?store={{ filterData['store'] }}&status={{ filterData['status'] }}&sort={{ filterData['sort'] }}&create=30&page=1" class="label label-default{% if '30' == filterData['create'] %} active{% end%}">本月</a>
+                    </p>
+                </div>
+                <div>
+                    <p> <span>排序：</span>
+                        <a href="?status={{ filterData['status'] }}&store={{ filterData['store'] }}&create={{ filterData['create'] }}&sort=gmtPayTime&page=1" class="label label-default{% if '' == filterData['sort'] or 'gmtPayTime' == filterData['sort'] %} active{% end%}">付款时间</a>
+                        <a href="?status={{ filterData['status'] }}&store={{ filterData['store'] }}&create={{ filterData['create'] }}&sort=gmtCreate&page=1" class="label label-default{% if 'gmtCreate' == filterData['sort'] %} active{% end%}">创建时间</a>
+                        <a href="?status={{ filterData['status'] }}&store={{ filterData['store'] }}&create={{ filterData['create'] }}&sort=orderAmount&page=1" class="label label-default{% if 'orderAmount' == filterData['sort'] %} active{% end%}">订单金额</a>
+                        <a href="?status={{ filterData['status'] }}&store={{ filterData['store'] }}&create={{ filterData['create'] }}&sort=orderId&page=1" class="label label-default{% if 'orderId' == filterData['sort'] %} active{% end%}">订单号</a>
+                        <a href="?status={{ filterData['status'] }}&store={{ filterData['store'] }}&create={{ filterData['create'] }}&sort=storeId&page=1" class="label label-default{% if 'storeId' == filterData['sort'] %} active{% end%}">店铺</a>
+                    </p>
                 </div>
             </div>
 
@@ -84,8 +105,8 @@
       <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
     </li>
           {% else %}
-       <li><a href="?page={{ pageInfo['pageList'][0] }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="First"><span aria-hidden="false">|&lt;</span></a></li>
-      <li><a href="?page={{ pageInfo['pageNo']-1 }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+       <li><a href="?page={{ pageInfo['pageList'][0] }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}&create={{ filterData['create'] }}&sort={{ filterData['sort'] }}" aria-label="First"><span aria-hidden="false">|&lt;</span></a></li>
+      <li><a href="?page={{ pageInfo['pageNo']-1 }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}&create={{ filterData['create'] }}&sort={{ filterData['sort'] }}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
     </li>
 
           {% end %}
@@ -101,9 +122,9 @@
     </li>
       <li class="disabled"><a href="#" aria-label="End"><span aria-hidden="true">&gt;|</span></a></li>
           {% else %}
-      <li><a href="?page={{ pageInfo['pageNo']+1 }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+      <li><a href="?page={{ pageInfo['pageNo']+1 }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}&create={{ filterData['create'] }}&sort={{ filterData['sort'] }}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
     </li>
-      <li><a href="?page={{ pageInfo['pageList'][-1] }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="End"><span aria-hidden="false">&gt;|</span></a></li>
+      <li><a href="?page={{ pageInfo['pageList'][-1] }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}&create={{ filterData['create'] }}&sort={{ filterData['sort'] }}" aria-label="End"><span aria-hidden="false">&gt;|</span></a></li>
           {% end %}
 
   </ul>
@@ -280,7 +301,7 @@
         {% if p==pageInfo['pageNo'] %}
         <span class="label label-danger">{{ p }}</span>
         {% else %}
-        <a href="?page={{ p }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" class="">{{ p }}</a>
+        <a href="?page={{ p }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}&create={{ filterData['create'] }}&sort={{ filterData['sort'] }}" class="">{{ p }}</a>
         {% end %}
     {% end %}
 </p>

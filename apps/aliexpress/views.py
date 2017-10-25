@@ -44,6 +44,10 @@ class SMTOrderListHandler(BaseHandler):
             status = self.get_argument('status','')
             store = self.get_argument('store','')
             wd = self.get_argument('wd','')
+            sort = self.get_argument('sort', 'payTime')
+            create = self.get_argument('create', '30')
+            startTime = self.get_argument('startTime', '')
+            endTime = self.get_argument('endTime', '')
             platform = self.get_argument('platform','aliexpress')
 
             try:
@@ -82,7 +86,107 @@ class SMTOrderListHandler(BaseHandler):
                 matchOption['storeInfo.storeId'] = {'$in':authority['authority']['smtStore']}
                 filterOption['storeId'] = {'$in': authority['authority']['smtStore']}
 
+
+            tStart = ''
+            tEnd = ''
+
+            if startTime != '' and endTime != '':
+                try:
+                    d0 = datetime.datetime.strptime(startTime,'%Y-%m-%d')
+                    d1 = datetime.datetime.strptime(endTime,'%Y-%m-%d')
+
+                    if d0 == d1:
+                        tStart = d0.strftime('%Y-%m-%d')
+                        d1 = d1+datetime.timedelta(days=1)
+                        tEnd = d1.strftime('%Y-%m-%d')
+                        option['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                          {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                        matchOption['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                               {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                    elif d0 > d1:
+                        tStart = d1.strftime('%Y-%m-%d')
+                        tEnd = d0.strftime('%Y-%m-%d')
+                        option['$and'] = [{'gmtCreate': {'$lt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                          {'gmtCreate': {'$gt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                        matchOption['$and'] = [{'gmtCreate': {'$lt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                               {'gmtCreate': {'$gt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                    else:
+                        tStart = d0.strftime('%Y-%m-%d')
+                        tEnd = d1.strftime('%Y-%m-%d')
+                        option['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                          {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                        matchOption['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                               {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+
+                except:
+
+                    d1 = datetime.datetime.now().date()
+                    d0 = datetime.datetime.now().date()+ datetime.timedelta(days=-29)
+                    option['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                      {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                    matchOption['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                      {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+
+                    tStart = d0.strftime('%Y-%m-%d')
+                    tEnd = d1.strftime('%Y-%m-%d')
+
+            else:
+
+                if create == '30':
+                    d1 = datetime.datetime.now().date() + datetime.timedelta(days=1)
+                    d0 = datetime.date(datetime.date.today().year, datetime.date.today().month, 1)
+                    option['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                      {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                    matchOption['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                           {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                elif create == '7':
+                    d1 = datetime.datetime.now().date() + datetime.timedelta(days=1)
+                    d0 = datetime.datetime.now().date() + datetime.timedelta(days=-6)
+                    option['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                      {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                    matchOption['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                           {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                elif create == '3':
+                    d1 = datetime.datetime.now().date() + datetime.timedelta(days=1)
+                    d0 = datetime.datetime.now().date() + datetime.timedelta(days=-2)
+                    option['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                      {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                    matchOption['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                           {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                elif create == '1':
+                    d1 = datetime.datetime.now().date()
+                    d0 = datetime.datetime.now().date() + datetime.timedelta(days=-1)
+                    option['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                      {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                    matchOption['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                           {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                elif create == '0':
+                    d1 = datetime.datetime.now().date() + datetime.timedelta(days=1)
+                    d0 = datetime.datetime.now().date()
+                    option['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                      {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                    matchOption['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                           {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+
+
             statusList = db.orderList.aggregate([{ '$match' : matchOption },{'$group': {'_id': "$orderStatus", 'orderCount': {'$sum': 1}}}])
+
+
+            sortTxt = ''
+
+            if sort == 'gmtCreate':
+                sortTxt += 'gmtCreate'
+            elif sort == 'orderAmount':
+                sortTxt += 'orderAmount'
+            elif sort == 'orderAmount':
+                sortTxt += 'orderAmount'
+            elif sort == 'orderId':
+                sortTxt += 'orderId'
+            elif sort == 'storeId':
+                sortTxt += 'soteInfo.storeId'
+            else:
+                sortTxt += 'gmtPayTime'
+
 
             sL = []
             for s in statusList:
@@ -151,7 +255,7 @@ class SMTOrderListHandler(BaseHandler):
 
             totalCount = db.orderList.find(option).count()
 
-            orderList = db.orderList.find(option).sort("gmtPayTime",-1).limit(pageSize).skip((page-1)*pageSize)
+            orderList = db.orderList.find(option).sort(sortTxt,-1).limit(pageSize).skip((page-1)*pageSize)
 
             p = divmod(totalCount,pageSize)
 
@@ -173,6 +277,10 @@ class SMTOrderListHandler(BaseHandler):
             filterData['wd'] = wd
             filterData['statusList'] = sL
             filterData['appList'] = appList
+            filterData['sort'] = sort
+            filterData['startTime'] = tStart
+            filterData['endTime'] = tEnd
+            filterData['create'] = create
 
             self.render('smt/order-list.html',orderList = orderList,pageInfo = pageInfo,MergeCount=MergeCount,filterData=filterData,userInfo={'account':user,'role':role})
 
@@ -328,7 +436,7 @@ class SMTProductListHandler(BaseHandler):
 
             pageSize = 200
 
-            status = self.get_argument('status','')
+            status = self.get_argument('status','onSelling')
             store = self.get_argument('store','')
             wd = self.get_argument('wd','')
             sort = self.get_argument('sort','gmtModified')
