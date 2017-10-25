@@ -410,6 +410,64 @@ class SMTOrderMergeHandler(BaseHandler):
             self.render('error/message.html', msg={'Msg': 'No Permission', 'Code': 400,'Title':'无权限！','Link':'/'})
 
 
+class SMTOrderManagerHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+
+        AUTHOR_MOUDLE = 'ViewSMTOrderManager'
+
+        user = self.current_user
+        role = self.get_secure_cookie("role") if self.get_secure_cookie("role") else 'None'
+
+        mongo = MongoCase()
+        mongo.connect()
+        client = mongo.client
+
+        db = client.woderp
+
+        account = db.user.find_one({'account':user})
+        authority = self.getAuthority(account,AUTHOR_MOUDLE)
+
+        if authority['Allow']:
+
+            params = dict()
+            params['createDateStart'] = (datetime.datetime.now() +datetime.timedelta(days=-10)).strftime('%Y-%m-%d 00:00:00')
+            params['createDateEnd'] = datetime.datetime.now().strftime('%Y-%m-%d %H:00:00')
+
+            if authority['role'] == 'Supper':
+                appList = db.appList.find({'platform': 'aliexpress'})
+            else:
+                appList = db.appList.find({'platform': 'aliexpress','storeId':{'$in':authority['authority']['smtStore']}})
+
+            self.render('smt/order-manager.html',appList = appList,params=params,userInfo={'account':user,'role':role})
+
+        else:
+            self.render('error/message.html', msg={'Msg': 'No Permission', 'Code': 400,'Title':'无权限！','Link':'/'})
+
+
+    @tornado.web.asynchronous
+    @tornado.gen.engine
+    def post(self):
+        data = dict()
+
+        data['storeId'] = self.get_argument('storeId','')
+        data['status'] = self.get_argument('orderStatus','')
+        data['createDateStart'] = self.get_argument('createDateStart','')
+        data['createDateEnd'] = self.get_argument('createDateEnd','')
+
+        url = apiServer+"/smt/api/checkOrder?" +urllib.urlencode(data)
+        request = HTTPRequest(url=url,method="GET",follow_redirects=False,request_timeout=30000)
+
+        client = tornado.httpclient.AsyncHTTPClient()
+        response = yield tornado.gen.Task(client.fetch, request)
+        try:
+            result = json.loads(response.body)
+        except Exception as e:
+            result = {'success':False,'error':[{"storeId":data['storeId'],"options":data,"errMsg":str(e)}]}
+        self.write(result)
+        self.finish()
+
+
 
 class SMTProductListHandler(BaseHandler):
     @tornado.web.authenticated
@@ -600,7 +658,10 @@ class SMTCheckOrderHandler(BaseHandler):
         request = HTTPRequest(url=url,method="GET",follow_redirects=False,request_timeout=3000)
         client = tornado.httpclient.AsyncHTTPClient()
         response = yield tornado.gen.Task(client.fetch, request)
-        result = json.loads(response.body)
+        try:
+            result = json.loads(response.body)
+        except Exception as e:
+            result = {'success':False,'error':[{"storeId":storeId,'options':{'orderStatus':status},"errMsg":str(e)}]}
         self.write(result)
         self.finish()
 

@@ -26,6 +26,9 @@ def chekSMTOrder():
     storeId = request.args.get('storeId', '')
     status = request.args.get('status', '')
 
+    createDateStart = request.args.get('createDateStart', '')
+    createDateEnd = request.args.get('createDateEnd', '')
+
     data = dict()
 
     mongo = MongoCase()
@@ -63,6 +66,10 @@ def chekSMTOrder():
                 option['pageSize'] = '50'
                 option['page'] = '1'
                 option['orderStatus'] = s
+
+                option['createDateStart'] = createDateStart
+                option['createDateEnd'] = createDateEnd
+
 
                 c = api.getOrderList(option)
 
@@ -641,6 +648,7 @@ def refreshSMTOrderInfos():
     data['errCount'] = len(data['error'])
 
     return json.dumps(data, ensure_ascii=False)
+
 
 @app.route('/smt/api/checkNewOrder')
 def checkSMTNewOrderInfos():

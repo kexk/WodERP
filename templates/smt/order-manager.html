@@ -1,0 +1,91 @@
+{% extends "base.tpl" %}
+
+        {% block header %}
+    <title>订单列表</title>
+{% end %}
+{% block styleblock %}
+<link rel="stylesheet" href="{{ static_url('plugin/notify/notification.css') }}"/>
+
+{% end %}
+        {% block main %}
+
+<div class="container">
+  <div class="page-header">
+
+<div class="jumbotron">
+  <h2>交易订单列表查询</h2>
+  <p>交易订单列表查询。订单状态会多一个全新的值RISK_CONTROL 该值的含义是订单处于风控24小时中，从买家在线支付完成后开始，持续24小时。</p>
+  <p><a class="btn btn-primary" href="http://gw.api.alibaba.com/dev/doc/intl/api.htm?ns=aliexpress.open&amp;n=api.findOrderListQuery&amp;v=1" target="_blank" role="button">查看文档</a></p>
+</div>
+
+<div style="padding:10px 10px 100px;">
+    <form action="" method="post" target="_blank">
+    <div class="" style="padding-bottom:10px;">
+    <select name="app" id="soreId" class="form-control">
+        {% for app in appList%}
+        <option value="{{ app['storeId'] }}">{{ app['cnName'] }}</option>
+        {% end %}
+    </select></div>
+
+        {% module xsrf_form_html() %}
+
+    <table class="table">
+<thead>
+<tr>
+<td style="width:200px;">参数名</td>
+<td style="width:100px;">是否必须</td>
+<td style="width:200px;">默认值</td>
+<td>描述</td>
+
+</tr>
+</thead>
+<tbody><tr><td>createDateStart</td><td>0</td><td>
+    <input name="createDateStart" value="{{ params['createDateStart'] }}" class="form-control col-xs-2"></td><td>订单创建时间起始值，格式: mm/dd/yyyy hh:mm:ss,如10/08/2013 00:00:00 倘若时间维度未精确到时分秒，故该时间条件筛选不许生效。</td></tr>
+<tr><td>createDateEnd</td><td>0</td><td><input name="createDateEnd" value="{{ params['createDateEnd'] }}" class="form-control col-xs-2"></td><td>订单创建时间结束值，格式: mm/dd/yyyy hh:mm:ss,如10/08/2013 00:00:00 倘若时间维度未精确到时分秒，故该时间条件筛选不许生效。</td></tr>
+<tr><td>orderStatus</td><td>0</td><td><input name="orderStatus" value="FINISH" class="form-control col-xs-2"></td><td>订单状态： PLACE_ORDER_SUCCESS:等待买家付款; IN_CANCEL:买家申请取消; WAIT_SELLER_SEND_GOODS:等待您发货; SELLER_PART_SEND_GOODS:部分发货; WAIT_BUYER_ACCEPT_GOODS:等待买家收货; FUND_PROCESSING:买家确认收货后，等待退放款处理的状态; FINISH:已结束的订单; IN_ISSUE:含纠纷的订单; IN_FROZEN:冻结中的订单; WAIT_SELLER_EXAMINE_MONEY:等待您确认金额; RISK_CONTROL:订单处于风控24小时中，从买家在线支付完成后开始，持续24小时。</td></tr>
+</tbody></table>
+
+<p class="text-center"><button type="button" class="btn btn-primary btn-lg text-center" id="doAction">提交数据</button></p></form></div>
+
+</div>
+    </div>
+
+        {% end %}
+
+{% block footer %}
+<script>
+
+
+    //提交任务
+    $(document).on('click', '#doAction', function() {
+        //加载订单
+        $(this).attr('disabled',true);
+        var data = {};
+        data['storeId'] = $('#soreId').val();
+        data['createDateStart'] = $('input[name="createDateStart"]').val();
+        data['createDateEnd'] = $('input[name="createDateEnd"]').val();
+        data['orderStatus'] = $('input[name="orderStatus"]').val();
+
+        data['_xsrf'] = $('input[name="_xsrf"]').val();
+
+        //console.log(data);
+
+        $.post('/smt/orderManager',data,function(result){
+
+            //console.log(result);
+            window.history.go(0);
+
+        });
+
+    });
+
+</script>
+
+
+<script src="{{ static_url('plugin/notify/notify.min.js') }}"></script>
+<script src="{{ static_url('plugin/notify/notify-metro.js') }}"></script>
+<script src="{{ static_url('plugin/notify/notifications.js') }}"></script>
+
+
+
+{% end %}
