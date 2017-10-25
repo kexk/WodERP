@@ -577,7 +577,7 @@ def refreshSMTOrderInfos():
                             newData['receiptAddress'] = orderInfo['receiptAddress']
                         if not orderData.has_key('sellerOperatorLoginId'):
                             newData['sellerOperatorLoginId'] = orderInfo['sellerOperatorLoginId']
-                        if not orderData.has_key('gmtPaySuccess') and orderInfo.has_key('gmtPaySuccess'):
+                        if orderInfo.has_key('gmtPaySuccess'):
                             newData['gmtPaySuccess'] = datetime.datetime.strptime(orderInfo['gmtPaySuccess'][:14], '%Y%m%d%H%M%S')
                         if not orderData.has_key('paymentType') and orderInfo.has_key('paymentType'):
                             newData['paymentType'] = orderInfo['paymentType']
@@ -684,9 +684,9 @@ def checkSMTNewOrderInfos():
                             newData['receiptAddress'] = orderInfo['receiptAddress']
                         if not orderData.has_key('sellerOperatorLoginId'):
                             newData['sellerOperatorLoginId'] = orderInfo['sellerOperatorLoginId']
-                        if not orderData.has_key('gmtPaySuccess') and orderInfo.has_key('gmtPaySuccess'):
+                        if orderInfo.has_key('gmtPaySuccess'):
                             newData['gmtPaySuccess'] = datetime.datetime.strptime(orderInfo['gmtPaySuccess'][:14], '%Y%m%d%H%M%S')
-                        if not orderData.has_key('gmtPayTime') and orderInfo.has_key('gmtPaySuccess'):
+                        if orderInfo.has_key('gmtPaySuccess'):
                             newData['gmtPayTime'] = datetime.datetime.strptime(orderInfo['gmtPaySuccess'][:14],'%Y%m%d%H%M%S')
                         if not orderData.has_key('paymentType') and orderInfo.has_key('paymentType'):
                             newData['paymentType'] = orderInfo['paymentType']
