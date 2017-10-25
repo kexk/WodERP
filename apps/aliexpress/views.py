@@ -54,7 +54,14 @@ class SMTOrderListHandler(BaseHandler):
             #totalCount = db.orderList.find({"order_state":"WAIT_SELLER_STOCK_OUT"}).count()
             option = {'platform':platform}
 
+            #匹配
             matchOption = dict()
+
+            #筛选合并发货订单
+            filterOption = dict()
+            filterOption['count'] = {'$gt': 1}
+            filterOption['orderStatus'] = "WAIT_SELLER_SEND_GOODS"
+
 
             if authority['role'] == 'Supper':
                 appList = db.appList.find({'platform': 'aliexpress'})
@@ -69,9 +76,11 @@ class SMTOrderListHandler(BaseHandler):
             if store != '':
                 option['storeInfo.storeId'] = store
                 matchOption['storeInfo.storeId'] = store
+                filterOption['storeId'] = store
             elif authority['role'] != 'Supper' :
                 option['storeInfo.storeId'] = {'$in':authority['authority']['smtStore']}
                 matchOption['storeInfo.storeId'] = {'$in':authority['authority']['smtStore']}
+                filterOption['storeId'] = {'$in': authority['authority']['smtStore']}
 
             statusList = db.orderList.aggregate([{ '$match' : matchOption },{'$group': {'_id': "$orderStatus", 'orderCount': {'$sum': 1}}}])
 
@@ -120,7 +129,6 @@ class SMTOrderListHandler(BaseHandler):
 
                 option['$or'] = filerList
 
-
             mergeOrder = db.orderList.aggregate(
                 [{'$group': {
                     '_id': {'contactPerson': "$receiptAddress.contactPerson",
@@ -130,22 +138,16 @@ class SMTOrderListHandler(BaseHandler):
                             },
                     'uniqueIds': {'$addToSet': "$_id"},
                     'count': {'$sum': 1},
-                    'orderStatus': {'$max': "$orderStatus"}
+                    'orderStatus': {'$first': "$orderStatus"},
+                    'storeId': {'$first': "$storeInfo.storeId"},
                 }},
-                    {'$match': {
-                        'count': {'$gt': 1},
-                        "orderStatus": "WAIT_SELLER_SEND_GOODS"
-                    }
-                    }
+                    {'$match': filterOption}
                 ])
 
             MergeCount = 0
             for item in mergeOrder:
                 if item['_id'].has_key('contactPerson'):
                     MergeCount += 1
-                    orderItem = []
-
-
 
             totalCount = db.orderList.find(option).count()
 
