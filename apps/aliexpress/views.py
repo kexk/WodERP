@@ -39,8 +39,6 @@ class SMTOrderListHandler(BaseHandler):
 
         if authority['Allow']:
 
-            pageSize = 200
-
             status = self.get_argument('status','WAIT_SELLER_SEND_GOODS')
             store = self.get_argument('store','')
             wd = self.get_argument('wd','')
@@ -55,6 +53,11 @@ class SMTOrderListHandler(BaseHandler):
                 page = int(self.get_argument('page',1))
             except:
                 page = 1
+
+            try:
+                pageSize = int(self.get_argument('pageSize',50))
+            except:
+                pageSize = 50
 
             #totalCount = db.orderList.find({"order_state":"WAIT_SELLER_STOCK_OUT"}).count()
             option = {'platform':platform}
