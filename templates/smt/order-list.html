@@ -299,20 +299,6 @@
 
             </table>
 
-<p class="pull-right p-b-1">
-    <span>总数量：{{ pageInfo['totalCount'] }}</span>
-    <span>，每页{{ pageInfo['pageSize'] }}条</span>
-    <span>，共{{ pageInfo['totalPage'] }} 页</span>
-
-    {% for p in pageInfo['pageList'] %}
-        {% if p==pageInfo['pageNo'] %}
-        <span class="label label-danger">{{ p }}</span>
-        {% else %}
-        <a href="?page={{ p }}{% if filterData['store'] != '' %}&store={{ filterData['store'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}&create={{ filterData['create'] }}&sort={{ filterData['sort'] }}&sortType={{ filterData['sortType'] }}" class="">{{ p }}</a>
-        {% end %}
-    {% end %}
-</p>
-
 
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
