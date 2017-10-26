@@ -298,12 +298,12 @@ def chekSMTOrder():
                                         db.orderList.insert(moreItem)
                                         addCount += 1
 
-                            except:
-                                pass
+                            except Exception as e:
+                                data['error'].append({'storeId': app['storeId'],'errMsg':str(e),'data':m,'options':option})
 
                 except Exception as e:
                     #print(e)
-                    data['error'].append({'storeId': app['storeId'],'errMsg':str(e),'options':option})
+                    data['error'].append({'storeId': app['storeId'],'errMsg':str(e),'data':c,'options':option})
 
             data['success'] = True
             data['data'] = {"total": total, "addCount": addCount, 'updateCount': updateCount}

@@ -45,6 +45,7 @@ class SMTOrderListHandler(BaseHandler):
             store = self.get_argument('store','')
             wd = self.get_argument('wd','')
             sort = self.get_argument('sort', 'payTime')
+            sortType = self.get_argument('sortType', '-1')
             create = self.get_argument('create', '30')
             startTime = self.get_argument('startTime', '')
             endTime = self.get_argument('endTime', '')
@@ -176,6 +177,8 @@ class SMTOrderListHandler(BaseHandler):
 
             if sort == 'gmtCreate':
                 sortTxt += 'gmtCreate'
+            if sort == 'timeoutLeftTime':
+                sortTxt += 'timeoutLeftTime'
             elif sort == 'orderAmount':
                 sortTxt += 'orderAmount'
             elif sort == 'orderAmount':
@@ -186,6 +189,18 @@ class SMTOrderListHandler(BaseHandler):
                 sortTxt += 'soteInfo.storeId'
             else:
                 sortTxt += 'gmtPayTime'
+
+
+            sortT = -1
+
+            try:
+                t = int(sortType)
+                if t >= 1:
+                    sortT = 1
+                else:
+                    sortT = -1
+            except:
+                sortT = -1
 
 
             sL = []
@@ -255,7 +270,7 @@ class SMTOrderListHandler(BaseHandler):
 
             totalCount = db.orderList.find(option).count()
 
-            orderList = db.orderList.find(option).sort(sortTxt,-1).limit(pageSize).skip((page-1)*pageSize)
+            orderList = db.orderList.find(option).sort(sortTxt,sortT).limit(pageSize).skip((page-1)*pageSize)
 
             p = divmod(totalCount,pageSize)
 
@@ -281,6 +296,7 @@ class SMTOrderListHandler(BaseHandler):
             filterData['startTime'] = tStart
             filterData['endTime'] = tEnd
             filterData['create'] = create
+            filterData['sortType'] = sortType
 
             self.render('smt/order-list.html',orderList = orderList,pageInfo = pageInfo,MergeCount=MergeCount,filterData=filterData,userInfo={'account':user,'role':role})
 
@@ -661,7 +677,7 @@ class SMTCheckOrderHandler(BaseHandler):
         try:
             result = json.loads(response.body)
         except Exception as e:
-            result = {'success':False,'error':[{"storeId":storeId,'options':{'orderStatus':status},"errMsg":str(e)}]}
+            result = {'success':False,'error':[{"storeId":storeId,'options':{'orderStatus':status},"errMsg":str(e),'data':response}]}
         self.write(result)
         self.finish()
 

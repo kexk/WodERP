@@ -59,7 +59,8 @@
     //提交任务
     $(document).on('click', '#doAction', function() {
         //加载订单
-        $(this).attr('disabled',true);
+        var btn = $(this);
+        btn.attr('disabled',true);
         var data = {};
         data['storeId'] = $('#soreId').val();
         data['createDateStart'] = $('input[name="createDateStart"]').val();
@@ -72,8 +73,13 @@
 
         $.post('/smt/orderManager',data,function(result){
 
-            //console.log(result);
-            window.history.go(0);
+            console.log(result);
+            if(result.success){
+                $('input[name="createDateStart"]').val(data['createDateEnd']);
+            }
+            alert('执行完毕');
+            //window.history.go(0);
+            btn.removeAttr('disabled');
 
         });
 
