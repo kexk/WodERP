@@ -741,6 +741,12 @@ def checkSMTNewOrderInfos():
                         newData['fundStatus'] = orderInfo['fundStatus']
                         newData['gmtModified'] = orderInfo['gmtModified']
 
+                        if newData['orderStatus'] == 'FINISH' or newData['orderStatus'] == 'WAIT_BUYER_ACCEPT_GOODS' or newData['orderStatus'] == 'FUND_PROCESSING':
+                            newData['timeoutLeftTime'] = None
+                            newData['leftSendGoodMin'] = None
+                            newData['leftSendGoodDay'] = None
+                            newData['leftSendGoodHour'] = None
+
 
                         #print(newData)
                         db.orderList.update({'orderId':id},{'$set':newData})
