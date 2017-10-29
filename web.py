@@ -79,6 +79,7 @@ if __name__ == "__main__":
             (r"/smt/", include('apps.aliexpress.urls')),
             (r"/purchase/", include('apps.alibaba.urls')),
             (r"/admin/", include('apps.admin.urls')),
+            (r"/erp/", include('apps.erp.urls')),
             (r".*", BaseHandler),
         ]),
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
