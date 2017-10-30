@@ -191,6 +191,11 @@ class ALIEXPRESS:
             return '''{"result:{"success":false,"msg":"%s"}}'''%str(e)
 
 
+    #############################################################################
+    #
+    # 运费API
+    #
+
     #查询运费模板列表
     def getFreightTemplateList(self):
         apiPath = 'api.listFreightTemplate'
@@ -235,6 +240,92 @@ class ALIEXPRESS:
 
         for (k, v) in option.items():
             data[k] = v
+
+        try:
+            r = requests.post(self.apiRoot + self.apiRoute, data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
+
+
+    #############################################################################
+    #
+    # 类目API
+    #
+    # 获取下级类目信息
+    def getChildrenPostCategoryById(self,cateId=0):
+        apiPath = 'api.getChildrenPostCategoryById'
+
+        data = {'appKey': self.appKey, 'apiPath': apiPath,'cateId':cateId}
+
+        try:
+            r = requests.post(self.apiRoot + self.apiRoute, data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
+
+    # 获取单个类目信息
+    def getPostCategoryById(self,cateId=0):
+        apiPath = 'api.getPostCategoryById'
+
+        data = {'appKey': self.appKey, 'apiPath': apiPath,'cateId':cateId}
+
+        try:
+            r = requests.post(self.apiRoot + self.apiRoute, data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
+
+    #根据发布类目id、父属性路径（可选）获取子属性信息
+    def getChildAttributes(self,cateId,parentAttrValueList):
+        apiPath = 'getChildAttributesResultByPostCateIdAndPath'
+
+        data = {'appKey': self.appKey, 'apiPath': apiPath,'cateId':cateId,'parentAttrValueList':parentAttrValueList}
+
+        try:
+            r = requests.post(self.apiRoot + self.apiRoute, data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
+
+    #判断发布类目尺码模板是否必须
+    def sizeModelIsRequired(self,postCatId):
+        apiPath = 'sizeModelIsRequiredForPostCat'
+
+        data = {'appKey': self.appKey, 'apiPath': apiPath,'postCatId':postCatId}
+
+        try:
+            r = requests.post(self.apiRoot + self.apiRoute, data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
+
+
+    #查询指定类目适合的尺码模板
+    def sizeModelsRequiredForPostCat(self,postCatId):
+        apiPath = 'api.sizeModelsRequiredForPostCat'
+
+        data = {'appKey': self.appKey, 'apiPath': apiPath,'postCatId':postCatId}
 
         try:
             r = requests.post(self.apiRoot + self.apiRoute, data=data)
