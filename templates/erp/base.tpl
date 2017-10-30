@@ -70,12 +70,11 @@
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">产品库 <span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <li><a href="/smt/productList">在线产品</a></li>
+                <li><a href="/erp/skuList">库存列表</a></li>
+
+                <li role="separator" class="divider"></li>
                 <li><a href="#">待发布</a></li>
                 <li><a href="#">采集箱</a></li>
-                <li role="separator" class="divider"></li>
-                <li class="dropdown-header">Nav header</li>
-                <li><a href="#">Separated link</a></li>
-                <li><a href="#">One more separated link</a></li>
               </ul>
             </li>
 
