@@ -5,6 +5,7 @@ from base import BaseHandler
 
 from apps.database.databaseCase import *
 import json
+import pytz
 
 import datetime
 
@@ -32,6 +33,9 @@ class SMTOrderListHandler(BaseHandler):
         client = mongo.client
 
         db = client.woderp
+
+        tz = pytz.timezone('America/Los_Angeles')
+        LosAngelesTime = datetime.datetime.now(tz)
 
         account = db.user.find_one({'account':user})
 
@@ -301,7 +305,7 @@ class SMTOrderListHandler(BaseHandler):
             filterData['create'] = create
             filterData['sortType'] = sortType
 
-            self.render('smt/order-list.html',orderList = orderList,pageInfo = pageInfo,MergeCount=MergeCount,filterData=filterData,userInfo={'account':user,'role':role})
+            self.render('smt/order-list.html',orderList = orderList,pageInfo = pageInfo,MergeCount=MergeCount,LosAngelesTime=LosAngelesTime,filterData=filterData,userInfo={'account':user,'role':role})
 
             #self.render('index.html')
 

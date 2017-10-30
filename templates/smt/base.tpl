@@ -80,6 +80,8 @@
           </ul>
             <p class="navbar-text navbar-right">
 
+            {% block otherblock %}{% end %}
+
                 {% if userInfo['account'] is None %}
                 <a href="/admin/login" class="navbar-link">登录</a> | <a href="/admin/reg" class="navbar-link">注册</a>
                 {% else %}
