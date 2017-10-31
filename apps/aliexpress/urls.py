@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from apps.aliexpress.views import *
 urls = [
     (r"orderList$", SMTOrderListHandler),
+    (r"orderList/v2$", SMTOrderListHandlerV2),
     (r"orderMergeList$", SMTOrderMergeHandler),
     (r"orderManager$", SMTOrderManagerHandler),
     (r"productList$", SMTProductListHandler),
