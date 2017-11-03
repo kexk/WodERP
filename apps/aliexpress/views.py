@@ -572,7 +572,9 @@ class SMTOrderListHandlerV2(BaseHandler):
 
             totalCount = db.smtOrderList.find(option).count()
 
-            orderList = db.smtOrderList.find(option).sort(sortTxt,sortT).limit(pageSize).skip((page-1)*pageSize)
+            fieldDict = {'storeInfo':1,'orderId':1,'productList':1,'orderAmount':1,'payAmount':1,'logisticsAmount':1,'receiptAddress':1,'gmtCreate':1,'gmtPayTime':1,'timeoutLeftTime':1,'updateTime':1,'orderStatus':1}
+
+            orderList = db.smtOrderList.find(option,fieldDict).sort(sortTxt,sortT).limit(pageSize).skip((page-1)*pageSize)
 
             p = divmod(totalCount,pageSize)
 
