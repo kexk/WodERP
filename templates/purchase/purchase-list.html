@@ -259,7 +259,7 @@
             data['key'] = key;
         }
 
-        $.getJSON('/purchase/api/checkPurchase',data,function (result) {
+        $.getJSON('{{ homePath}}purchase/api/checkPurchase',data,function (result) {
             if(result.success){
                 //window.location.href = '/purchase/';
                 window.history.go(0);
@@ -292,7 +292,7 @@
             arr.push($(this).attr('data-val'));
         });
         if(arr.length>0){
-            $.getJSON('/purchase/api/checkPurchaseLogist',{ids:arr.join(',')},function(result){
+            $.getJSON('{{ homePath}}purchase/api/checkPurchaseLogist',{ids:arr.join(',')},function(result){
             if(result.successCount>0){
                 //window.location.href = '/orderList';
                 history.go(0);

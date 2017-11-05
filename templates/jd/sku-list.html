@@ -200,9 +200,9 @@
     $(document).on('click', '#checkOrder', function() {
         $(this).attr('disabled',true);
 
-        $.getJSON('/jd/api/checkOrder',function (result) {
+        $.getJSON('{{ homePath}}jd/api/checkOrder',function (result) {
             if(result.success){
-                window.location.href = '/jd/orderList';
+                window.location.href = '{{ homePath}}jd/orderList';
                 //console.log(result.data);
             }
         });
@@ -236,7 +236,7 @@
             var data = {};
             data['shop']=shopId;
             data['sku'] = arr.join(',');
-            $.getJSON('/jd/api/checkSku',data,function(result){
+            $.getJSON('{{ homePath}}jd/api/checkSku',data,function(result){
             if(result.success){
                 //window.location.href = '/orderList';
                 history.go(0);
@@ -254,7 +254,7 @@
     $(document).on('click', '.refresOrder', function() {
         var orderId = $(this).attr('data-val');
         var shopId = $(this).attr('data-shop');
-        $.getJSON('/jd/api/checkOrderInfo',{orderId:orderId,'shopId':shopId},function (result) {
+        $.getJSON('{{ homePath}}jd/api/checkOrderInfo',{orderId:orderId,'shopId':shopId},function (result) {
             if(result.success){
                 history.go(0);
             }
