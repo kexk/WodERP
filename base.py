@@ -31,20 +31,25 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return authority
 
+    def getHome(self):
+        home = '/'
+        return home
+
     def write_error(self, status_code, **kwargs):
+        homePath = self.getHome()
         message = dict()
         message['Code'] = status_code
-        message['Link'] = '/'
+        message['Link'] = homePath
         if status_code == 404:
             message['Title'] = 'Page Not Found'
             message['Msg'] = '页面未找到'
-            self.render('error/message.html', msg=message)
+            self.render('error/message.html',homePath=homePath, msg=message)
         elif status_code == 500:
             message['Title'] = 'Service Unavailable'
             message['Msg'] = '服务器内部错误'
-            self.render('error/message.html', msg=message)
+            self.render('error/message.html',homePath=homePath, msg=message)
         else:
             #self.write('error:' + str(status_code))
             message['Title'] = 'Unknow Error '
             message['Msg'] = '未知错误'
-            self.render('error/message.html',msg=message)
+            self.render('error/message.html',homePath=homePath,msg=message)

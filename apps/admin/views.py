@@ -15,15 +15,18 @@ from bson import ObjectId
 class LoginHandler(BaseHandler):
 
     def get(self):
+        homePath = self.getHome()
         user = self.current_user
-        referer = self.get_argument('next','/')
+        referer = self.get_argument('next',homePath)
         if user:
             self.redirect(referer)
         else:
-            self.render('login.html',referer=referer)
+            self.render('login.html',homePath=homePath,referer=referer)
 
 
     def post(self):
+
+        homePath = self.getHome()
 
         email = self.get_argument('email','')
         password = self.get_argument('password','')
@@ -56,30 +59,33 @@ class LoginHandler(BaseHandler):
                         self.set_secure_cookie("role", 'User')
 
                     if user[0]['isActive']:
-                            self.redirect(self.get_argument('next','/'))
+                            self.redirect(self.get_argument('next',homePath))
                     else:
-                        self.render('error.html',msg=u'未激活用户,重新申请激活 '+u'>> <a href="/profile">修改资料</a>')
+                        self.render('error.html',homePath=homePath,msg=u'未激活用户,重新申请激活 '+u'>> <a href="/profile">修改资料</a>')
 
 
-class LogoutHandler(tornado.web.RequestHandler):
+class LogoutHandler(BaseHandler,tornado.web.RequestHandler):
     def get(self):
+        homePath = self.getHome()
         self.clear_cookie("email")
         self.clear_cookie("role")
-        self.redirect('/')
+        self.redirect(homePath)
 
 
 
 class RegHandler(BaseHandler):
 
     def get(self):
+        homePath = self.getHome()
         user = self.current_user
-        referer = self.get_argument('referer','/')
+        referer = self.get_argument('referer',homePath)
         if user:
             self.redirect(referer)
         else:
-            self.render('account/reg.html',referer=referer)
+            self.render('account/reg.html',homePath=homePath,referer=referer)
 
     def post(self):
+        homePath = self.getHome()
         email = self.get_argument('email','')
         password = self.get_argument('password','')
         password_repeat = self.get_argument('password_repeat','')
@@ -102,7 +108,7 @@ class RegHandler(BaseHandler):
             if db.user.find({"account":email}).count()>0:
                 msg = email+u'已经注册过了'
                 msg += u'<a href="/login">登录</a>'
-                self.render('error.html',msg=msg)
+                self.render('error.html',homePath=homePath,msg=msg)
 
             else:
 
@@ -115,12 +121,13 @@ class RegHandler(BaseHandler):
 
                 self.set_secure_cookie("account", email)
 
-                self.redirect('/')
+                self.redirect(homePath)
 
 
 class AuditUserHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
+        homePath = self.getHome()
         user = user=self.current_user
         action = self.get_argument('action','')
         id = self.get_argument('id','')
@@ -141,15 +148,16 @@ class AuditUserHandler(BaseHandler):
                     db.user.update({'_id':ObjectId(id)},{'$set':{'isActive':True}})
                 elif action == 'audit':
                     db.user.update({'_id':ObjectId(id)},{'$set':{'isActive':True,'status':2}})
-                self.redirect('/admin/')
+                self.redirect(homePath+'admin/')
             else:
-                self.render('error.html',msg=u'无权限删除！')
+                self.render('error.html',homePath=homePath,msg=u'无权限删除！')
         else:
-            self.render('error.html',msg=u'非法操作！')
+            self.render('error.html',homePath=homePath,msg=u'非法操作！')
 
 class AdminHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
+        homePath = self.getHome()
         user = self.current_user
         mongo = MongoCase()
         mongo.connect()
@@ -160,21 +168,22 @@ class AdminHandler(BaseHandler):
             if userInfo[0]['isSupper']:
                 userList = db.user.find({"isSupper":False})
 
-                self.render('admin/admin.html',userList=userList,userInfo=userInfo[0])
+                self.render('admin/admin.html',userList=userList,homePath=homePath,userInfo=userInfo[0])
             else:
-                self.render('error/message.html',
+                self.render('error/message.html',homePath=homePath,
                             msg={'Msg': 'No Permission', 'Code': 400, 'Title': '无权限！', 'Link': '/'})
         else:
             self.clear_cookie('account')
-            self.render('error/message.html', msg={'Msg': 'No Permission', 'Code': 400, 'Title': '非法用户！', 'Link': '/'})
+            self.render('error/message.html',homePath=homePath, msg={'Msg': 'No Permission', 'Code': 400, 'Title': '非法用户！', 'Link': '/'})
 
 #文件上传（CKEditor使用）
 class UploadHandler(BaseHandler):
     def post(self):
+        homePath = self.getHome()
         imgfile = self.request.files.get('upload')
         callback = self.get_argument('CKEditorFuncNum')
         imgPath = []
-        imgRoot = os.path.dirname(__file__)+'/static/uploads/'
+        imgRoot = os.path.dirname(__file__)+'/static/woderp/uploads/'
         for img in imgfile:
             file_suffix = img['filename'].split(".")[-1]
             file_name=str(uuid.uuid1())+"."+file_suffix
@@ -183,4 +192,4 @@ class UploadHandler(BaseHandler):
 
             imgPath.append(file_name)
 
-        self.write('<script type="text/javascript">window.parent.CKEDITOR.tools.callFunction('+callback+',"/static/uploads/'+imgPath[0]+'","")</script>')
+        self.write('<script type="text/javascript">window.parent.CKEDITOR.tools.callFunction('+callback+',"'+homePath+'static/woderp/uploads/'+imgPath[0]+'","")</script>')

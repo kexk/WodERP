@@ -4,9 +4,9 @@
     <title>产品列表</title>
 {% end %}
 {% block styleblock %}
-<link rel="stylesheet" href="{{ static_url('css/orderList.css') }}"/>
-<link rel="stylesheet" href="{{ static_url('plugin/notify/notification.css') }}"/>
-<script src="{{ static_url('js/orderlist/comm.js') }}" charset="utf-8"></script>
+<link rel="stylesheet" href="{{ static_url('woderp/css/orderList.css') }}"/>
+<link rel="stylesheet" href="{{ static_url('woderp/plugin/notify/notification.css') }}"/>
+<script src="{{ static_url('woderp/js/orderlist/comm.js') }}" charset="utf-8"></script>
 
 {% end %}
 
@@ -194,7 +194,7 @@
                     <td class="t-c v-t">
 
                             <a href="//www.aliexpress.com/item/--/{{ product['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ product['imageURLs'].split(';')[0] }}>')" onMouseOut="toolTip()">
-                                <img class="skuImg lazy" data-val="{{ product['productId'] }}" src="{{ static_url('img/nopic.png') }}" data-original="{{ product['imageURLs'].split(';')[0] }}">
+                                <img class="skuImg lazy" data-val="{{ product['productId'] }}" src="{{ static_url('woderp/img/nopic.png') }}" data-original="{{ product['imageURLs'].split(';')[0] }}">
                             </a>
 
                     </td>
@@ -260,7 +260,7 @@
                                     {% for property in sku['aeopSKUProperty'] %}
                                     {% if property.has_key('skuImage') %}
                                     <div class="skuPic">
-                                        <a href="//www.aliexpress.com/item/--/{{ product['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ property['skuImage'] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('img/nopic.png') }}" data-original="{{ property['skuImage'] }}" width="30" alt=""/></a>
+                                        <a href="//www.aliexpress.com/item/--/{{ product['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ property['skuImage'] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('woderp/img/nopic.png') }}" data-original="{{ property['skuImage'] }}" width="30" alt=""/></a>
                                     </div>
                                     {% end %}
                                     {% if property.has_key('propertyValueDefinitionName') %}
@@ -281,7 +281,7 @@
                                     {% for property in sku['aeopSKUProperty'] %}
                                     {% if property.has_key('skuImage') %}
                                     <div class="skuPic">
-                                        <a href="//www.aliexpress.com/item/--/{{ product['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ property['skuImage'] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('img/nopic.png') }}" data-original="{{ property['skuImage'] }}" width="30" alt=""/></a>
+                                        <a href="//www.aliexpress.com/item/--/{{ product['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ property['skuImage'] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('woderp/img/nopic.png') }}" data-original="{{ property['skuImage'] }}" width="30" alt=""/></a>
                                     </div>
                                     {% end %}
                                     {% if property.has_key('propertyValueDefinitionName') %}
@@ -307,7 +307,7 @@
                         {% for property in sku['aeopSKUProperty'] %}
                         {% if property.has_key('skuImage') %}
                         <div class="skuPic">
-                            <a href="//www.aliexpress.com/item/--/{{ product['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ property['skuImage'] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('img/nopic.png') }}" data-original="{{ property['skuImage'] }}" width="30" alt=""/></a>
+                            <a href="//www.aliexpress.com/item/--/{{ product['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ property['skuImage'] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('woderp/img/nopic.png') }}" data-original="{{ property['skuImage'] }}" width="30" alt=""/></a>
                         </div>
                         {% end %}
                         {% if property.has_key('propertyValueDefinitionName') %}
@@ -483,7 +483,7 @@
             data['status']=status;
         }
 
-        $.getJSON('/smt/api/checkProduct',data,function (result) {
+        $.getJSON('{{ homePath }}smt/api/checkProduct',data,function (result) {
             if(result.success){
                 //window.location.href = '/smt/orderList';
                 window.history.go(0);
@@ -505,7 +505,7 @@
             data['storeId']=storeId;
         }
 
-        $.getJSON('/smt/api/refreshNewProductInfos',data,function (result) {
+        $.getJSON('{{ homePath }}smt/api/refreshNewProductInfos',data,function (result) {
             if(result.success){
                 //window.location.href = '/smt/orderList';
                 window.history.go(0);
@@ -520,7 +520,7 @@
         var refresh = $(this).attr('data-refresh');
         var itmes = {};
         itmes[refresh.split('|')[0]] = refresh.split('|')[1];
-        $.getJSON('/smt/api/refreshProductInfos',{'items':JSON.stringify(itmes)},function (result) {
+        $.getJSON('{{ homePath }}smt/api/refreshProductInfos',{'items':JSON.stringify(itmes)},function (result) {
             if(result.success){
                 history.go(0);
             }
@@ -581,7 +581,7 @@
         }
 
         //console.log(items);
-        $.getJSON('/smt/api/refreshProductStatus',{items:JSON.stringify(items)},function (result) {
+        $.getJSON('{{ homePath }}smt/api/refreshProductStatus',{items:JSON.stringify(items)},function (result) {
             if(result.success){
                 //window.location.href = '/smt/orderList';
                 window.history.go(0);
@@ -620,7 +620,7 @@
         }
 
         //console.log(items);
-        $.getJSON('/smt/api/refreshProductInfos',{items:JSON.stringify(items)},function (result) {
+        $.getJSON('{{ homePath }}smt/api/refreshProductInfos',{items:JSON.stringify(items)},function (result) {
             if(result.success){
                 //window.location.href = '/smt/orderList';
                 window.history.go(0);
@@ -658,14 +658,14 @@
 
 </script>
 
-<script src="{{ static_url('plugin/toolTips/toolTips.js') }}"></script>
-<script src="{{ static_url('plugin/showFrame/showFrame.js') }}"></script>
-<script src="{{ static_url('plugin/notify/notify.min.js') }}"></script>
-<script src="{{ static_url('plugin/notify/notify-metro.js') }}"></script>
-<script src="{{ static_url('plugin/notify/notifications.js') }}"></script>
-<script src="{{ static_url('plugin/jscopy/clipboard.min.js') }}"></script>
-<script src="{{ static_url('plugin/jscopy/jscopy.js') }}"></script>
-<script src="{{ static_url('plugin/lazyload/jquery.lazyload.min.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/toolTips/toolTips.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/showFrame/showFrame.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/notify/notify.min.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/notify/notify-metro.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/notify/notifications.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/jscopy/clipboard.min.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/jscopy/jscopy.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/lazyload/jquery.lazyload.min.js') }}"></script>
 
 <script type="text/javascript">
     $("img.lazy").lazyload({

@@ -17,6 +17,8 @@ class SKUListHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
 
+        homePath = self.getHome()
+
         AUTHOR_MOUDLE = 'ViewSKUList'
 
         user = self.current_user
@@ -101,11 +103,11 @@ class SKUListHandler(BaseHandler):
             filterData['sort'] = sort
             filterData['create'] = create
 
-            self.render('erp/sku-list.html',productData = productData,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
+            self.render('erp/sku-list.html',productData = productData,homePath=homePath,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
 
             #self.render('index.html')
 
         else:
             #self.write("No Permission")
-            self.render('error/message.html', msg={'Msg': 'No Permission', 'Code': 400,'Title':'无权限！','Link':'/'})
+            self.render('error/message.html',homePath=homePath, msg={'Msg': 'No Permission', 'Code': 400,'Title':'无权限！','Link':'/'})
 

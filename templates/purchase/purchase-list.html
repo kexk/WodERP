@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "../base.html" %}
 
         {% block header %}
     <title>采购列表</title>
 {% end %}
 
 {% block styleblock %}
-<link rel="stylesheet" href="{{ static_url('plugin/notify/notification.css') }}"/>
+<link rel="stylesheet" href="{{ static_url('woderp/plugin/notify/notification.css') }}"/>
 
 {% end %}
         {% block main %}
@@ -109,9 +109,9 @@
 
                    {% if goods.has_key('productPic') %}
                    {% if isinstance(goods['productPic'],list)%}
-                   <td class="goodsPic"><a href="javaScript:void(0);" onMouseOver="toolTip('<img width=300 src={{ goods['productPic'][0] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('img/nopic.png') }}" data-original="{{ goods['productPic'][0] }}" /></a></td>
+                   <td class="goodsPic"><a href="javaScript:void(0);" onMouseOver="toolTip('<img width=300 src={{ goods['productPic'][0] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('woderp/img/nopic.png') }}" data-original="{{ goods['productPic'][0] }}" /></a></td>
                    {% else %}
-                   <td class="goodsPic"><a href="javaScript:void(0);" onMouseOver="toolTip('<img width=300 src={{ goods['productPic'] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('img/nopic.png') }}" data-original="{{ goods['productPic'] }}" /></a></td>
+                   <td class="goodsPic"><a href="javaScript:void(0);" onMouseOver="toolTip('<img width=300 src={{ goods['productPic'] }}>')" onMouseOut="toolTip()"><img class="lazy" src="{{ static_url('woderp/img/nopic.png') }}" data-original="{{ goods['productPic'] }}" /></a></td>
                    {% end %}
                    {% else %}
                    {% end %}
@@ -308,14 +308,14 @@
 </script>
 
 
-<script src="{{ static_url('plugin/toolTips/toolTips.js') }}"></script>
-<script src="{{ static_url('plugin/showFrame/showFrame.js') }}"></script>
-<script src="{{ static_url('plugin/notify/notify.min.js') }}"></script>
-<script src="{{ static_url('plugin/notify/notify-metro.js') }}"></script>
-<script src="{{ static_url('plugin/notify/notifications.js') }}"></script>
-<script src="{{ static_url('plugin/jscopy/clipboard.min.js') }}"></script>
-<script src="{{ static_url('plugin/jscopy/jscopy.js') }}"></script>
-<script src="{{ static_url('plugin/lazyload/jquery.lazyload.min.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/toolTips/toolTips.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/showFrame/showFrame.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/notify/notify.min.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/notify/notify-metro.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/notify/notifications.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/jscopy/clipboard.min.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/jscopy/jscopy.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/lazyload/jquery.lazyload.min.js') }}"></script>
 
 <script type="text/javascript">
     $("img.lazy").lazyload({

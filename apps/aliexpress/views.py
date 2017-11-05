@@ -23,6 +23,8 @@ class SMTOrderListHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
 
+        homePath = self.getHome()
+
         AUTHOR_MOUDLE = 'ViewSMTOrder'
 
         user = self.current_user
@@ -305,18 +307,20 @@ class SMTOrderListHandler(BaseHandler):
             filterData['create'] = create
             filterData['sortType'] = sortType
 
-            self.render('smt/order-list.html',orderList = orderList,pageInfo = pageInfo,MergeCount=MergeCount,LosAngelesTime=LosAngelesTime,filterData=filterData,userInfo={'account':user,'role':role})
+            self.render('smt/order-list.html',orderList = orderList,homePath=homePath,pageInfo = pageInfo,MergeCount=MergeCount,LosAngelesTime=LosAngelesTime,filterData=filterData,userInfo={'account':user,'role':role})
 
             #self.render('index.html')
 
         else:
             #self.write("No Permission")
-            self.render('error/message.html', msg={'Msg': 'No Permission', 'Code': 400,'Title':'无权限！','Link':'/'})
+            self.render('error/message.html',homePath=homePath, msg={'Msg': 'No Permission', 'Code': 400,'Title':'无权限！','Link':'/'})
 
 
 class SMTOrderListHandlerV2(BaseHandler):
     @tornado.web.authenticated
     def get(self):
+
+        homePath = self.getHome()
 
         AUTHOR_MOUDLE = 'ViewSMTOrder'
 
@@ -602,18 +606,20 @@ class SMTOrderListHandlerV2(BaseHandler):
             filterData['create'] = create
             filterData['sortType'] = sortType
 
-            self.render('smt/order-list.html',orderList = orderList,pageInfo = pageInfo,MergeCount=MergeCount,LosAngelesTime=LosAngelesTime,filterData=filterData,userInfo={'account':user,'role':role})
+            self.render('smt/order-list.html',orderList = orderList,homePath=homePath,pageInfo = pageInfo,MergeCount=MergeCount,LosAngelesTime=LosAngelesTime,filterData=filterData,userInfo={'account':user,'role':role})
 
             #self.render('index.html')
 
         else:
             #self.write("No Permission")
-            self.render('error/message.html', msg={'Msg': 'No Permission', 'Code': 400,'Title':'无权限！','Link':'/'})
+            self.render('error/message.html',homePath=homePath, msg={'Msg': 'No Permission', 'Code': 400,'Title':'无权限！','Link':'/'})
 
 
 class SMTOrderMergeHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
+
+        homePath = self.getHome()
 
         AUTHOR_MOUDLE = 'ViewSMTOrder'
 
@@ -721,18 +727,20 @@ class SMTOrderMergeHandler(BaseHandler):
             filterData['statusList'] = sL
             filterData['appList'] = appList
 
-            self.render('smt/merge-order-list.html',orderList = orderList,filterData=filterData,userInfo={'account':user,'role':role})
+            self.render('smt/merge-order-list.html',orderList = orderList,homePath=homePath,filterData=filterData,userInfo={'account':user,'role':role})
 
             #self.render('index.html')
 
         else:
             #self.write("No Permission")
-            self.render('error/message.html', msg={'Msg': 'No Permission', 'Code': 400,'Title':'无权限！','Link':'/'})
+            self.render('error/message.html',homePath=homePath, msg={'Msg': 'No Permission', 'Code': 400,'Title':'无权限！','Link':'/'})
 
 
 class SMTOrderManagerHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
+
+        homePath = self.getHome()
 
         AUTHOR_MOUDLE = 'ViewSMTOrderManager'
 
@@ -759,10 +767,10 @@ class SMTOrderManagerHandler(BaseHandler):
             else:
                 appList = db.appList.find({'platform': 'aliexpress','storeId':{'$in':authority['authority']['smtStore']}})
 
-            self.render('smt/order-manager.html',appList = appList,params=params,userInfo={'account':user,'role':role})
+            self.render('smt/order-manager.html',appList = appList,homePath=homePath,params=params,userInfo={'account':user,'role':role})
 
         else:
-            self.render('error/message.html', msg={'Msg': 'No Permission', 'Code': 400,'Title':'无权限！','Link':'/'})
+            self.render('error/message.html',homePath=homePath, msg={'Msg': 'No Permission', 'Code': 400,'Title':'无权限！','Link':'/'})
 
 
     @tornado.web.asynchronous
@@ -792,6 +800,8 @@ class SMTOrderManagerHandler(BaseHandler):
 class SMTProductListHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
+
+        homePath = self.getHome()
 
         AUTHOR_MOUDLE = 'ViewSMTProduct'
 
@@ -958,13 +968,13 @@ class SMTProductListHandler(BaseHandler):
             filterData['sort'] = sort
             filterData['create'] = create
 
-            self.render('smt/product-list.html',productData = productData,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
+            self.render('smt/product-list.html',productData = productData,homePath=homePath,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
 
             #self.render('index.html')
 
         else:
             #self.write("No Permission")
-            self.render('error/message.html', msg={'Msg': 'No Permission', 'Code': 400,'Title':'无权限！','Link':'/'})
+            self.render('error/message.html',homePath=homePath, msg={'Msg': 'No Permission', 'Code': 400,'Title':'无权限！','Link':'/'})
 
 
 class SMTCheckOrderHandler(BaseHandler):

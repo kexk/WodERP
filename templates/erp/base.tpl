@@ -11,7 +11,7 @@
     <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
 <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 <link rel="stylesheet" href="http://v3.bootcss.com/assets/css/docs.min.css">
-    <link rel="stylesheet" href="{{ static_url('css/style.css') }}"/>
+    <link rel="stylesheet" href="{{ static_url('woderp/css/style.css') }}"/>
 	{% block styleblock %}{% end %}
 
     <script type="text/javascript">
@@ -38,6 +38,7 @@
          佛祖保佑       永无BUG
 */
             var MEDIA_URL = 'http://static.shangshudb.com/',
+                HOME_PATH = '{{ HomePath }}',
                 CURRENT_USER_ID = "",
                 ERROR_MSG = '',
                 SUCCESS_MSG = '',
@@ -63,14 +64,14 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="/">首页</a></li>
-            <li><a href="/smt/orderList">订单列表</a></li>
-            <li><a href="/purchase/">采购列表</a></li>
+            <li class="active"><a href="{{ HomePath }}">首页</a></li>
+            <li><a href="{{ HomePath }}smt/orderList">订单列表</a></li>
+            <li><a href="{{ HomePath }}purchase/">采购列表</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">产品库 <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li><a href="/smt/productList">在线产品</a></li>
-                <li><a href="/erp/skuList">库存列表</a></li>
+                <li><a href="{{ HomePath }}smt/productList">在线产品</a></li>
+                <li><a href="{{ HomePath }}erp/skuList">库存列表</a></li>
 
                 <li role="separator" class="divider"></li>
                 <li><a href="#">待发布</a></li>
@@ -82,10 +83,10 @@
             <p class="navbar-text navbar-right">
 
                 {% if userInfo['account'] is None %}
-                <a href="/admin/login" class="navbar-link">登录</a> | <a href="/admin/reg" class="navbar-link">注册</a>
+                <a href="{{ HomePath }}admin/login" class="navbar-link">登录</a> | <a href="{{ HomePath }}admin/reg" class="navbar-link">注册</a>
                 {% else %}
                 Hi, <a href="#" class="navbar-link">{{ userInfo['account'] }}</a>
-                 | <a href="/profile" class="navbar-link">个人资料</a> | <a href="/admin/logout" class="navbar-link">退出</a>
+                 | <a href="{{ HomePath }}profile" class="navbar-link">个人资料</a> | <a href="{{ HomePath }}admin/logout" class="navbar-link">退出</a>
                 {% end %}
 
             </p>
@@ -105,7 +106,7 @@
         <a id="elevator" onclick="return false;" title="回到顶部"></a>
         <a class="qr"></a>
   	<div class="qr-popup">
-    	<a class="code-link"><img class="code" src="/static/img/qr.png"/></a>
+    	<a class="code-link"><img class="code" src="{{ static_url('woderp/img/qr.png') }}"/></a>
         <span>扫码关注</span>
     <div class="arr"></div>
   </div>

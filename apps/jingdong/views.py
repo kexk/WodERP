@@ -23,6 +23,8 @@ class JDOrderListHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
 
+        homePath = self.getHome()
+
         AUTHOR_MOUDLE = 'ViewJDOrder'
 
         user = self.current_user
@@ -143,15 +145,16 @@ class JDOrderListHandler(BaseHandler):
             filterData['shopList'] = shopList
             filterData['statusList'] = sL
 
-            self.render('jd/order-list.html',orderList = orderList,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
+            self.render('jd/order-list.html',orderList = orderList,homePath=homePath,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role})
 
         else:
-            self.render('error/message.html', msg={'Msg': 'No Permission', 'Code': 400, 'Title': '无权限！', 'Link': '/'})
+            self.render('error/message.html',homePath=homePath, msg={'Msg': 'No Permission', 'Code': 400, 'Title': '无权限！', 'Link': '/'})
 
 
 class JDSkuListHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
+        homePath = self.getHome()
         user = self.current_user
         role = self.get_secure_cookie("role") if self.get_secure_cookie("role") else 'None'
 
@@ -239,7 +242,7 @@ class JDSkuListHandler(BaseHandler):
         filterData['shopList'] = shopList
         filterData['statusList'] = sL
 
-        self.render('jd/sku-list.html', skuList=skuList, pageInfo=pageInfo, filterData=filterData,
+        self.render('jd/sku-list.html', skuList=skuList,homePath=homePath, pageInfo=pageInfo, filterData=filterData,
                     userInfo={'account': user, 'role': role})
 
 

@@ -22,6 +22,9 @@ apiServer = 'http://127.0.0.1:5000'
 class PurchaseListHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
+
+        homePath = self.getHome()
+
         AUTHOR_MOUDLE = 'ViewPurchase'
 
         user = self.current_user
@@ -128,11 +131,11 @@ class PurchaseListHandler(BaseHandler):
             filterData['appList'] = appList
             filterData['statusList'] = sL
 
-            self.render('purchase-list.html',purchaseList = purchaseList,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role,'authority':authority})
+            self.render('purchase/purchase-list.html',purchaseList = purchaseList,homePath=homePath,pageInfo = pageInfo,filterData=filterData,userInfo={'account':user,'role':role,'authority':authority})
 
             #self.render('index.html')
         else:
-            self.render('error/message.html', msg={'Msg': 'No Permission', 'Code': 400, 'Title': '无权限！', 'Link': '/'})
+            self.render('error/message.html',homePath=homePath, msg={'Msg': 'No Permission', 'Code': 400, 'Title': '无权限！', 'Link': '/'})
 
 
 

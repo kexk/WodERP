@@ -31,8 +31,10 @@ class IndexHandler(BaseHandler):
         user = self.current_user
         role = self.get_secure_cookie("role") if self.get_secure_cookie("role") else 'None'
 
+        homePath = self.getHome()
 
-        self.render('index.html',greeting=greeting,userInfo={'account':user,'role':role})
+
+        self.render('index.html',homePath=homePath,greeting=greeting,userInfo={'account':user,'role':role})
 
         #self.render('index.html')
 

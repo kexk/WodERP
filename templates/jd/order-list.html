@@ -5,7 +5,7 @@
 {% end %}
 
         {% block styleblock %}
-<link rel="stylesheet" href="{{ static_url('plugin/notify/notification.css') }}"/>
+<link rel="stylesheet" href="{{ static_url('woderp/plugin/notify/notification.css') }}"/>
 
 {% end %}
 
@@ -123,7 +123,7 @@
                         <div class="goodsImg">
 						{% if sku['skuImg'] != None %}
                             <a href="javaScript:void(0);"  onMouseOver="toolTip('<img src=//img11.360buyimg.com/n5/s300x300_{{ sku['skuImg'] }}>')" onMouseOut="toolTip()">
-                                <img class="skuImg lazy" data-val="{{ sku['sku_id'] }}" src="{{ static_url('img/nopic.png') }}" data-original="//img11.360buyimg.com/n5/s300x300_{{ sku['skuImg'] }}">
+                                <img class="skuImg lazy" data-val="{{ sku['sku_id'] }}" src="{{ static_url('woderp/img/nopic.png') }}" data-original="//img11.360buyimg.com/n5/s300x300_{{ sku['skuImg'] }}">
                             </a>{% else %}
 							<a href="javaScript:void(0);">
 							<img class="noSkuImg" data-val="{{ sku['sku_id'] }}" src="//img11.360buyimg.com/n5/jfs/t3271/88/7808807198/85040/49d5cf69/58bccd95Nd1b090a7.jpg">
@@ -490,14 +490,14 @@
 
 </script>
 
-<script src="{{ static_url('plugin/toolTips/toolTips.js') }}"></script>
-<script src="{{ static_url('plugin/showFrame/showFrame.js') }}"></script>
-<script src="{{ static_url('plugin/notify/notify.min.js') }}"></script>
-<script src="{{ static_url('plugin/notify/notify-metro.js') }}"></script>
-<script src="{{ static_url('plugin/notify/notifications.js') }}"></script>
-<script src="{{ static_url('plugin/jscopy/clipboard.min.js') }}"></script>
-<script src="{{ static_url('plugin/jscopy/jscopy.js') }}"></script>
-<script src="{{ static_url('plugin/lazyload/jquery.lazyload.min.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/toolTips/toolTips.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/showFrame/showFrame.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/notify/notify.min.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/notify/notify-metro.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/notify/notifications.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/jscopy/clipboard.min.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/jscopy/jscopy.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/lazyload/jquery.lazyload.min.js') }}"></script>
 
 <script type="text/javascript">
     function loadSkuImage() {

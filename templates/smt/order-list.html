@@ -4,9 +4,9 @@
     <title>订单列表</title>
 {% end %}
 {% block styleblock %}
-<link rel="stylesheet" href="{{ static_url('css/orderList.css') }}"/>
-<link rel="stylesheet" href="{{ static_url('plugin/notify/notification.css') }}"/>
-<script src="{{ static_url('js/orderlist/comm.js') }}" charset="utf-8"></script>
+<link rel="stylesheet" href="{{ static_url('woderp/css/orderList.css') }}"/>
+<link rel="stylesheet" href="{{ static_url('woderp/plugin/notify/notification.css') }}"/>
+<script src="{{ static_url('woderp/js/orderlist/comm.js') }}" charset="utf-8"></script>
 
 {% end %}
 
@@ -60,7 +60,7 @@ Draw();
     <div class="col-lg-6">
     <button type="button" class="btn btn-danger" id="checkOrder">导入订单</button>
 <button type="button" class="btn btn-danger" id="checkNewOrder">同步订单</button>
-{% if MergeCount >0 %}<a class="btn btn-danger" href="/smt/orderMergeList">可合并订单({{ MergeCount}})</a>{% end %}
+{% if MergeCount >0 %}<a class="btn btn-danger" href="{{ homePath }}smt/orderMergeList">可合并订单({{ MergeCount}})</a>{% end %}
     </div>
 
     <div class="col-lg-6">
@@ -237,7 +237,7 @@ Draw();
                         <div class="goodsImg">
 						{% if sku['productImgUrl'] != None %}
                             <a href="//www.aliexpress.com/item/--/{{ sku['productId'] }}.html" target="_blank"  onMouseOver="toolTip('<img width=300 src={{ sku['productImgUrl'].split('_50x')[0] }}>')" onMouseOut="toolTip()">
-                                <img class="skuImg lazy" data-val="{{ sku['productId'] }}" src="{{ static_url('img/nopic.png') }}" data-original="{{ sku['productImgUrl'] }}">
+                                <img class="skuImg lazy" data-val="{{ sku['productId'] }}" src="{{ static_url('woderp/img/nopic.png') }}" data-original="{{ sku['productImgUrl'] }}">
                             </a>{% else %}
 							<a href="//www.aliexpress.com/item/--/{{ sku['productId'] }}.html" target="_blank">
 							<img class="noSkuImg" data-val="{{ sku['productId'] }}" src="//img11.360buyimg.com/n5/jfs/t3271/88/7808807198/85040/49d5cf69/58bccd95Nd1b090a7.jpg">
@@ -436,7 +436,7 @@ Draw();
             data['status']=status;
         }
 
-        $.getJSON('/smt/api/checkOrder',data,function (result) {
+        $.getJSON('{{ homePath }}smt/api/checkOrder',data,function (result) {
             if(result.success){
                 //window.location.href = '/smt/orderList';
                 window.history.go(0);
@@ -458,7 +458,7 @@ Draw();
             data['storeId']=storeId;
         }
 
-        $.getJSON('/smt/api/checkNewOrder',data,function (result) {
+        $.getJSON('{{ homePath }}smt/api/checkNewOrder',data,function (result) {
             if(result.success){
                 //window.location.href = '/smt/orderList';
                 window.history.go(0);
@@ -473,7 +473,7 @@ Draw();
         var refresh = $(this).attr('data-refresh');
         var itmes = {};
         itmes[refresh.split('|')[0]] = refresh.split('|')[1];
-        $.getJSON('/smt/api/refreshOrderInfos',{'items':JSON.stringify(itmes)},function (result) {
+        $.getJSON('{{ homePath }}smt/api/refreshOrderInfos',{'items':JSON.stringify(itmes)},function (result) {
             if(result.success){
                 history.go(0);
             }
@@ -533,7 +533,7 @@ Draw();
         }
 
         //console.log(items);
-        $.getJSON('/smt/api/refreshOrderStatus',{items:JSON.stringify(items)},function (result) {
+        $.getJSON('{{ homePath }}smt/api/refreshOrderStatus',{items:JSON.stringify(items)},function (result) {
             if(result.success){
                 //window.location.href = '/smt/orderList';
                 window.history.go(0);
@@ -572,7 +572,7 @@ Draw();
         }
 
         //console.log(items);
-        $.getJSON('/smt/api/refreshOrderInfos',{items:JSON.stringify(items)},function (result) {
+        $.getJSON('{{ homePath }}smt/api/refreshOrderInfos',{items:JSON.stringify(items)},function (result) {
             if(result.success){
                 //window.location.href = '/smt/orderList';
                 window.history.go(0);
@@ -593,14 +593,14 @@ Draw();
 
 </script>
 
-<script src="{{ static_url('plugin/toolTips/toolTips.js') }}"></script>
-<script src="{{ static_url('plugin/showFrame/showFrame.js') }}"></script>
-<script src="{{ static_url('plugin/notify/notify.min.js') }}"></script>
-<script src="{{ static_url('plugin/notify/notify-metro.js') }}"></script>
-<script src="{{ static_url('plugin/notify/notifications.js') }}"></script>
-<script src="{{ static_url('plugin/jscopy/clipboard.min.js') }}"></script>
-<script src="{{ static_url('plugin/jscopy/jscopy.js') }}"></script>
-<script src="{{ static_url('plugin/lazyload/jquery.lazyload.min.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/toolTips/toolTips.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/showFrame/showFrame.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/notify/notify.min.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/notify/notify-metro.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/notify/notifications.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/jscopy/clipboard.min.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/jscopy/jscopy.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/lazyload/jquery.lazyload.min.js') }}"></script>
 
 <script type="text/javascript">
     $("img.lazy").lazyload({

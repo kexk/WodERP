@@ -4,7 +4,7 @@
     <title>订单列表</title>
 {% end %}
 {% block styleblock %}
-<link rel="stylesheet" href="{{ static_url('plugin/notify/notification.css') }}"/>
+<link rel="stylesheet" href="{{ static_url('woderp/plugin/notify/notification.css') }}"/>
 
 {% end %}
         {% block main %}
@@ -71,7 +71,7 @@
 
         //console.log(data);
 
-        $.post('/smt/orderManager',data,function(result){
+        $.post('{{ homePath }}smt/orderManager',data,function(result){
 
             console.log(result);
             if(result.success){
@@ -88,9 +88,9 @@
 </script>
 
 
-<script src="{{ static_url('plugin/notify/notify.min.js') }}"></script>
-<script src="{{ static_url('plugin/notify/notify-metro.js') }}"></script>
-<script src="{{ static_url('plugin/notify/notifications.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/notify/notify.min.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/notify/notify-metro.js') }}"></script>
+<script src="{{ static_url('woderp/plugin/notify/notifications.js') }}"></script>
 
 
 
