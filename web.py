@@ -4,7 +4,6 @@ import os.path
 
 import tornado.httpserver
 import tornado.ioloop
-import tornado.options
 import tornado.web
 import tornado.escape
 from tornado.options import define, options
@@ -19,6 +18,9 @@ from apps.alibaba.views import *
 
 
 define("port", default=9999, help="run on the given port", type=int)
+
+#定义根目录以“/”开始和结束
+define("homePath", default='/', help="Home root path", type=str)
 
 
 class IndexHandler(BaseHandler):
@@ -55,13 +57,14 @@ def include(module):
     return urls
 
 def url_wrapper(urls):
+    homePath = options.homePath
     wrapper_list = []
     for url in urls:
         path, handles = url
         if isinstance(handles, (tuple, list)):
             for handle in handles:
                 pattern, handle_class = handle
-                wrap = ('{0}{1}'.format(path, pattern), handle_class)
+                wrap = ('{0}{1}{2}'.format(homePath,path, pattern), handle_class)
                 wrapper_list.append(wrap)
         else:
             wrapper_list.append((path, handles))
@@ -73,16 +76,16 @@ if __name__ == "__main__":
     settings = {
         "cookie_secret": "bZJc2sWbQLKos6GkHn/VB9oXwQt8S0R0kRvJ5/xJ89E=",
         "xsrf_cookies": True,
-        'login_url':'/admin/login'
+        'login_url':'%sadmin/login'%(options.homePath)
     }
     app = tornado.web.Application(
         url_wrapper([
             (r"/", IndexHandler),
-            (r"/jd/", include('apps.jingdong.urls')),
-            (r"/smt/", include('apps.aliexpress.urls')),
-            (r"/purchase/", include('apps.alibaba.urls')),
-            (r"/admin/", include('apps.admin.urls')),
-            (r"/erp/", include('apps.erp.urls')),
+            (r"jd/", include('apps.jingdong.urls')),
+            (r"smt/", include('apps.aliexpress.urls')),
+            (r"purchase/", include('apps.alibaba.urls')),
+            (r"admin/", include('apps.admin.urls')),
+            (r"erp/", include('apps.erp.urls')),
             (r".*", BaseHandler),
         ]),
         template_path=os.path.join(os.path.dirname(__file__), "templates"),

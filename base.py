@@ -1,6 +1,8 @@
 #coding:utf-8
 
 import tornado.web
+import tornado.options
+from tornado.options import options
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
@@ -32,7 +34,7 @@ class BaseHandler(tornado.web.RequestHandler):
         return authority
 
     def getHome(self):
-        home = '/'
+        home = options.homePath
         return home
 
     def write_error(self, status_code, **kwargs):
