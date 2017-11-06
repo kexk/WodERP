@@ -90,11 +90,11 @@ if __name__ == "__main__":
         ]),
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
         static_path=os.path.join(os.path.dirname(__file__), "static"),
-        debug=True,
+        debug=False,
         **settings
     )
     http_server = tornado.httpserver.HTTPServer(app)
-    http_server.listen(options.port)
-    #http_server.bind(options.port)
-    #http_server.start(num_processes=0)
+    #http_server.listen(options.port)
+    http_server.bind(options.port)
+    http_server.start(num_processes=0)
     tornado.ioloop.IOLoop.instance().start()
