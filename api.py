@@ -67,8 +67,12 @@ def chekSMTOrder():
                 option['page'] = '1'
                 option['orderStatus'] = s
 
-                option['createDateStart'] = createDateStart
-                option['createDateEnd'] = createDateEnd
+                if s == 'WAIT_BUYER_ACCEPT_GOODS' and createDateStart== '':
+                    option['createDateStart'] = (datetime.datetime.now()+datetime.timedelta(days=-10)).strftime('%Y-%m-%d %H:%M:%S')
+                    option['createDateEnd'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                else:
+                    option['createDateStart'] = createDateStart
+                    option['createDateEnd'] = createDateEnd
 
 
                 c = api.getOrderList(option)
