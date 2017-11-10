@@ -38,7 +38,7 @@
          佛祖保佑       永无BUG
 */
             var MEDIA_URL = 'http://static.shangshudb.com/',
-                HOME_PATH = '{{ HomePath }}',
+                HOME_PATH = '{{ homePath }}',
                 CURRENT_USER_ID = "",
                 ERROR_MSG = '',
                 SUCCESS_MSG = '',
@@ -64,14 +64,14 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="{{ HomePath }}">首页</a></li>
-            <li><a href="{{ HomePath }}smt/orderList">订单列表</a></li>
-            <li><a href="{{ HomePath }}purchase/">采购列表</a></li>
+            <li class="active"><a href="{{ homePath }}">首页</a></li>
+            <li><a href="{{ homePath }}smt/orderList">订单列表</a></li>
+            <li><a href="{{ homePath }}purchase/">采购列表</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">产品库 <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li><a href="{{ HomePath }}smt/productList">在线产品</a></li>
-                <li><a href="{{ HomePath }}erp/skuList">库存列表</a></li>
+                <li><a href="{{ homePath }}smt/productList">在线产品</a></li>
+                <li><a href="{{ homePath }}erp/skuList">库存列表</a></li>
 
                 <li role="separator" class="divider"></li>
                 <li><a href="#">待发布</a></li>
@@ -83,10 +83,10 @@
             <p class="navbar-text navbar-right">
 
                 {% if userInfo['account'] is None %}
-                <a href="{{ HomePath }}admin/login" class="navbar-link">登录</a> | <a href="{{ HomePath }}admin/reg" class="navbar-link">注册</a>
+                <a href="{{ homePath }}admin/login" class="navbar-link">登录</a> | <a href="{{ homePath }}admin/reg" class="navbar-link">注册</a>
                 {% else %}
                 Hi, <a href="#" class="navbar-link">{{ userInfo['account'] }}</a>
-                 | <a href="{{ HomePath }}profile" class="navbar-link">个人资料</a> | <a href="{{ HomePath }}admin/logout" class="navbar-link">退出</a>
+                 | <a href="{{ homePath }}profile" class="navbar-link">个人资料</a> | <a href="{{ homePath }}admin/logout" class="navbar-link">退出</a>
                 {% end %}
 
             </p>

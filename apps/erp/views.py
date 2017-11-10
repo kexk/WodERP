@@ -57,7 +57,7 @@ class SKUListHandler(BaseHandler):
                 pageSize = 1
 
 
-            erp = MySQLCase('erp_online')
+            erp = MySQLCase('erp')
             erp.connect()
 
             sql = 'select id,`status`,cateId,tagId,skuNameCN,skuNameEN,productId,sku,storage_num,imageURL,CREATE_DATE,' \

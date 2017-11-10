@@ -19,9 +19,9 @@ class MongoCase:
 
 class MySQLCase:
 
-    host = 'localhost'
-    user = 'xyerp'
-    passwd = 'xy2017'
+    host = '111.231.16.135'
+    user = 'remote_user'
+    passwd = 'jiayou2016'
     port = 3306
     charset = 'utf8'
     db = ''

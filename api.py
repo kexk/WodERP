@@ -90,22 +90,14 @@ def chekSMTOrder():
                         if order:
 
                             item = od
-                            for sku in item['productList']:
-                                sku['productId'] = str(sku['productId'])
-                                sku['childId'] = str(sku['childId'])
-                                sku['orderId'] = str(sku['orderId'])
-                                sku['skuId'] = None
-                                sku['skuAttr'] = None
-                                sku['purchaseNo'] = None
-                                sku['weight'] = None
-                                sku['pickStatus'] = 0
 
                             newData = dict()
-                            newData['productList'] = item['productList']
                             newData['orderStatus'] = item['orderStatus']
                             newData['frozenStatus'] = item['frozenStatus']
                             newData['issueStatus'] = item['issueStatus']
                             newData['fundStatus'] = item['fundStatus']
+                            if item.has_key('logisticsStatus'):
+                                newData['logisticsStatus'] = item['logisticsStatus']
                             newData['updateTime'] = updateTime
                             if item.has_key('timeoutLeftTime'):
                                 newData['timeoutLeftTime'] = item['timeoutLeftTime']
@@ -140,6 +132,7 @@ def chekSMTOrder():
                             item['orderId'] = str(item['orderId'])
                             item['createTime'] = datetime.datetime.now()
                             item['updateTime'] = updateTime
+                            item['apiStoreID'] = app['apiStoreID']
                             item['storeInfo'] = {'storeId': app['storeId'], 'cnName': app['cnName'],
                                                  'enName': app['enName'], "operator": app["operator"],
                                                  'dealPeron': app['dealPeron']}
@@ -207,22 +200,14 @@ def chekSMTOrder():
                                     if order:
 
                                         moreItem = orderItem
-                                        for sku in moreItem['productList']:
-                                            sku['productId'] = str(sku['productId'])
-                                            sku['childId'] = str(sku['childId'])
-                                            sku['orderId'] = str(sku['orderId'])
-                                            sku['skuId'] = None
-                                            sku['skuAttr'] = None
-                                            sku['purchaseNo'] = None
-                                            sku['weight'] = None
-                                            sku['pickStatus'] = 0
 
                                         newData = dict()
-                                        newData['productList'] = moreItem['productList']
                                         newData['orderStatus'] = moreItem['orderStatus']
                                         newData['frozenStatus'] = moreItem['frozenStatus']
                                         newData['issueStatus'] = moreItem['issueStatus']
                                         newData['fundStatus'] = moreItem['fundStatus']
+                                        if moreItem.has_key('logisticsStatus'):
+                                            newData['logisticsStatus'] = moreItem['logisticsStatus']
                                         newData['updateTime'] = moreUpdateTime
                                         if moreItem.has_key('timeoutLeftTime'):
                                             newData['timeoutLeftTime'] = moreItem['timeoutLeftTime']
@@ -255,6 +240,7 @@ def chekSMTOrder():
                                         moreItem['orderId'] = str(moreItem['orderId'])
                                         moreItem['createTime'] = datetime.datetime.now()
                                         moreItem['updateTime'] = moreUpdateTime
+                                        moreItem['apiStoreID'] = app['apiStoreID']
                                         moreItem['storeInfo'] = {'storeId': app['storeId'], 'cnName': app['cnName'],
                                                                  'enName': app['enName'], "operator": app["operator"],
                                                                  'dealPeron': app['dealPeron']}
@@ -407,6 +393,7 @@ def chekSMTProduct():
                                 item['productId'] = str(pd['productId'])
                                 item['createTime'] = datetime.datetime.now()
                                 item['updateTime'] = updateTime
+                                item['apiStoreID'] = app['apiStoreID']
                                 item['storeInfo'] = {'storeId': app['storeId'], 'cnName': app['cnName'],
                                                      'enName': app['enName'], "operator": app["operator"],
                                                      'dealPeron': app['dealPeron']}
@@ -467,6 +454,7 @@ def chekSMTProduct():
 
                                             moreItem['createTime'] = datetime.datetime.now()
                                             moreItem['updateTime'] = moreUpdateTime
+                                            moreItem['apiStoreID'] = app['apiStoreID']
                                             moreItem['storeInfo'] = {'storeId': app['storeId'], 'cnName': app['cnName'],
                                                                  'enName': app['enName'], "operator": app["operator"],
                                                                  'dealPeron': app['dealPeron']}
@@ -627,7 +615,8 @@ def refreshSMTOrderInfos():
                         newData['issueStatus'] = orderInfo['issueStatus']
                         newData['loanInfo'] = orderInfo['loanInfo']
                         newData['logisticInfoList'] = orderInfo['logisticInfoList']
-                        newData['logisticsStatus'] = orderInfo['logisticsStatus']
+                        if orderInfo.has_key('logisticsStatus'):
+                            newData['logisticsStatus'] = orderInfo['logisticsStatus']
                         newData['oprLogDtoList'] = orderInfo['oprLogDtoList']
                         newData['orderMsgList'] = orderInfo['orderMsgList']
                         newData['orderStatus'] = orderInfo['orderStatus']
@@ -743,7 +732,8 @@ def checkSMTNewOrderInfos():
                         newData['issueStatus'] = orderInfo['issueStatus']
                         newData['loanInfo'] = orderInfo['loanInfo']
                         newData['logisticInfoList'] = orderInfo['logisticInfoList']
-                        newData['logisticsStatus'] = orderInfo['logisticsStatus']
+                        if orderInfo.has_key('logisticsStatus'):
+                            newData['logisticsStatus'] = orderInfo['logisticsStatus']
                         newData['oprLogDtoList'] = orderInfo['oprLogDtoList']
                         newData['orderMsgList'] = orderInfo['orderMsgList']
                         newData['orderStatus'] = orderInfo['orderStatus']
@@ -1122,6 +1112,147 @@ def CheckPurchaseOrder():
     return json.dumps(data, ensure_ascii=False)
 
 
+@app.route('/smt/api/importOrder')
+def importSMTOrder():
+    pageSize = request.args.get('pageSize','30')
+    data = dict()
+    data['success'] = False
+    data['importCount'] = 0
+    data['passCount'] = 0
+
+    mongo = MongoCase()
+    mongo.connect()
+    client = mongo.client
+    db = client.woderp
+
+    try:
+        pageSize = int(pageSize)
+    except:
+        pageSize = 30
+
+    ol = db.orderList.find({'dealStatus':'WAIT_SYSTEM_CHECK','receiptAddress':{'$exists':1}}).limit(pageSize)
+
+    if ol.count()>0:
+        erp = MySQLCase('erp')
+        erp.connect()
+
+        for item in ol:
+            #print(item['orderId'])
+            sql = 'SELECT COUNT(1) FROM e_order WHERE orderId="%s" '%(item['orderId'])
+            foo = erp.getData(sql)
+            if foo[0][0]>0:
+                #print('订单已经存在')
+                data['passCount'] += 1
+                #print(item['productList'])
+                #print(item['receiptAddress'])
+                #print(item['buyerInfo'])
+                #print(item['childOrderExtInfoList'])
+
+                sqlList = []
+
+                address = item['receiptAddress']
+
+                sql = 'INSERT INTO e_order_receiptaddress (orderId,address,address2,city,contactPerson,country,detailAddress,' \
+                      'faxArea,faxCountry,faxNumber,mobileNo,phoneArea,phoneCountry,phoneNumber,province,zip,CREATE_DATE) VALUES ( '
+
+                sql += '"%s"'%(item['orderId'])
+                if address.has_key('address'):
+                    sql += ',"%s"'%(address['address'].replace('"','\\"'))
+                else:
+                    sql += ',null'
+                if address.has_key('address2'):
+                    sql += ',"%s"'%(address['address2'].replace('"','\\"'))
+                else:
+                    sql += ',null'
+                if address.has_key('city'):
+                    sql += ',"%s"'%(address['city'].replace('"','\\"'))
+                else:
+                    sql += ',null'
+                if address.has_key('contactPerson'):
+                    sql += ',"%s"'%(address['contactPerson'].replace('"','\\"'))
+                else:
+                    sql += ',null'
+                if address.has_key('country'):
+                    sql += ',"%s"'%(address['country'].replace('"','\\"'))
+                else:
+                    sql += ',null'
+                if address.has_key('detailAddress'):
+                    sql += ',"%s"'%(address['detailAddress'].replace('"','\\"'))
+                else:
+                    sql += ',null'
+                sql += 'null,null,null'
+                if address.has_key('mobileNo'):
+                    sql += ',"%s"'%(address['mobileNo'].replace('"','\\"'))
+                else:
+                    sql += ',null'
+                if address.has_key('phoneArea'):
+                    sql += ',"%s"'%(address['phoneArea'].replace('"','\\"'))
+                else:
+                    sql += ',null'
+                if address.has_key('phoneCountry'):
+                    sql += ',"%s"'%(address['phoneCountry'].replace('"','\\"'))
+                else:
+                    sql += ',null'
+                if address.has_key('phoneNumber'):
+                    sql += ',"%s"'%(address['phoneNumber'].replace('"','\\"'))
+                else:
+                    sql += ',null'
+                if address.has_key('province'):
+                    sql += ',"%s"'%(address['province'].replace('"','\\"'))
+                else:
+                    sql += ',null'
+                if address.has_key('zip'):
+                    sql += ',"%s"'%(address['zip'].replace('"','\\"'))
+                else:
+                    sql += ',null'
+
+                sql += ',NOW())'
+
+                #print(sql)
+                sqlList.append(sql)
+
+
+                for p in item['productList']:
+                    print(p)
+
+                    sql = 'INSERT INTO e_order_product (orderId,productId,productName,sku,amount,cent,currencyCode,canSubmitIssue,childId,' \
+                          'deliveryTime,freightCommitDay,goodsPrepareTime,issueStatus,logisticsServiceName,logisticsType,memo,moneyBack3x,' \
+                          'productCount,productImgUrl,productSnapUrl,productUnit,showStatus,skuCode,sonOrderStatus,logisticsAmount_amount,logisticsAmount_cent,' \
+                          'logisticsAmount_currencyCode,productUnitPrice_amount,productUnitPrice_cent,productUnitPrice_currencyCode,totalProductAmount_amount,' \
+                          'totalProductAmount_cent,totalProductAmount_currencyCode,CREATE_DATE) VALUES ('
+
+                    sql += '"%s","%s","%s"'%(item['orderId'],p['productId'],p['productName'].replace('"','\\"'))
+                    sql += ",'%s'"%(p['sku'])
+                    sql += ',"%s"'%(p['amount'])
+                    sql += ',"%s"'%(p['cent'])
+                    sql += ',"%s"'%(p['currencyCode'])
+                    sql += ',%s'%(p['canSubmitIssue'])
+                    sql += ',"%s","%s","%s","%s"'%(p['childId'],p['deliveryTime'],p['freightCommitDay'],p['goodsPrepareTime'])
+                    sql += ',"%s","%s","%s"'%(p['issueStatus'],p['logisticsServiceName'],p['logisticsType'])
+                    sql += ',"%s",%s,%s,"%s"'%(p['memo'].replace('"','\\"'),p['moneyBack3x'],p['productCount'],p['productImgUrl'])
+                    sql += ',"%s","%s","%s","%s","%s"'%(p['productSnapUrl'],p['productUnit'],p['showStatus'],p['skuCode'],p['sonOrderStatus'])
+                    sql += ',"%s","%s","%s"'%(p['logisticsAmount']['amount'],p['logisticsAmount']['cent'],p['logisticsAmount']['currencyCode'])
+                    sql += ',"%s","%s","%s"'%(p['productUnitPrice']['amount'],p['productUnitPrice']['cent'],p['productUnitPrice']['currencyCode'])
+                    sql += ',"%s","%s","%s"'%(p['productUnitPrice']['amount'],p['productUnitPrice']['cent'],p['productUnitPrice']['currencyCode'])
+
+                    sql += ',NOW())'
+
+                    sqlList.append(sql)
+
+
+            else:
+                #print('导入订单')
+                data['importCount'] += 1
+                print(item['productList'])
+                print(item['receiptAddress'])
+
+
+    else:
+
+        data['success'] = True
+
+
+    return json.dumps(data, ensure_ascii=False)
 
 
 
