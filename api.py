@@ -600,13 +600,13 @@ def refreshSMTOrderInfos():
                             newData['childOrderExtInfoList'] = newChild
 
                         #子订单包含状态
-                        if 1!=1:
+                        if not orderData.has_key('childOrderList'):
                             childOrderList = orderInfo['childOrderList']
                             newChild = []
                             for child in childOrderList:
                                 child['id'] = str(child['id'])
                                 child['productId'] = str(child['productId'])
-                                child['productAttributes'] = json.loads(child['productAttributes'])['sku']
+                                child['productAttributes'] = json.loads(child['productAttributes'])
                                 newChild.append(child)
 
                             newData['childOrderList'] = newChild
@@ -653,11 +653,18 @@ def refreshSMTOrderInfos():
 def checkSMTNewOrderInfos():
     data = dict()
     storeId = request.args.get('storeId', '')
+    key = request.args.get('key', 'receiptAddress')
+    pageSize = request.args.get('pageSize', '50')
 
     mongo = MongoCase()
     mongo.connect()
     client = mongo.client
     db = client.woderp
+
+    try:
+        pageSize = int(pageSize)
+    except:
+        pageSize = 50
 
     data['error'] = []
 
@@ -677,7 +684,7 @@ def checkSMTNewOrderInfos():
         if app != None:
             api = ALIEXPRESS(app)
             if api.status >0:
-                ol = db.orderList.find({'receiptAddress': {'$exists':0}, 'storeInfo.storeId': app['storeId']}, {'orderId': 1}).limit(50)
+                ol = db.orderList.find({key: {'$exists':0}, 'storeInfo.storeId': app['storeId']}, {'orderId': 1}).limit(pageSize)
                 for o in ol:
                     id = o['orderId']
                     c = api.getOrderDetail(id)
@@ -717,13 +724,13 @@ def checkSMTNewOrderInfos():
                             newData['childOrderExtInfoList'] = newChild
 
                         #子订单包含状态
-                        if 1!=1:
+                        if not orderData.has_key('childOrderList'):
                             childOrderList = orderInfo['childOrderList']
                             newChild = []
                             for child in childOrderList:
                                 child['id'] = str(child['id'])
                                 child['productId'] = str(child['productId'])
-                                child['productAttributes'] = json.loads(child['productAttributes'])['sku']
+                                child['productAttributes'] = json.loads(child['productAttributes'])
                                 newChild.append(child)
 
                             newData['childOrderList'] = newChild
@@ -1136,6 +1143,8 @@ def importSMTOrder():
         erp = MySQLCase('erp')
         erp.connect()
 
+        sqlList = []
+
         for item in ol:
             #print(item['orderId'])
             sql = 'SELECT COUNT(1) FROM e_order WHERE orderId="%s" '%(item['orderId'])
@@ -1148,7 +1157,7 @@ def importSMTOrder():
                 #print(item['buyerInfo'])
                 #print(item['childOrderExtInfoList'])
 
-                sqlList = []
+
 
                 address = item['receiptAddress']
 
@@ -1215,25 +1224,78 @@ def importSMTOrder():
                 for p in item['productList']:
                     print(p)
 
-                    sql = 'INSERT INTO e_order_product (orderId,productId,productName,sku,amount,cent,currencyCode,canSubmitIssue,childId,' \
-                          'deliveryTime,freightCommitDay,goodsPrepareTime,issueStatus,logisticsServiceName,logisticsType,memo,moneyBack3x,' \
-                          'productCount,productImgUrl,productSnapUrl,productUnit,showStatus,skuCode,sonOrderStatus,logisticsAmount_amount,logisticsAmount_cent,' \
-                          'logisticsAmount_currencyCode,productUnitPrice_amount,productUnitPrice_cent,productUnitPrice_currencyCode,totalProductAmount_amount,' \
-                          'totalProductAmount_cent,totalProductAmount_currencyCode,CREATE_DATE) VALUES ('
+                    sql = 'INSERT INTO e_order_product (orderId,childId,productId,productName,buyerSignerFirstName,buyerSignerLastName,canSubmitIssue,' \
+                          'deliveryTime,freightCommitDay,fundStatus,goodsPrepareTime,issueMode,issueStatus,logisticsServiceName,logisticsType,memo,moneyBack3x,' \
+                          'productCount,productImgUrl,productSnapUrl,productStandard,productUnit,sellerSignerFirstName,sellerSignerLastName,sendGoodsTime,showStatus,' \
+                          'skuCode,sonOrderStatus,logisticsAmount_amount,logisticsAmount_cent,logisticsAmount_currencyCode,' \
+                          'productUnitPrice_amount,productUnitPrice_cent,productUnitPrice_currencyCode,totalProductAmount_amount,' \
+                          'totalProductAmount_cent,totalProductAmount_currencyCode,afflicateFeeRate,escrowFeeRate,CREATE_DATE) VALUES ('
 
-                    sql += '"%s","%s","%s"'%(item['orderId'],p['productId'],p['productName'].replace('"','\\"'))
-                    sql += ",'%s'"%(p['sku'])
-                    sql += ',"%s"'%(p['amount'])
-                    sql += ',"%s"'%(p['cent'])
-                    sql += ',"%s"'%(p['currencyCode'])
-                    sql += ',%s'%(p['canSubmitIssue'])
-                    sql += ',"%s","%s","%s","%s"'%(p['childId'],p['deliveryTime'],p['freightCommitDay'],p['goodsPrepareTime'])
-                    sql += ',"%s","%s","%s"'%(p['issueStatus'],p['logisticsServiceName'],p['logisticsType'])
-                    sql += ',"%s",%s,%s,"%s"'%(p['memo'].replace('"','\\"'),p['moneyBack3x'],p['productCount'],p['productImgUrl'])
-                    sql += ',"%s","%s","%s","%s","%s"'%(p['productSnapUrl'],p['productUnit'],p['showStatus'],p['skuCode'],p['sonOrderStatus'])
-                    sql += ',"%s","%s","%s"'%(p['logisticsAmount']['amount'],p['logisticsAmount']['cent'],p['logisticsAmount']['currencyCode'])
-                    sql += ',"%s","%s","%s"'%(p['productUnitPrice']['amount'],p['productUnitPrice']['cent'],p['productUnitPrice']['currencyCode'])
-                    sql += ',"%s","%s","%s"'%(p['productUnitPrice']['amount'],p['productUnitPrice']['cent'],p['productUnitPrice']['currencyCode'])
+                    sql += '"%s","%s","%s","%s"'%(item['orderId'],p['childId'],p['productId'],p['productName'].replace('"','\\"'))
+                    if p.has_key('buyerSignerFirstName'):
+                        sql += ',"%s"'%(p['buyerSignerFirstName'].replace('"','\\"'))
+                    else:
+                        sql += ',null'
+                    if p.has_key('buyerSignerLastName'):
+                        sql += ',"%s"'%(p['buyerSignerLastName'].replace('"','\\"'))
+                    else:
+                        sql += ',null'
+                    sql += ',"%s"'%(p['canSubmitIssue'])
+                    sql += ',"%s"'%(p['deliveryTime'])
+                    sql += ',%s'%(p['freightCommitDay'])
+                    if p.has_key('fundStatus'):
+                        sql += ',"%s"'%(p['fundStatus'])
+                    else:
+                        sql += ',null'
+                    if p.has_key('goodsPrepareTime'):
+                        sql += ',"%s"'%(p['goodsPrepareTime'])
+                    else:
+                        sql += ',null'
+                    if p.has_key('issueMode'):
+                        sql += ',"%s"'%(p['issueMode'])
+                    else:
+                        sql += ',null'
+                    sql += ',"%s"'%(p['issueStatus'])
+                    sql += ',"%s"'%(p['logisticsServiceName'])
+                    sql += ',"%s"'%(p['logisticsType'])
+                    sql += ',"%s"'%(p['memo'].replace('"','\\"'))
+                    sql += ',"%s"'%(p['moneyBack3x'])
+                    sql += ',%s'%(p['productCount'])
+                    sql += ',"%s"'%(p['productImgUrl'])
+                    sql += ',"%s"'%(p['productSnapUrl'])
+                    if p.has_key('productStandard'):
+                        sql += ',"%s"'%(p['productStandard'])
+                    else:
+                        sql += ',null'
+                    sql += ',"%s"'%(p['productUnit'])
+                    if p.has_key('sellerSignerFirstName'):
+                        sql += ',"%s"'%(p['sellerSignerFirstName'].replace('"','\\"'))
+                    else:
+                        sql += ',null'
+                    if p.has_key('sellerSignerLastName'):
+                        sql += ',"%s"'%(p['sellerSignerLastName'].replace('"','\\"'))
+                    else:
+                        sql += ',null'
+                    sql += ',null'
+                    sql += ',"%s"'%(p['showStatus'])
+                    if p.has_key('skuCode'):
+                        sql += ',"%s"'%(p['skuCode'])
+                    else:
+                        sql += ',null'
+
+                    sql += ',"%s"'%(p['sonOrderStatus'])
+                    sql += ',"%s"'%(p['logisticsAmount']['amount'])
+                    sql += ',"%s"'%(p['logisticsAmount']['cent'])
+                    sql += ',"%s"'%(p['logisticsAmount']['currencyCode'])
+                    sql += ',"%s"'%(p['productUnitPrice']['amount'])
+                    sql += ',"%s"'%(p['productUnitPrice']['cent'])
+                    sql += ',"%s"'%(p['productUnitPrice']['currencyCode'])
+                    sql += ',"%s"'%(p['totalProductAmount']['amount'])
+                    sql += ',"%s"'%(p['totalProductAmount']['cent'])
+                    sql += ',"%s"'%(p['totalProductAmount']['currencyCode'])
+
+                    sql += ',"%s"'%(p['afflicateFeeRate'])
+                    sql += ',"%s"'%(p['escrowFeeRate'])
 
                     sql += ',NOW())'
 
@@ -1245,6 +1307,9 @@ def importSMTOrder():
                 data['importCount'] += 1
                 print(item['productList'])
                 print(item['receiptAddress'])
+
+
+        print(sqlList)
 
 
     else:
