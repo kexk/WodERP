@@ -47,6 +47,7 @@ class SMTOrderListHandler(BaseHandler):
 
             status = self.get_argument('status','WAIT_SELLER_SEND_GOODS')
             store = self.get_argument('store','')
+            issue = self.get_argument('issue','')
             wd = self.get_argument('wd','')
             sort = self.get_argument('sort', 'payTime')
             sortType = self.get_argument('sortType', '-1')
@@ -180,6 +181,7 @@ class SMTOrderListHandler(BaseHandler):
 
 
             statusList = db.orderList.aggregate([{ '$match' : matchOption },{'$group': {'_id': "$orderStatus", 'orderCount': {'$sum': 1}}}])
+            issueList = db.orderList.aggregate([{ '$match' : matchOption },{'$group': {'_id': "$issueStatus", 'orderCount': {'$sum': 1}}}])
 
 
             sortTxt = ''
@@ -241,6 +243,22 @@ class SMTOrderListHandler(BaseHandler):
                     sL.append({'status': s['_id'], 'orderCount': s['orderCount'], 'statusTxt': stxt})
 
 
+            iL = []
+            for s in issueList:
+                if s['_id']:
+                    stxt = ''
+                    if s['_id'] == 'IN_ISSUE':
+                        stxt += '纠纷中'
+                    elif s['_id'] == 'NO_ISSUE':
+                        stxt += '无纠纷'
+                    elif s['_id'] == 'END_ISSUE':
+                        stxt += '纠纷结束'
+                    else:
+                        stxt += s['_id']
+                    iL.append({'status': s['_id'], 'orderCount': s['orderCount'], 'statusTxt': stxt})
+
+
+
             if wd != '':
                 words = re.compile(wd)
 
@@ -297,9 +315,11 @@ class SMTOrderListHandler(BaseHandler):
 
             filterData = dict()
             filterData['status'] = status
+            filterData['issue'] = issue
             filterData['store'] = store
             filterData['wd'] = wd
             filterData['statusList'] = sL
+            filterData['issueList'] = iL
             filterData['appList'] = appList
             filterData['sort'] = sort
             filterData['startTime'] = tStart

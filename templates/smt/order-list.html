@@ -95,6 +95,11 @@ Draw();
             {% for s in filterData['statusList'] %}<a href="?status={{ s['status'] }}&store={{ filterData['store'] }}&create={{ filterData['create'] }}&sort={{ filterData['sort'] }}&sortType={{ filterData['sortType'] }}&page=1" class="label label-default{% if s['status'] == filterData['status'] %} active{% end%}">{{ s['statusTxt'] }} ({{ s['orderCount'] }})</a> {% end %}
         </p>
                 </div>
+                <div>
+                    <p> <span>纠纷：</span> <a href="?status={{ filterData['status'] }}&store={{ filterData['store'] }}&create={{ filterData['create'] }}&sort={{ filterData['sort'] }}&sortType={{ filterData['sortType'] }}&issue=&page=1" class="label label-default{% if '' == filterData['issue'] %} active{% end%}">全部</a>
+            {% for s in filterData['issueList'] %}<a href="?status={{ filterData['status'] }}&store={{ filterData['store'] }}&create={{ filterData['create'] }}&sort={{ filterData['sort'] }}&sortType={{ filterData['sortType'] }}&issue={{ s['status'] }}&page=1" class="label label-default{% if s['status'] == filterData['issue'] %} active{% end%}">{{ s['statusTxt'] }} ({{ s['orderCount'] }})</a> {% end %}
+        </p>
+                </div>
 
                 <div>
                     <p> <span>时间：</span>
