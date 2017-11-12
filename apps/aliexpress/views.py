@@ -88,6 +88,9 @@ class SMTOrderListHandler(BaseHandler):
                 option['orderStatus'] = status
                 #matchOption['orderStatus'] = status
 
+            if issue != '':
+                option['issueStatus'] = issue
+
             if store != '':
                 option['storeInfo.storeId'] = store
                 matchOption['storeInfo.storeId'] = store
@@ -143,7 +146,14 @@ class SMTOrderListHandler(BaseHandler):
 
             else:
 
-                if create == '30':
+                if create == '31':
+                    d1 = datetime.datetime.now().date() + datetime.timedelta(days=1)
+                    d0 = datetime.datetime.now().date()+ datetime.timedelta(days=-30)
+                    option['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                      {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                    matchOption['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
+                                           {'gmtCreate': {'$lt': datetime.datetime(d1.year, d1.month, d1.day)}}]
+                elif create == '30':
                     d1 = datetime.datetime.now().date() + datetime.timedelta(days=1)
                     d0 = datetime.date(datetime.date.today().year, datetime.date.today().month, 1)
                     option['$and'] = [{'gmtCreate': {'$gt': datetime.datetime(d0.year, d0.month, d0.day)}},
