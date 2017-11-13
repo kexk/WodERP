@@ -956,6 +956,116 @@ def refreshSMTNewProductInfos():
     return json.dumps(data, ensure_ascii=False)
 
 
+@app.route('/smt/api/updateProductCategory')
+def updateSMTProductCategory():
+    data = dict()
+    data['success'] = False
+    data['err'] = []
+
+    mongo = MongoCase()
+    mongo.connect()
+    client = mongo.client
+    db = client.woderp
+
+    foo = db.productList.distinct('categoryId',{'categoryName':{'$exists':0}})
+    for item in foo:
+        cate = db.aeopPostCategoryList.find_one({'id':item})
+        if cate:
+            print(cate['id'])
+            print(db.productList.find({'categoryId':item}).count())
+            db.productList.update({'categoryId':item},{'$set':{'categoryName':cate['names']['zh']}},multi=True)
+        else:
+            app = db.appList.find_one({'platform': 'aliexpress', 'apiInfo.status': 1})
+            if app != None:
+                api = ALIEXPRESS(app)
+                c = api.getPostCategoryById(item)
+                try:
+                    d = json.loads(c)
+                    if d.has_key('aeopPostCategoryList'):
+                        for c0 in d['aeopPostCategoryList']:
+                            if db.aeopPostCategoryList.find({'id':c0['id']}).count() <1:
+                                db.aeopPostCategoryList.insert(c0)
+                        db.productList.update({'categoryId':item},{'$set':{'categoryName':d['aeopPostCategoryList'][0]['names']['zh']}},multi=True)
+
+                except:
+                    data['err'].append(item)
+            else:
+                data['err'].append(item)
+
+    data['success'] = True
+    return json.dumps(data, ensure_ascii=False)
+
+
+
+@app.route('/smt/api/getAllProductCategory')
+def getAllProductCategory():
+    data = dict()
+    mongo = MongoCase()
+    mongo.connect()
+    client = mongo.client
+    db = client.woderp
+
+    cateId = request.args.get('cateId', 0)
+
+    try:
+        cateId = int(cateId)
+    except:
+        cateId = 0
+
+    data['errCount'] = 0
+
+    app = db.appList.find_one({'platform': 'aliexpress', 'apiInfo.status': 1})
+    if app != None:
+        api = ALIEXPRESS(app)
+        c = api.getChildrenPostCategoryById(cateId)
+        try:
+            d = json.loads(c)
+            if d.has_key('aeopPostCategoryList'):
+                for topCate in d['aeopPostCategoryList']:
+                    if db.aeopPostCategoryList.find({'id':topCate['id']}).count() <1:
+                        db.aeopPostCategoryList.insert(topCate)
+                    if topCate['isleaf'] == False:
+                        c2 = api.getChildrenPostCategoryById(topCate['id'])
+                        try:
+                            d2 = json.loads(c2)
+                            if d2.has_key('aeopPostCategoryList'):
+                                for towCate in d2['aeopPostCategoryList']:
+                                    if db.aeopPostCategoryList.find({'id':towCate['id']}).count() <1:
+                                        db.aeopPostCategoryList.insert(towCate)
+
+                                    if towCate['isleaf'] == False:
+                                        c3 = api.getChildrenPostCategoryById(towCate['id'])
+                                        try:
+                                            d3 = json.loads(c3)
+                                            if d3.has_key('aeopPostCategoryList'):
+                                                for threeCate in d3['aeopPostCategoryList']:
+                                                    if db.aeopPostCategoryList.find({'id':threeCate['id']}).count() <1:
+                                                        db.aeopPostCategoryList.insert(threeCate)
+
+                                                    if threeCate['isleaf'] == False:
+                                                        c4 = api.getChildrenPostCategoryById(threeCate['id'])
+                                                        try:
+                                                            d4 = json.loads(c4)
+                                                            if d4.has_key('aeopPostCategoryList'):
+                                                                for fourthCate in d4['aeopPostCategoryList']:
+                                                                    if db.aeopPostCategoryList.find({'id':fourthCate['id']}).count() <1:
+                                                                        db.aeopPostCategoryList.insert(fourthCate)
+
+                                                        except:
+                                                            data['errCount'] += 1
+
+
+                                        except:
+                                            data['errCount'] += 1
+
+                        except:
+                            data['errCount'] += 1
+        except:
+            data['errCount'] += 1
+
+    return json.dumps(data, ensure_ascii=False)
+
+
 @app.route('/jd/api/checkOrder')
 def CheckJDOrder():
     shopId = request.args.get('shop', '')
@@ -1322,4 +1432,4 @@ def importSMTOrder():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=5001)

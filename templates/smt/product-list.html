@@ -216,8 +216,12 @@
                     </td>
 
                     <td>
+                        {% if product.has_key('categoryName') %}
+                        {{ product['categoryName'] }}
+                        {% else %}
                         {% if product.has_key('categoryId') %}
                         {{ product['categoryId'] }}
+                        {% end %}
                         {% end %}
 
                         {% if product.has_key('groupId') %}
