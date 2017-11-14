@@ -684,7 +684,9 @@ def checkSMTNewOrderInfos():
         if app != None:
             api = ALIEXPRESS(app)
             if api.status >0:
-                ol = db.orderList.find({key: {'$exists':0}, 'storeInfo.storeId': app['storeId']}, {'orderId': 1}).limit(pageSize)
+                #ol = db.orderList.find({key: {'$exists':0}, 'storeInfo.storeId': app['storeId']}, {'orderId': 1}).limit(pageSize)
+                updateFilter = {'storeInfo.storeId':app['storeId'],'updateTime':{'$lt':datetime.datetime.now()+datetime.timedelta(hours=-1),'orderStatus':{'$in':['WAIT_SELLER_SEND_GOODS','PLACE_ORDER_SUCCESS','IN_CANCEL','SELLER_PART_SEND_GOODS','FUND_PROCESSING','IN_ISSUE','RISK_CONTROL']}}}
+                ol = db.orderList.find({'$or':[{key: {'$exists':0}, 'storeInfo.storeId': app['storeId']},updateFilter]}, {'orderId': 1}).limit(pageSize)
                 for o in ol:
                     id = o['orderId']
                     c = api.getOrderDetail(id)
