@@ -47,6 +47,7 @@ if __name__ == "__main__":
 
                 app = db.appList.find_one({'storeId': params['storeId']})
                 data['error'] = []
+                data['count'] = 0
                 if app != None:
                     api = ALIEXPRESS(app)
                     if api.status > 0:
