@@ -63,6 +63,8 @@ if __name__ == "__main__":
 
                                 if d.has_key('success') and d['success']:
                                     d['productId'] = str(d['productId'])
+                                    d['aeopNationalQuoteConfiguration'] = json.loads(
+                                        d['aeopNationalQuoteConfiguration'])
                                     d['gmtModified'] = datetime.datetime.strptime(d['gmtModified'][:14], '%Y%m%d%H%M%S')
                                     d['wsOfflineDate'] = datetime.datetime.strptime(d['wsOfflineDate'][:14],
                                                                                     '%Y%m%d%H%M%S')
