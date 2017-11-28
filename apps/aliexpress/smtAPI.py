@@ -337,3 +337,141 @@ class ALIEXPRESS:
         except Exception as e:
             return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
 
+
+    ##############################
+    ###        纠纷
+    ###
+    #查询纠纷列表信息
+    def queryIssueList(self,currentPage=1,issueStatus='',orderNo='',buyerName=''):
+        apiPath = 'api.queryIssueList'
+
+        data = {'appKey': self.appKey, 'apiPath': apiPath,'currentPage':currentPage,'orderNo':orderNo,'issueStatus':issueStatus,'buyerName':buyerName}
+
+        try:
+            r = requests.post(self.apiRoot + self.apiRoute, data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
+
+
+    #根据纠纷ID，获取协商数据(新版纠纷)
+    def findIssueDetailByIssueId(self,issueId):
+        apiPath = 'alibaba.ae.issue.findIssueDetailByIssueId'
+
+        data = {'appKey': self.appKey, 'apiPath': apiPath,'issueId':issueId}
+
+        try:
+            r = requests.post(self.apiRoot + self.apiRoute, data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
+
+
+    #纠纷中卖家新增订单留言（试用）留言内容同订单留言。
+    def leaveOrderMessage(self,orderId,content):
+        apiPath = 'api.leaveOrderMessage'
+
+        data = {'appKey': self.appKey, 'apiPath': apiPath,'orderId':orderId,'content':content}
+
+        try:
+            r = requests.post(self.apiRoot + self.apiRoute, data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
+
+
+    #卖家提交纠纷仲裁申请（试用）
+    def sellerSubmitArbi(self,issueId,reason,content):
+        apiPath = 'api.sellerSubmitArbi'
+
+        data = {'appKey': self.appKey, 'apiPath': apiPath,'issueId':issueId,'reason':reason,'content':content}
+
+        try:
+            r = requests.post(self.apiRoot + self.apiRoute, data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
+
+
+    #卖家确认收货 (试用)
+    def sellerConrimReceiveGoods(self,issueId):
+        apiPath = 'api.sellerConrimReceiveGoods'
+
+        data = {'appKey': self.appKey, 'apiPath': apiPath,'issueId':issueId}
+
+        try:
+            r = requests.post(self.apiRoot + self.apiRoute, data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
+
+
+    #卖家放弃退货申请（退货）
+    def sellerAbandonReceiveGoods(self,issueId):
+        apiPath = 'api.sellerAbandonReceiveGoods'
+
+        data = {'appKey': self.appKey, 'apiPath': apiPath,'issueId':issueId}
+
+        try:
+            r = requests.post(self.apiRoot + self.apiRoute, data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
+
+
+    #纠纷图片上传 （试用）
+    def uploadIssueImage(self,extension):
+        apiPath = 'api.uploadIssueImage'
+
+        data = {'appKey': self.appKey, 'apiPath': apiPath,'extension':extension}
+
+        try:
+            r = requests.post(self.apiRoot + self.apiRoute, data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
+
+
+    #查询商品交易表现
+    def queryProductBusinessInfoById(self,extension):
+        apiPath = 'api.queryProductBusinessInfoById'
+
+        data = {'appKey': self.appKey, 'apiPath': apiPath,'extension':extension}
+
+        try:
+            r = requests.post(self.apiRoot + self.apiRoute, data=data)
+            if r.status_code == 200:
+                return r.content
+            else:
+                return '''{"result:{"success":false}}'''
+
+        except Exception as e:
+            return '''{"result:{"success":false,"msg":"%s"}}''' % str(e)
