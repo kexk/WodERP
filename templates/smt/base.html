@@ -139,7 +139,17 @@ $(function() {
 		$(".qr-popup").show();
 	},function(){
 		$(".qr-popup").hide();
-	});	
+	});
+
+	$('li.dropdown').mousemove(function () {
+        $(this).addClass('open');
+    }).mouseout(function () {
+        //$(this).removeClass('open');
+    });
+
+
+
+
 });
 </script>
 

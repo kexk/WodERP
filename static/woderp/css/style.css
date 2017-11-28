@@ -166,3 +166,7 @@ thead {background: #eeeeee;}
 .procutList .skuTable .skuPrice,.procutList .skuTable .skuStock { width: 90px;}
 .procutList .skuTable tr { border-bottom: 1px solid #ccc;}
 .procutList .skuTable tr:last-child { border-bottom: none;}
+
+/*导航菜单下拉*/
+ul.dropdown-menu { width: 300px; height: 100px;}
+ul.dropdown-menu li{float:left;}
