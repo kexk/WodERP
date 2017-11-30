@@ -170,3 +170,20 @@ thead {background: #eeeeee;}
 /*导航菜单下拉*/
 ul.dropdown-menu { width: 300px; height: 100px;}
 ul.dropdown-menu li{float:left;}
+
+
+/*筛选*/
+.filterBox{ clear: both;padding-top: 10px;margin-top: 10px;}
+
+.label-default {
+    background-color: #fff;
+    color: #000;
+}
+.filterBox a.active{
+    color: #fff;
+    background-color: #777;
+}
+.pageNo {height: 32px;width: 60px;}
+.pageSize {height: 32px;width: 80px;}
+.pagination>li>a, .pagination>li>span{line-height:2.3}
+.filterBox p{ padding-top: 3px;}
