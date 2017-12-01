@@ -51,7 +51,7 @@ class SMTOrderListHandler(BaseHandler):
             wd = self.get_argument('wd','')
             sort = self.get_argument('sort', 'payTime')
             sortType = self.get_argument('sortType', '-1')
-            create = self.get_argument('create', '30')
+            create = self.get_argument('create', '31')
             startTime = self.get_argument('startTime', '')
             endTime = self.get_argument('endTime', '')
             platform = self.get_argument('platform','aliexpress')
