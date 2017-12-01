@@ -74,7 +74,7 @@
     </li>
           {% else %}
        <li><a href="?page={{ pageInfo['pageList'][0] }}{% if filterData['key'] != '' %}&key={{ filterData['key'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="First"><span aria-hidden="false">|&lt;</span></a></li>
-      <li><a href="?page={{ pageInfo['pageNo']-1 }}{% if filterData['key'] != '' %}&store={{ filterData['key'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+      <li><a href="?page={{ pageInfo['pageNo']-1 }}{% if filterData['key'] != '' %}&key={{ filterData['key'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
     </li>
 
           {% end %}
