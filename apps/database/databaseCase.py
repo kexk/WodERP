@@ -14,7 +14,8 @@ class MongoCase:
 
     def connect(self):
         if self.client == None:
-            self.client = MongoClient()
+            #self.client = MongoClient()
+            self.client = MongoClient('mongodb://xianye:xyerp2017@localhost:27017/')
 
 
 class MySQLCase:
