@@ -90,9 +90,9 @@
     </li>
       <li class="disabled"><a href="#" aria-label="End"><span aria-hidden="true">&gt;|</span></a></li>
           {% else %}
-      <li><a href="?page={{ pageInfo['pageNo']+1 }}{% if filterData['key'] != '' %}&store={{ filterData['key'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+      <li><a href="?page={{ pageInfo['pageNo']+1 }}{% if filterData['key'] != '' %}&key={{ filterData['key'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
     </li>
-      <li><a href="?page={{ pageInfo['pageList'][-1] }}{% if filterData['key'] != '' %}&store={{ filterData['key'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="End"><span aria-hidden="false">&gt;|</span></a></li>
+      <li><a href="?page={{ pageInfo['pageList'][-1] }}{% if filterData['key'] != '' %}&key={{ filterData['key'] }}{% end %}{% if filterData['status'] != '' %}&status={{ filterData['status'] }}{% end %}{% if filterData['wd'] != '' %}&wd={{ filterData['wd'] }}{% end %}" aria-label="End"><span aria-hidden="false">&gt;|</span></a></li>
           {% end %}
 
   </ul>
