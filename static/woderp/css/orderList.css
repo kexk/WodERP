@@ -36,6 +36,7 @@
    min-width: 95%;
 }
 .rightBody{ padding-left: 180px;padding-right: 30px;padding-bottom: 200px;}
+footer { padding-left: 180px;}
 
 
 @media (max-width: 1300px){
@@ -55,6 +56,7 @@
     border-right: 1px solid #eee;
     width: 60px;
 }
+    footer { padding-left: 60px;}
 }
 
 
