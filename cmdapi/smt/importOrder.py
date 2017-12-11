@@ -90,10 +90,16 @@ if __name__ == "__main__":
                             option['page'] = '1'
                             option['orderStatus'] = s
 
-                            if s == 'WAIT_BUYER_ACCEPT_GOODS' and createDateStart == '':
-                                option['createDateStart'] = (
-                                datetime.datetime.now() + datetime.timedelta(days=-15)).strftime('%Y-%m-%d %H:%M:%S')
-                                option['createDateEnd'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                            if s == 'WAIT_BUYER_ACCEPT_GOODS' or s == 'FINISH':
+                                if createDateStart != '':
+                                    option['createDateStart'] = (
+                                    datetime.datetime.now() + datetime.timedelta(days=-15)).strftime('%Y-%m-%d %H:%M:%S')
+                                    option['createDateEnd'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                                else:
+                                    option['createDateStart'] = option['createDateStart'] = (
+                                    datetime.datetime.now() + datetime.timedelta(days=-120)).strftime('%Y-%m-%d %H:%M:%S')
+                                    option['createDateEnd'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
                             else:
                                 option['createDateStart'] = createDateStart
                                 option['createDateEnd'] = createDateEnd
