@@ -66,7 +66,7 @@ if __name__ == "__main__":
                                         'updateTime': {'$lt': datetime.datetime.now() + datetime.timedelta(minutes=-15),
                                                        'orderStatus': {
                                                            '$in': ['WAIT_SELLER_SEND_GOODS', 'PLACE_ORDER_SUCCESS',
-                                                                   'IN_CANCEL', 'SELLER_PART_SEND_GOODS',
+                                                                   'IN_CANCEL', 'SELLER_PART_SEND_GOODS','WAIT_SELLER_SEND_GOODS',
                                                                    'FUND_PROCESSING', 'IN_ISSUE', 'RISK_CONTROL']}}}
                         ol = db.orderList.find(
                             {'$or': [{key: {'$exists': 0}, 'storeInfo.storeId': app['storeId']}, updateFilter]},

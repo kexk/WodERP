@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
                             if s == 'WAIT_BUYER_ACCEPT_GOODS' and createDateStart == '':
                                 option['createDateStart'] = (
-                                datetime.datetime.now() + datetime.timedelta(days=-10)).strftime('%Y-%m-%d %H:%M:%S')
+                                datetime.datetime.now() + datetime.timedelta(days=-15)).strftime('%Y-%m-%d %H:%M:%S')
                                 option['createDateEnd'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                             else:
                                 option['createDateStart'] = createDateStart
