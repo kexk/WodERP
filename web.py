@@ -80,7 +80,7 @@ if __name__ == "__main__":
     }
     app = tornado.web.Application(
         url_wrapper([
-            (r"/", IndexHandler),
+            (options.homePath, IndexHandler),
             (r"jd/", include('apps.jingdong.urls')),
             (r"smt/", include('apps.aliexpress.urls')),
             (r"purchase/", include('apps.alibaba.urls')),
